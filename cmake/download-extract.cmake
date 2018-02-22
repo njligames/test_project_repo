@@ -55,7 +55,8 @@ function(DOWNLOAD_EXTRACT_TAR PREFIX URL DOWNLOAD_DIR EXPECTED_SHA256 TARGET_DIR
     set(timeout_msg "none")
   endif()
 
-  set(fname ${TARGET_DIRECTORY}.tar.gz)
+  # set(fname ${TARGET_DIRECTORY}.tar.gz)
+  set(fname zipped_file.tar.gz)
   set(file ${DOWNLOAD_DIR}/${fname})
   message(STATUS "file: ${file}")
 
@@ -124,10 +125,11 @@ function(DOWNLOAD_EXTRACT_TAR PREFIX URL DOWNLOAD_DIR EXPECTED_SHA256 TARGET_DIR
   # Prepare a space for extracting:
   #
   set(i 1234)
-  while(EXISTS "${SRC_DIR}/../ex-${TARGET_DIRECTORY}${i}")
+  set(extract_directory "extract-directory")
+  while(EXISTS "${SRC_DIR}/../ex-${extract_directory}${i}")
     math(EXPR i "${i} + 1")
   endwhile()
-  set(ut_dir "${SRC_DIR}/../ex-${TARGET_DIRECTORY}${i}")
+  set(ut_dir "${SRC_DIR}/../ex-${extract_directory}${i}")
   file(MAKE_DIRECTORY "${ut_dir}")
 
   # Extract it:
@@ -193,3 +195,14 @@ function(RETRIEVE_LIBRARY DOWNLOAD_DIR DOWNLOAD_URL_PREFIX LIBRARY EXPECTED_SHA2
 
 endfunction(RETRIEVE_LIBRARY DOWNLOAD_DIR DOWNLOAD_URL_PREFIX LIBRARY EXPECTED_SHA256)
 
+function(RETRIEVE_TAR URL TARGET_DIR EXPECTED_SHA256)
+  IF(NOT EXISTS "${CMAKE_BINARY_DIR}/${TARGET_DIR}")
+    DOWNLOAD_EXTRACT_TAR(
+      "${CMAKE_BINARY_DIR}" # PREFIX
+      "${URL}"              # URL
+      "${CMAKE_BINARY_DIR}" # DOWNLOAD_DIR
+      "${EXPECTED_SHA256}"  # EXPECTED_SHA256
+      "${TARGET_DIR}"       # TARGET_DIRECTORY
+      )
+  ENDIF(NOT EXISTS "${CMAKE_BINARY_DIR}/${TARGET_DIR}")
+endfunction(RETRIEVE_TAR URL TARGET_DIR EXPECTED_SHA256)

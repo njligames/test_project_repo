@@ -33,17 +33,9 @@ include(${SDL2_SOURCE_DIR}/cmake/macros.cmake)
 include(${SDL2_SOURCE_DIR}/cmake/sdlchecks.cmake)
 include(${SDL2_SOURCE_DIR}/cmake/download-extract.cmake)
 
-set(SDL_LIB_URL "https://www.dropbox.com/s/tlam4jkr1fatwea/SDL2-2.0.7_macOS_10.12_Debug.tar.gz?dl=0")
 
 
-      set(SDL_INCLUDE_URL "https://www.dropbox.com/s/g0qrc1xkz2qcb9y/SDL2-2.0.7_include.tar.gz?dl=0")
-      DOWNLOAD_EXTRACT_TAR(
-        "${CMAKE_BINARY_DIR}"
-        "${SDL_INCLUDE_URL}"
-        "${CMAKE_BINARY_DIR}"
-        "SKIP"
-        "thirdparty/SDL2-2.0.7/include"
-        )
+
 # General settings
 # Edit include/SDL_version.h and change the version, then:
 #   SDL_MICRO_VERSION += 1;
@@ -187,6 +179,7 @@ if("$ENV{CFLAGS}" STREQUAL "")
   if(CMAKE_BUILD_TYPE STREQUAL "")
     if(USE_GCC OR USE_CLANG)
       set(CMAKE_C_FLAGS "-g -O3")
+      set(CMAKE_BUILD_TYPE "Debug")
     endif()
   endif()
 else()
@@ -245,11 +238,11 @@ endif()
 add_definitions(-DUSING_GENERATED_CONFIG_H)
 # General includes
 include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/NJLICSource/include)
-if(USE_GCC OR USE_CLANG)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -idirafter ${SDL2_SOURCE_DIR}/src/video/khronos")
-else()
+#if(USE_GCC OR USE_CLANG)
+  # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -idirafter ${SDL2_SOURCE_DIR}/src/video/khronos")
+  #else()
   # include_directories(${SDL2_SOURCE_DIR}/src/video/khronos)
-endif()
+  #endif()
 
 # All these ENABLED_BY_DEFAULT vars will default to ON if not specified, so
 #  you only need to have a platform override them if they are disabling.
@@ -370,6 +363,26 @@ dep_option(SDL_STATIC_PIC      "Static version of the library should be built wi
 #   ${SDL2_SOURCE_DIR}/src/thread/*.c
 #   ${SDL2_SOURCE_DIR}/src/timer/*.c
 #   ${SDL2_SOURCE_DIR}/src/video/*.c)
+
+set(LIBSDL_INCLUDE_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/include")
+set(LIBSDL_INCLUDE_URL "https://www.dropbox.com/s/g0qrc1xkz2qcb9y/SDL2-2.0.7_include.tar.gz?dl=0")
+
+set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/${CMAKE_BUILD_TYPE}")
+set(LIBSDL_LIBRARY_URL "https://www.dropbox.com/s/tlam4jkr1fatwea/SDL2-2.0.7_macOS_10.12_${CMAKE_BUILD_TYPE}.tar.gz?dl=0")
+
+if(NOT ${LIBSDL_LIBRARY_TARGET_DIRECTORY} STREQUAL "" AND NOT ${LIBSDL_LIBRARY_URL} STREQUAL "")
+  RETRIEVE_TAR(
+    "${LIBSDL_LIBRARY_URL}"
+    "${LIBSDL_LIBRARY_TARGET_DIRECTORY}"
+    "SKIP"
+    )
+endif(NOT ${LIBSDL_LIBRARY_TARGET_DIRECTORY} STREQUAL "" AND NOT ${LIBSDL_LIBRARY_URL} STREQUAL "")
+
+RETRIEVE_TAR(
+  "${LIBSDL_INCLUDE_URL}"
+  "${LIBSDL_INCLUDE_TARGET_DIRECTORY}"
+  "SKIP"
+  )
 
 file(GLOB SOURCE_FILES
   ${SDL2_SOURCE_DIR}/NJLICSource/src/main.cpp
@@ -1665,6 +1678,7 @@ message(STATUS "")
 message(STATUS "Platform: ${CMAKE_SYSTEM}")
 message(STATUS "64-bit:   ${ARCH_64}")
 message(STATUS "Compiler: ${CMAKE_C_COMPILER}")
+message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "")
 # message(STATUS "Subsystems:")
 # foreach(_SUB ${SDL_SUBSYSTEMS})
