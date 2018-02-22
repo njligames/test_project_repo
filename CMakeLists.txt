@@ -31,7 +31,19 @@ include(GNUInstallDirs)
 set(CMAKE_MODULE_PATH "${SDL2_SOURCE_DIR}/cmake")
 include(${SDL2_SOURCE_DIR}/cmake/macros.cmake)
 include(${SDL2_SOURCE_DIR}/cmake/sdlchecks.cmake)
+include(${SDL2_SOURCE_DIR}/cmake/download-extract.cmake)
 
+set(SDL_LIB_URL "https://www.dropbox.com/s/tlam4jkr1fatwea/SDL2-2.0.7_macOS_10.12_Debug.tar.gz?dl=0")
+
+
+      set(SDL_INCLUDE_URL "https://www.dropbox.com/s/g0qrc1xkz2qcb9y/SDL2-2.0.7_include.tar.gz?dl=0")
+      DOWNLOAD_EXTRACT_TAR(
+        "${CMAKE_BINARY_DIR}"
+        "${SDL_INCLUDE_URL}"
+        "${CMAKE_BINARY_DIR}"
+        "SKIP"
+        "thirdparty/SDL2-2.0.7/include"
+        )
 # General settings
 # Edit include/SDL_version.h and change the version, then:
 #   SDL_MICRO_VERSION += 1;
