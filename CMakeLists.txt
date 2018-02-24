@@ -1163,6 +1163,14 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID)
   endif()
 
 elseif(WINDOWS)
+  if(ARCH_64)
+    set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/windows/x64/Release")
+    set(LIBSDL_LIBRARY_URL "${NJLIC_URL_SDL2_LIB_ANDROID_WINDOW_X64_RELEASE}")
+  elseif(NOT ARCH_64)
+    set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/windows/Win32/Release")
+    set(LIBSDL_LIBRARY_URL "${NJLIC_URL_SDL2_LIB_ANDROID_WINDOWS_WIN32_RELEASE}")
+  endif(ARCH_64)
+
   find_program(WINDRES windres)
 
   check_c_source_compiles("
