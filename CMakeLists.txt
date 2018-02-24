@@ -33,6 +33,23 @@ include(${SDL2_SOURCE_DIR}/cmake/macros.cmake)
 include(${SDL2_SOURCE_DIR}/cmake/sdlchecks.cmake)
 include(${SDL2_SOURCE_DIR}/cmake/download-extract.cmake)
 
+set(NJLIC_URL_SDL2_INCLUDE "https://www.dropbox.com/s/g0qrc1xkz2qcb9y/SDL2-2.0.7_include.tar.gz?dl=0")
+
+set(NJLIC_URL_SDL2_LIB_ANDROID_ARM64_RELEASE "https://www.dropbox.com/s/pjtjblgo7zcidio/SDL2-2.0.7_android_23_Release_arm64-v8a.tar.gz?dl=0" CACHE STRING "The URL for the Android arm64 version of SDL2")
+set(NJLIC_URL_SDL2_LIB_ANDROID_ARMEABI_V7A_RELEASE "https://www.dropbox.com/s/slyhgxvzoc5s23d/SDL2-2.0.7_android_23_Release_armeabi-v7a.tar.gz?dl=0" CACHE STRING "The URL for the Android armeabi-v7a version of SDL2")
+set(NJLIC_URL_SDL2_LIB_ANDROID_ARMEABI_RELEASE "https://www.dropbox.com/s/s08enkqf5j03xhb/SDL2-2.0.7_android_23_Release_armeabi.tar.gz?dl=0" CACHE STRING "The URL for the Android armeabi version of SDL2")
+set(NJLIC_URL_SDL2_LIB_ANDROID_MIPS_RELEASE "https://www.dropbox.com/s/1zlvc4hvuhtc7yt/SDL2-2.0.7_android_23_Release_mips.tar.gz?dl=0" CACHE STRING "The URL for the Android mips version of SDL2")
+set(NJLIC_URL_SDL2_LIB_ANDROID_MIPS64_RELEASE "https://www.dropbox.com/s/xg0l2dx0k7b9vl4/SDL2-2.0.7_android_23_Release_mips64.tar.gz?dl=0" CACHE STRING "The URL for the Android mips64 version of SDL2")
+set(NJLIC_URL_SDL2_LIB_ANDROID_X86_64_RELEASE "https://www.dropbox.com/s/rnn2rrtpelyfnps/SDL2-2.0.7_android_23_Release_x86_64.tar.gz?dl=0" CACHE STRING "The URL for the Android x86_64 version of SDL2")
+set(NJLIC_URL_SDL2_LIB_ANDROID_X86_RELEASE "https://www.dropbox.com/s/gamgt30xhga9puh/SDL2-2.0.7_android_23_Release_x86.tar.gz?dl=0" CACHE STRING "The URL for the Android x86 version of SDL2")
+set(NJLIC_URL_SDL2_LIB_EMSCRIPTEN_RELEASE "https://www.dropbox.com/s/qc35pwe0taci2y6/SDL2-2.0.7_emscripten_Release.tar.gz?dl=0" CACHE STRING "The URL for the Emscripten version of SDL2")
+set(NJLIC_URL_SDL2_LIB_ANDROID_IOS_RELEASE "https://www.dropbox.com/s/xsvgzfp2h4lk965/SDL2-2.0.7_ios.tar.gz?dl=0" CACHE STRING "The URL for the iOS version of SDL2")
+set(NJLIC_URL_SDL2_LIB_ANDROID_LINUX_RELEASE "https://www.dropbox.com/s/j93mqvomxo1p92c/SDL2-2.0.7_linux_16.04.2_LTS_Release.tar.gz?dl=0" CACHE STRING "The URL for the Linux version of SDL2")
+set(NJLIC_URL_SDL2_LIB_MACOS_RELEASE "https://www.dropbox.com/s/k424l8x6bpmdz71/SDL2-2.0.7_macOS_10.12_Release.tar.gz?dl=0" CACHE STRING "The URL for the MacOS version of SDL2")
+set(NJLIC_URL_SDL2_LIB_ANDROID_TVOS_RELEASE "https://www.dropbox.com/s/pykfzhv69xvw0jn/SDL2-2.0.7_tvos.tar.gz?dl=0" CACHE STRING "The URL for the tvOS version of SDL2")
+set(NJLIC_URL_SDL2_LIB_ANDROID_WINDOWS_WIN32_RELEASE "https://www.dropbox.com/s/6khz9t3oizrihrq/SDL2-2.0.7_windows_Win32_Release.tar.gz?dl=0" CACHE STRING "The URL for the Windows 32bit version of SDL2")
+set(NJLIC_URL_SDL2_LIB_ANDROID_WINDOW_X64_RELEASE "https://www.dropbox.com/s/8hozs9z89raqyyw/SDL2-2.0.7_windows_x64_Release.tar.gz?dl=0" CACHE STRING "The URL for the Windows 64bit version of SDL2")
+
 set(NJLIC_REPO_DIRECTORY "${CMAKE_BINARY_DIR}/test_engine_repo")
 
 # General settings
@@ -364,7 +381,7 @@ dep_option(SDL_STATIC_PIC      "Static version of the library should be built wi
 #   ${SDL2_SOURCE_DIR}/src/video/*.c)
 
 set(LIBSDL_INCLUDE_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/include")
-set(LIBSDL_INCLUDE_URL "https://www.dropbox.com/s/g0qrc1xkz2qcb9y/SDL2-2.0.7_include.tar.gz?dl=0")
+set(LIBSDL_INCLUDE_URL "${NJLIC_URL_SDL2_INCLUDE}")
 
 set(LIBSDL_LIBRARY_TARGET_DIRECTORY "")
 set(LIBSDL_LIBRARY_URL "")
@@ -903,7 +920,7 @@ if(EMSCRIPTEN)
   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 --js-opts 0 -g4")
 
   set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/emscripten/Release")
-  set(LIBSDL_LIBRARY_URL "https://www.dropbox.com/s/qc35pwe0taci2y6/SDL2-2.0.7_emscripten_Release.tar.gz?dl=0")
+  set(LIBSDL_LIBRARY_URL "${NJLIC_URL_SDL2_LIB_EMSCRIPTEN_RELEASE}")
 
   SET(CMAKE_EXECUTABLE_SUFFIX ".html")
 
@@ -1370,18 +1387,24 @@ elseif(WINDOWS)
   endif()
 elseif(APPLE)
 
-  set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/macOS/10.12/Release")
-  set(LIBSDL_LIBRARY_URL "https://www.dropbox.com/s/k424l8x6bpmdz71/SDL2-2.0.7_macOS_10.12_Release.tar.gz?dl=0")
-
   # TODO: rework this all for proper MacOS X, iOS and Darwin support
 
   # We always need these libs on macOS at the moment.
   # !!! FIXME: we need Carbon for some very old API calls in
   # !!! FIXME:  src/video/cocoa/SDL_cocoakeyboard.c, but we should figure out
   # !!! FIXME:  how to dump those.
-  if(NOT IOS)
+  if(NOT (IOS OR TVOS))
     set(SDL_FRAMEWORK_COCOA 1)
     set(SDL_FRAMEWORK_CARBON 1)
+
+    set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/macOS/10.12/Release")
+    set(LIBSDL_LIBRARY_URL "${NJLIC_URL_SDL2_LIB_MACOS_RELEASE}")
+  else()
+    if(IOS)
+    endif(IOS)
+    
+    if(TVOS)
+    endif(TVOS)
   endif()
 
   # Requires the darwin file implementation
@@ -1410,7 +1433,7 @@ elseif(APPLE)
 
   if(SDL_JOYSTICK)
     set(SDL_JOYSTICK_IOKIT 1)
-    if (IOS)
+    if ((IOS OR TVOS))
       file(GLOB JOYSTICK_SOURCES ${SDL2_SOURCE_DIR}/src/joystick/iphoneos/*.m ${SDL2_SOURCE_DIR}/src/joystick/steam/*.c)
     else()
       file(GLOB JOYSTICK_SOURCES ${SDL2_SOURCE_DIR}/src/joystick/darwin/*.c)
@@ -1423,7 +1446,7 @@ elseif(APPLE)
 
   if(SDL_HAPTIC)
     set(SDL_HAPTIC_IOKIT 1)
-    if (IOS)
+    if ((IOS OR TVOS))
       file(GLOB HAPTIC_SOURCES ${SDL2_SOURCE_DIR}/src/haptic/dummy/*.c)
       set(SDL_HAPTIC_DUMMY 1)
     else()
@@ -1440,7 +1463,7 @@ elseif(APPLE)
 
   if(SDL_POWER)
     set(SDL_POWER_MACOSX 1)
-    if (IOS)
+    if ((IOS OR TVOS))
       file(GLOB POWER_SOURCES ${SDL2_SOURCE_DIR}/src/power/uikit/*.m)
     else()
       file(GLOB POWER_SOURCES ${SDL2_SOURCE_DIR}/src/power/macosx/*.c)
@@ -1498,7 +1521,7 @@ elseif(APPLE)
 
   # iOS hack needed - http://code.google.com/p/ios-cmake/ ?
   if(SDL_VIDEO)
-    if (IOS)
+    if ((IOS OR TVOS))
       set(SDL_VIDEO_DRIVER_UIKIT 1)
       file(GLOB UIKITVIDEO_SOURCES ${SDL2_SOURCE_DIR}/src/video/uikit/*.m)
       # set(SOURCE_FILES ${SOURCE_FILES} ${UIKITVIDEO_SOURCES})
