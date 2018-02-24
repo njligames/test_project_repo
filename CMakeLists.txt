@@ -175,7 +175,7 @@ if(USE_GCC OR USE_CLANG)
 endif()
 
 # Default flags, if not set otherwise
-if("$ENV{CFLAGS}" STREQUAL "")
+if("$ENV{CFLAGS}" STREQUAL "" AND NOT EMSCRIPTEN)
   if(CMAKE_BUILD_TYPE STREQUAL "")
     if(USE_GCC OR USE_CLANG)
       set(CMAKE_C_FLAGS "-g -O3")
@@ -900,6 +900,14 @@ endif()
 
 # Platform-specific options and settings
 if(EMSCRIPTEN)
+
+  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 --js-opts 0 -g4")
+
+  set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/emscripten/Release")
+  set(LIBSDL_LIBRARY_URL "https://www.dropbox.com/s/qc35pwe0taci2y6/SDL2-2.0.7_emscripten_Release.tar.gz?dl=0")
+
+  SET(CMAKE_EXECUTABLE_SUFFIX ".html")
+
   # Hide noisy warnings that intend to aid mostly during initial stages of porting a new
   # project. Uncomment at will for verbose cross-compiling -I/../ path info.
   add_definitions(-Wno-warn-absolute-paths)
@@ -1363,8 +1371,8 @@ elseif(WINDOWS)
   endif()
 elseif(APPLE)
 
-  set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/macOS/10.12/${CMAKE_BUILD_TYPE}")
-  set(LIBSDL_LIBRARY_URL "https://www.dropbox.com/s/tlam4jkr1fatwea/SDL2-2.0.7_macOS_10.12_${CMAKE_BUILD_TYPE}.tar.gz?dl=0")
+  set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/macOS/10.12/Release")
+  set(LIBSDL_LIBRARY_URL "https://www.dropbox.com/s/k424l8x6bpmdz71/SDL2-2.0.7_macOS_10.12_Release.tar.gz?dl=0")
 
   # TODO: rework this all for proper MacOS X, iOS and Darwin support
 
