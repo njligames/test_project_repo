@@ -33,7 +33,7 @@ include(${SDL2_SOURCE_DIR}/cmake/macros.cmake)
 include(${SDL2_SOURCE_DIR}/cmake/sdlchecks.cmake)
 include(${SDL2_SOURCE_DIR}/cmake/download-extract.cmake)
 
-set(NJLIC_URL_SDL2_INCLUDE "https://www.dropbox.com/s/g0qrc1xkz2qcb9y/SDL2-2.0.7_include.tar.gz?dl=0")
+set(NJLIC_URL_SDL2_INCLUDE "https://www.dropbox.com/s/g0qrc1xkz2qcb9y/SDL2-2.0.7_include.tar.gz?dl=0" CACHE STRING "The URL for the include files for SDL2")
 
 set(NJLIC_URL_SDL2_LIB_ANDROID_ARM64_RELEASE "https://www.dropbox.com/s/pjtjblgo7zcidio/SDL2-2.0.7_android_23_Release_arm64-v8a.tar.gz?dl=0" CACHE STRING "The URL for the Android arm64 version of SDL2")
 set(NJLIC_URL_SDL2_LIB_ANDROID_ARMEABI_V7A_RELEASE "https://www.dropbox.com/s/slyhgxvzoc5s23d/SDL2-2.0.7_android_23_Release_armeabi-v7a.tar.gz?dl=0" CACHE STRING "The URL for the Android armeabi-v7a version of SDL2")
