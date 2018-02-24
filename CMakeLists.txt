@@ -33,8 +33,7 @@ include(${SDL2_SOURCE_DIR}/cmake/macros.cmake)
 include(${SDL2_SOURCE_DIR}/cmake/sdlchecks.cmake)
 include(${SDL2_SOURCE_DIR}/cmake/download-extract.cmake)
 
-
-
+set(NJLIC_REPO_DIRECTORY "${CMAKE_BINARY_DIR}/test_engine_repo")
 
 # General settings
 # Edit include/SDL_version.h and change the version, then:
@@ -237,7 +236,7 @@ endif()
 
 #add_definitions(-DUSING_GENERATED_CONFIG_H)
 # General includes
-include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/NJLICSource/include)
+include_directories(${SDL2_BINARY_DIR}/include ${NJLIC_REPO_DIRECTORY}/include)
 if(USE_GCC OR USE_CLANG)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -idirafter ${SDL2_SOURCE_DIR}/src/video/khronos")
 else()
@@ -371,8 +370,8 @@ set(LIBSDL_LIBRARY_TARGET_DIRECTORY "")
 set(LIBSDL_LIBRARY_URL "")
 
 file(GLOB SOURCE_FILES
-  ${SDL2_SOURCE_DIR}/NJLICSource/src/main.cpp
-  ${SDL2_SOURCE_DIR}/NJLICSource/src/SDL_test_common.c
+  ${NJLIC_REPO_DIRECTORY}/src/main.cpp
+  ${NJLIC_REPO_DIRECTORY}/src/SDL_test_common.c
   )
 
 if(ASSERTIONS STREQUAL "auto")
