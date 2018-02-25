@@ -32,6 +32,7 @@ set(CMAKE_MODULE_PATH "${SDL2_SOURCE_DIR}/cmake")
 include(${SDL2_SOURCE_DIR}/cmake/macros.cmake)
 include(${SDL2_SOURCE_DIR}/cmake/sdlchecks.cmake)
 include(${SDL2_SOURCE_DIR}/cmake/download-extract.cmake)
+include(${SDL2_SOURCE_DIR}/cmake/print-targets.cmake)
 
 set(NJLIC_URL_SDL2_INCLUDE "https://www.dropbox.com/s/g0qrc1xkz2qcb9y/SDL2-2.0.7_include.tar.gz?dl=0" CACHE STRING "The URL for the include files for SDL2")
 
@@ -99,8 +100,14 @@ if(NOT LIBTYPE)
   set(LIBTYPE SHARED)
 endif()
 
+set(STATIC_LIBRARY_EXTENSION "a")
+set(DYNAMIC_LIBRARY_EXTENSION "dylib")
+
 # Get the platform
 if(WIN32)
+  set(STATIC_LIBRARY_EXTENSION "lib")
+  set(DYNAMIC_LIBRARY_EXTENSION "dll")
+
   if(NOT WINDOWS)
     set(WINDOWS TRUE)
   endif()
@@ -1760,10 +1767,11 @@ RETRIEVE_TAR(
   "SKIP"
   )
 
-ADD_LIBRARY(imported_SDL2 SHARED IMPORTED )
-SET_TARGET_PROPERTIES(imported_SDL2 PROPERTIES IMPORTED_LOCATION "${LIBSDL_LIBRARY_TARGET_DIRECTORY}/libSDL2.a")
+ADD_LIBRARY(imported_SDL2 STATIC IMPORTED )
+SET_TARGET_PROPERTIES(imported_SDL2 PROPERTIES IMPORTED_LOCATION "${LIBSDL_LIBRARY_TARGET_DIRECTORY}/libSDL2.${STATIC_LIBRARY_EXTENSION}")
 list(APPEND EXTRA_LIBS imported_SDL2)
 include_directories("${CMAKE_BINARY_DIR}/${LIBSDL_INCLUDE_TARGET_DIRECTORY}")
+print_target_properties(imported_SDL2)
 
 
 # Ensure that the extra cflags are used at compile time
