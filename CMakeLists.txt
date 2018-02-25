@@ -1031,6 +1031,10 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID)
   endif()
 
   if(LINUX)
+    set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/linux/16.04.2_LTS/Release")
+    set(LIBSDL_LIBRARY_URL "${NJLIC_URL_SDL2_LIB_LINUX_RELEASE}")
+    list(APPEND EXTRA_LDFLAGS "-ldl")
+
     check_c_source_compiles("
         #include <linux/input.h>
         #ifndef EVIOCGNAME
@@ -1873,57 +1877,57 @@ else ()
   set(PKG_PREFIX "lib/cmake/SDL2")
 endif ()
 
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file("${CMAKE_BINARY_DIR}/SDL2ConfigVersion.cmake"
-  VERSION ${SDL_VERSION}
-  COMPATIBILITY AnyNewerVersion
-)
+# include(CMakePackageConfigHelpers)
+# write_basic_package_version_file("${CMAKE_BINARY_DIR}/SDL2ConfigVersion.cmake"
+#   VERSION ${SDL_VERSION}
+#   COMPATIBILITY AnyNewerVersion
+# )
+# 
+# install(EXPORT SDL2Targets
+#   FILE SDL2Targets.cmake
+#   NAMESPACE SDL2::
+#   DESTINATION ${PKG_PREFIX}
+# )
+# install(
+#   FILES
+#     ${CMAKE_CURRENT_SOURCE_DIR}/SDL2Config.cmake
+#     ${CMAKE_BINARY_DIR}/SDL2ConfigVersion.cmake
+#   DESTINATION ${PKG_PREFIX}
+#   COMPONENT Devel
+# )
 
-install(EXPORT SDL2Targets
-  FILE SDL2Targets.cmake
-  NAMESPACE SDL2::
-  DESTINATION ${PKG_PREFIX}
-)
-install(
-  FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/SDL2Config.cmake
-    ${CMAKE_BINARY_DIR}/SDL2ConfigVersion.cmake
-  DESTINATION ${PKG_PREFIX}
-  COMPONENT Devel
-)
+# file(GLOB INCLUDE_FILES ${SDL2_SOURCE_DIR}/include/*.h)
+# file(GLOB BIN_INCLUDE_FILES ${SDL2_BINARY_DIR}/include/*.h)
+# foreach(_FNAME ${BIN_INCLUDE_FILES})
+#   get_filename_component(_INCNAME ${_FNAME} NAME)
+#   list(REMOVE_ITEM INCLUDE_FILES ${SDL2_SOURCE_DIR}/include/${_INCNAME})
+# endforeach()
+# list(APPEND INCLUDE_FILES ${BIN_INCLUDE_FILES})
+# install(FILES ${INCLUDE_FILES} DESTINATION include/SDL2)
 
-file(GLOB INCLUDE_FILES ${SDL2_SOURCE_DIR}/include/*.h)
-file(GLOB BIN_INCLUDE_FILES ${SDL2_BINARY_DIR}/include/*.h)
-foreach(_FNAME ${BIN_INCLUDE_FILES})
-  get_filename_component(_INCNAME ${_FNAME} NAME)
-  list(REMOVE_ITEM INCLUDE_FILES ${SDL2_SOURCE_DIR}/include/${_INCNAME})
-endforeach()
-list(APPEND INCLUDE_FILES ${BIN_INCLUDE_FILES})
-install(FILES ${INCLUDE_FILES} DESTINATION include/SDL2)
-
-if(NOT (WINDOWS OR CYGWIN))
-  if(SDL_SHARED)
-    if (APPLE)
-        set(SOEXT "dylib")
-    else()
-        set(SOEXT "so")
-    endif()
-    install(CODE "
-      execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-      \"libSDL2-2.0.${SOEXT}\" \"libSDL2.${SOEXT}\")")
-    install(FILES ${SDL2_BINARY_DIR}/libSDL2.${SOEXT} DESTINATION "lib${LIB_SUFFIX}")
-  endif()
-  if(FREEBSD)
-    # FreeBSD uses ${PREFIX}/libdata/pkgconfig
-    install(FILES ${SDL2_BINARY_DIR}/sdl2.pc DESTINATION "libdata/pkgconfig")
-  else()
-    install(FILES ${SDL2_BINARY_DIR}/sdl2.pc
-      DESTINATION "lib${LIB_SUFFIX}/pkgconfig")
-  endif()
-  install(PROGRAMS ${SDL2_BINARY_DIR}/sdl2-config DESTINATION bin)
-  # TODO: what about the .spec file? Is it only needed for RPM creation?
-  install(FILES "${SDL2_SOURCE_DIR}/sdl2.m4" DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/aclocal")
-endif()
+# if(NOT (WINDOWS OR CYGWIN))
+#   if(SDL_SHARED)
+#     if (APPLE)
+#         set(SOEXT "dylib")
+#     else()
+#         set(SOEXT "so")
+#     endif()
+#     install(CODE "
+#       execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+#       \"libSDL2-2.0.${SOEXT}\" \"libSDL2.${SOEXT}\")")
+#     install(FILES ${SDL2_BINARY_DIR}/libSDL2.${SOEXT} DESTINATION "lib${LIB_SUFFIX}")
+#   endif()
+#   if(FREEBSD)
+#     # FreeBSD uses ${PREFIX}/libdata/pkgconfig
+#     install(FILES ${SDL2_BINARY_DIR}/sdl2.pc DESTINATION "libdata/pkgconfig")
+#   else()
+#     install(FILES ${SDL2_BINARY_DIR}/sdl2.pc
+#       DESTINATION "lib${LIB_SUFFIX}/pkgconfig")
+#   endif()
+#   install(PROGRAMS ${SDL2_BINARY_DIR}/sdl2-config DESTINATION bin)
+#   # TODO: what about the .spec file? Is it only needed for RPM creation?
+#   install(FILES "${SDL2_SOURCE_DIR}/sdl2.m4" DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/aclocal")
+# endif()
 
 ##### Uninstall target #####
 
