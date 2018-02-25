@@ -21,7 +21,7 @@ then
   cmake .. -G "Visual Studio 14 2015 ARM"
 elif [ "${PLATFORM}" == "macOS" ]
 then
-  cmake .. -G "XCode"
+  cmake .. -G "Xcode"
 else
   cmake -E env CFLAGS='-O0 -g' cmake ..
 fi
