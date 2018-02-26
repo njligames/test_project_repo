@@ -1404,17 +1404,53 @@ elseif(APPLE)
   # !!! FIXME:  src/video/cocoa/SDL_cocoakeyboard.c, but we should figure out
   # !!! FIXME:  how to dump those.
   if(NOT (IOS OR TVOS))
+    SET( ASSET_CATALOGUE "${CMAKE_CURRENT_SOURCE_DIR}/cmake.in/platform.in/macOS/Assets.xcassets" )
+    set(SOURCE_FILES ${SOURCE_FILES} ${ASSET_CATALOGUE})
     set(SDL_FRAMEWORK_COCOA 1)
     set(SDL_FRAMEWORK_CARBON 1)
   else()
     if(IOS)
+      SET( ASSET_CATALOGUE "${CMAKE_CURRENT_SOURCE_DIR}/cmake.in/platform.in/ios/Assets.xcassets" )
+      set(SOURCE_FILES ${SOURCE_FILES} ${ASSET_CATALOGUE})
       set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/ios")
       set(LIBSDL_LIBRARY_URL "${NJLIC_URL_SDL2_LIB_IOS_RELEASE}")
+
+      SET( CMAKE_OSX_SYSROOT "iphoneos" )
+      SET( CMAKE_XCODE_EFFECTIVE_PLATFORMS "-iphoneos;-iphonesimulator" )
+      SET ( CMAKE_OSX_ARCHITECTURES $(ARCHS_UNIVERSAL_IPHONE_OS) CACHE string "Build architecture for iOS" )
+
+      list(APPEND EXTRA_LIBS "-framework OpenGLES")
+      list(APPEND EXTRA_LIBS "-framework UIKit")
+      list(APPEND EXTRA_LIBS "-framework Foundation")
+      list(APPEND EXTRA_LIBS "-framework AVFoundation")
+      list(APPEND EXTRA_LIBS "-framework GameController")
+      list(APPEND EXTRA_LIBS "-framework CoreMotion")
+      list(APPEND EXTRA_LIBS "-framework CoreGraphics")
+      list(APPEND EXTRA_LIBS "-framework QuartzCore")
+
     endif(IOS)
     
     if(TVOS)
+      SET( ASSET_CATALOGUE "${CMAKE_CURRENT_SOURCE_DIR}/cmake.in/platform.in/appletv/Assets.xcassets" )
+      set(SOURCE_FILES ${SOURCE_FILES} ${ASSET_CATALOGUE})
+
+
+
       set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/tvos")
       set(LIBSDL_LIBRARY_URL "${NJLIC_URL_SDL2_LIB_TVOS_RELEASE}")
+
+      SET( CMAKE_OSX_SYSROOT "appletvos" )
+      SET( CMAKE_XCODE_EFFECTIVE_PLATFORMS "-appletvos;-appletvsimulator" )
+      SET ( CMAKE_OSX_ARCHITECTURES $(ARCHS_UNIVERSAL_APPLETV_OS) CACHE string "Build architecture for appletv" )
+
+      list(APPEND EXTRA_LIBS "-framework OpenGLES")
+      list(APPEND EXTRA_LIBS "-framework UIKit")
+      list(APPEND EXTRA_LIBS "-framework Foundation")
+      list(APPEND EXTRA_LIBS "-framework AVFoundation")
+      list(APPEND EXTRA_LIBS "-framework GameController")
+      #list(APPEND EXTRA_LIBS "-framework CoreMotion")
+      list(APPEND EXTRA_LIBS "-framework CoreGraphics")
+      list(APPEND EXTRA_LIBS "-framework QuartzCore")
     endif(TVOS)
   endif()
 
@@ -1500,34 +1536,32 @@ elseif(APPLE)
     set(HAVE_SDL_FILESYSTEM TRUE)
   endif()
 
+  if(IOS OR TVOS)
+    set(SDL_FRAMEWORK_FF 0)
+    set(SDL_FRAMEWORK_IOKIT 0)
+  endif(IOS OR TVOS)
+
   # Actually load the frameworks at the end so we don't duplicate include.
   if(SDL_FRAMEWORK_COREVIDEO)
-    find_library(COREVIDEO CoreVideo)
-    list(APPEND EXTRA_LIBS ${COREVIDEO})
+    list(APPEND EXTRA_LIBS "-framework CoreVideo")
   endif()
   if(SDL_FRAMEWORK_COCOA)
-    find_library(COCOA_LIBRARY Cocoa)
-    list(APPEND EXTRA_LIBS ${COCOA_LIBRARY})
+    list(APPEND EXTRA_LIBS "-framework Cocoa")
   endif()
   if(SDL_FRAMEWORK_IOKIT)
-    find_library(IOKIT IOKit)
-    list(APPEND EXTRA_LIBS ${IOKIT})
+    list(APPEND EXTRA_LIBS "-framework IOKit")
   endif()
   if(SDL_FRAMEWORK_FF)
-    find_library(FORCEFEEDBACK ForceFeedback)
-    list(APPEND EXTRA_LIBS ${FORCEFEEDBACK})
+    list(APPEND EXTRA_LIBS "-framework ForceFeedback")
   endif()
   if(SDL_FRAMEWORK_CARBON)
-    find_library(CARBON_LIBRARY Carbon)
-    list(APPEND EXTRA_LIBS ${CARBON_LIBRARY})
+    list(APPEND EXTRA_LIBS "-framework Carbon")
   endif()
   if(SDL_FRAMEWORK_COREAUDIO)
-    find_library(COREAUDIO CoreAudio)
-    list(APPEND EXTRA_LIBS ${COREAUDIO})
+    list(APPEND EXTRA_LIBS "-framework CoreAudio")
   endif()
   if(SDL_FRAMEWORK_AUDIOTOOLBOX)
-    find_library(AUDIOTOOLBOX AudioToolbox)
-    list(APPEND EXTRA_LIBS ${AUDIOTOOLBOX})
+    list(APPEND EXTRA_LIBS "-framework AudioToolbox")
   endif()
 
   # iOS hack needed - http://code.google.com/p/ios-cmake/ ?
@@ -1763,15 +1797,21 @@ if(IOS OR TVOS OR ANDROID OR EMSCRIPTEN)
     )
 
   ADD_LIBRARY(imported_SDL2 STATIC IMPORTED )
-  SET_TARGET_PROPERTIES(imported_SDL2 PROPERTIES IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY}/libSDL2.${STATIC_LIBRARY_EXTENSION}")
+  if(IOS OR TVOS)
+    SET_TARGET_PROPERTIES(imported_SDL2 PROPERTIES IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY}/Release\$(EFFECTIVE_PLATFORM_NAME)/libSDL2.${STATIC_LIBRARY_EXTENSION}")
+  else()
+    SET_TARGET_PROPERTIES(imported_SDL2 PROPERTIES IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY}/libSDL2.${STATIC_LIBRARY_EXTENSION}")
+  endif()
+
   list(APPEND EXTRA_LIBS imported_SDL2)
   include_directories("${CMAKE_BINARY_DIR}/${LIBSDL_INCLUDE_TARGET_DIRECTORY}")
   print_target_properties(imported_SDL2)
+
 else()
   find_package(SDL2 REQUIRED)
   list(APPEND EXTRA_LIBS ${SDL2_LIBRARY})
   include_directories(${SDL2_INCLUDE_DIR})
-endif(IOS OR TVOS OR ANDROID)
+endif(IOS OR TVOS OR ANDROID OR EMSCRIPTEN)
 
 
 
@@ -1786,25 +1826,64 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS}")
 
 if(SDL_EXE)
   add_executable(SDL2-exe ${SOURCE_FILES})
-  # if(APPLE)
-  #   set_target_properties(SDL2-exe PROPERTIES MACOSX_RPATH 1)
-  # elseif(UNIX AND NOT ANDROID)
-  #   set_target_properties(SDL2-exe PROPERTIES
-  #     VERSION ${LT_VERSION}
-  #     SOVERSION ${LT_REVISION}
-  #     OUTPUT_NAME "SDL2-exe-${LT_RELEASE}")
-  # else()
-  #   set_target_properties(SDL2-exe PROPERTIES
-  #     VERSION ${SDL_VERSION}
-  #     SOVERSION ${LT_REVISION}
-  #     OUTPUT_NAME "SDL2-exe")
-  # endif()
-  # if(MSVC AND NOT LIBC)
-  #   # Don't try to link with the default set of libraries.
-  #   set_target_properties(SDL2-exe PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
-  #   set_target_properties(SDL2-exe PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
-  #   set_target_properties(SDL2-exe PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
-  # endif()
+  if(APPLE)
+    SET_TARGET_PROPERTIES(
+      SDL2-exe PROPERTIES
+      RESOURCE "${ASSET_CATALOGUE}"
+      )
+    if(NOT (IOS OR TVOS))
+      SET_TARGET_PROPERTIES (
+        SDL2-exe PROPERTIES
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake.in/platform.in/macOS/Info.plist"
+        XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
+        XCODE_ATTRIBUTE_PRODUCT_NAME "NJLICGameEngine"
+        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.macos.source"
+        )
+    endif(NOT (IOS OR TVOS))
+
+    if(IOS)
+      SET_TARGET_PROPERTIES (
+        SDL2-exe PROPERTIES
+        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
+        XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
+        XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
+        XCODE_ATTRIBUTE_INSTALL_PATH "${CMAKE_BINARY_DIR}/ProductRelease"
+        XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES "NO"
+        XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake.in/platform.in/ios/Info.plist"
+        XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
+        XCODE_ATTRIBUTE_PRODUCT_NAME "NJLICGameEngine"
+        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.ios.source"
+        XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
+        XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "$ENV{IOS_DEVELOPMENT_TEAM}"
+        )
+    endif(IOS)
+
+    if(TVOS)
+      SET_TARGET_PROPERTIES (
+        SDL2-exe PROPERTIES
+        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
+        XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "3"
+        XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
+        XCODE_ATTRIBUTE_INSTALL_PATH "${CMAKE_BINARY_DIR}/ProductRelease"
+        XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES "NO"
+        XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake.in/platform.in/appletv/Info.plist"
+        XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "App Icon & Top Shelf Image"
+        XCODE_ATTRIBUTE_PRODUCT_NAME "NJLICGameEngine"
+        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.appletv.source"
+        XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
+        XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "$ENV{IOS_DEVELOPMENT_TEAM}"
+        )
+    endif(TVOS)
+  elseif(UNIX AND NOT ANDROID)
+  else()
+  endif()
+  if(MSVC AND NOT LIBC)
+  endif()
   # set(_INSTALL_EXE "SDL2-exe" )
   target_link_libraries(SDL2-exe ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
   target_include_directories(SDL2-exe PUBLIC $<INSTALL_INTERFACE:include>)
@@ -1814,6 +1893,13 @@ if(SDL_SHARED)
   add_library(SDL2 SHARED ${SOURCE_FILES} ${VERSION_SOURCES})
   if(APPLE)
     set_target_properties(SDL2 PROPERTIES MACOSX_RPATH 1)
+    if(IOS OR TVOS)
+      SET_TARGET_PROPERTIES (
+        SDL2 PROPERTIES
+        XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
+        XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "$ENV{IOS_DEVELOPMENT_TEAM}"
+        )
+    endif(IOS OR TVOS)
   elseif(UNIX AND NOT ANDROID)
     set_target_properties(SDL2 PROPERTIES
       VERSION ${LT_VERSION}
@@ -1839,6 +1925,15 @@ endif()
 if(SDL_STATIC)
   set (BUILD_SHARED_LIBS FALSE)
   add_library(SDL2-static STATIC ${SOURCE_FILES})
+  if(APPLE)
+    if(IOS OR TVOS)
+      SET_TARGET_PROPERTIES (
+        SDL2 PROPERTIES
+        XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
+        )
+    endif(IOS OR TVOS)
+  endif(APPLE)
+
   if (NOT SDL_SHARED OR NOT WIN32)
     set_target_properties(SDL2-static PROPERTIES OUTPUT_NAME "SDL2")
     # Note: Apparently, OUTPUT_NAME must really be unique; even when

@@ -22,11 +22,18 @@ then
 elif [ "${PLATFORM}" == "macOS" ]
 then
   cmake .. -G "Xcode"
+elif [ "${PLATFORM}" == "ios" ]
+then
+  cmake .. -G "Xcode" -DIOS:BOOL=TRUE
+elif [ "${PLATFORM}" == "appletv" ]
+then
+  cmake .. -G "Xcode" -DTVOS:BOOL=TRUE
 else
   cmake -E env CFLAGS='-O0 -g' cmake ..
 fi
 
 cmake --build . --config Release
 cd ..
+
 
 
