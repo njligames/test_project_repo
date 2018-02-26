@@ -26,7 +26,7 @@ else
   cmake -E env CFLAGS='-O0 -g' cmake ..
 fi
 
-cmake --build .
+cmake --build . --config Release
 cd ..
 
 
