@@ -1032,6 +1032,7 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID)
 
   if(LINUX)
     list(APPEND EXTRA_LDFLAGS "-ldl")
+    list(APPEND EXTRA_LDFLAGS "-lsndio")
 
     check_c_source_compiles("
         #include <linux/input.h>
@@ -1783,6 +1784,32 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS}")
 # target_include_directories(SDL2main PUBLIC $<INSTALL_INTERFACE:include>)
 # set(_INSTALL_LIBS "SDL2main")
 
+if(SDL_EXE)
+  add_executable(SDL2-exe ${SOURCE_FILES})
+  # if(APPLE)
+  #   set_target_properties(SDL2-exe PROPERTIES MACOSX_RPATH 1)
+  # elseif(UNIX AND NOT ANDROID)
+  #   set_target_properties(SDL2-exe PROPERTIES
+  #     VERSION ${LT_VERSION}
+  #     SOVERSION ${LT_REVISION}
+  #     OUTPUT_NAME "SDL2-exe-${LT_RELEASE}")
+  # else()
+  #   set_target_properties(SDL2-exe PROPERTIES
+  #     VERSION ${SDL_VERSION}
+  #     SOVERSION ${LT_REVISION}
+  #     OUTPUT_NAME "SDL2-exe")
+  # endif()
+  # if(MSVC AND NOT LIBC)
+  #   # Don't try to link with the default set of libraries.
+  #   set_target_properties(SDL2-exe PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
+  #   set_target_properties(SDL2-exe PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
+  #   set_target_properties(SDL2-exe PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
+  # endif()
+  # set(_INSTALL_EXE "SDL2-exe" )
+  target_link_libraries(SDL2-exe ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
+  target_include_directories(SDL2-exe PUBLIC $<INSTALL_INTERFACE:include>)
+endif()
+
 if(SDL_SHARED)
   add_library(SDL2 SHARED ${SOURCE_FILES} ${VERSION_SOURCES})
   if(APPLE)
@@ -1831,33 +1858,6 @@ if(SDL_STATIC)
   target_link_libraries(SDL2-static ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
   target_include_directories(SDL2-static PUBLIC $<INSTALL_INTERFACE:include>)
 endif()
-
-if(SDL_EXE)
-  add_executable(SDL2-exe ${SOURCE_FILES})
-  # if(APPLE)
-  #   set_target_properties(SDL2-exe PROPERTIES MACOSX_RPATH 1)
-  # elseif(UNIX AND NOT ANDROID)
-  #   set_target_properties(SDL2-exe PROPERTIES
-  #     VERSION ${LT_VERSION}
-  #     SOVERSION ${LT_REVISION}
-  #     OUTPUT_NAME "SDL2-exe-${LT_RELEASE}")
-  # else()
-  #   set_target_properties(SDL2-exe PROPERTIES
-  #     VERSION ${SDL_VERSION}
-  #     SOVERSION ${LT_REVISION}
-  #     OUTPUT_NAME "SDL2-exe")
-  # endif()
-  # if(MSVC AND NOT LIBC)
-  #   # Don't try to link with the default set of libraries.
-  #   set_target_properties(SDL2-exe PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
-  #   set_target_properties(SDL2-exe PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
-  #   set_target_properties(SDL2-exe PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
-  # endif()
-  # set(_INSTALL_EXE "SDL2-exe" )
-  target_link_libraries(SDL2-exe ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
-  target_include_directories(SDL2-exe PUBLIC $<INSTALL_INTERFACE:include>)
-endif()
-
 
 ##### Installation targets #####
 install(TARGETS ${_INSTALL_LIBS} EXPORT SDL2Targets
