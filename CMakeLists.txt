@@ -2,7 +2,7 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
   message(FATAL_ERROR "Prevented in-tree built. Please create a build directory outside of the SDL source code and call cmake from there")
 endif()
 
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.4.1)
 project(SDL2)
 
 # !!! FIXME: this should probably do "MACOSX_RPATH ON" as a target property
@@ -1825,69 +1825,86 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS}")
 # set(_INSTALL_LIBS "SDL2main")
 
 if(SDL_EXE)
-  add_executable(SDL2-exe ${SOURCE_FILES})
-  if(APPLE)
-    SET_TARGET_PROPERTIES(
-      SDL2-exe PROPERTIES
-      RESOURCE "${ASSET_CATALOGUE}"
-      )
-    if(NOT (IOS OR TVOS))
-      SET_TARGET_PROPERTIES (
-        SDL2-exe PROPERTIES
-        MACOSX_BUNDLE TRUE
-        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake.in/platform.in/macOS/Info.plist"
-        XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
-        XCODE_ATTRIBUTE_PRODUCT_NAME "NJLICGameEngine"
-        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.macos.source"
-        )
-    endif(NOT (IOS OR TVOS))
+  if(ANDROID)
+    string(TOLOWER ${CMAKE_BUILD_TYPE} ANDROID_BUILD_DIR)
+    set(DISTRIBUTION_DIR ${CMAKE_SOURCE_DIR}/android/distribution/android/SDL2/intermediates/ndkBuild)
+    set(SDL_LOCATION ${CMAKE_SOURCE_DIR}/android/thirdparty/SDL2)
 
-    if(IOS)
-      SET_TARGET_PROPERTIES (
-        SDL2-exe PROPERTIES
-        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
-        XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
-        XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
-        XCODE_ATTRIBUTE_INSTALL_PATH "${CMAKE_BINARY_DIR}/ProductRelease"
-        XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES "NO"
-        XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"
-        MACOSX_BUNDLE TRUE
-        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake.in/platform.in/ios/Info.plist"
-        XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
-        XCODE_ATTRIBUTE_PRODUCT_NAME "NJLICGameEngine"
-        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.ios.source"
-        XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
-        XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "$ENV{IOS_DEVELOPMENT_TEAM}"
-        )
-    endif(IOS)
+    add_library( SDL2 SHARED IMPORTED )
+    set_target_properties(SDL2 PROPERTIES IMPORTED_LOCATION ${DISTRIBUTION_DIR}/${ANDROID_BUILD_DIR}/obj/local/${ANDROID_ABI}/libSDL2.so)
 
-    if(TVOS)
-      SET_TARGET_PROPERTIES (
-        SDL2-exe PROPERTIES
-        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
-        XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "3"
-        XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
-        XCODE_ATTRIBUTE_INSTALL_PATH "${CMAKE_BINARY_DIR}/ProductRelease"
-        XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES "NO"
-        XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"
-        MACOSX_BUNDLE TRUE
-        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake.in/platform.in/appletv/Info.plist"
-        XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "App Icon & Top Shelf Image"
-        XCODE_ATTRIBUTE_PRODUCT_NAME "NJLICGameEngine"
-        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.appletv.source"
-        XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
-        XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "$ENV{IOS_DEVELOPMENT_TEAM}"
-        )
-    endif(TVOS)
-  elseif(UNIX AND NOT ANDROID)
+    include_directories(${SDL_LOCATION}/SDL2/include)
+
+    add_library( main SHARED ${SDL_LOCATION}/SDL2/src/main/android/SDL_android_main.c ${SOURCE_FILES} )
+
+    target_link_libraries( main SDL2 )
+
+
   else()
-  endif()
-  if(MSVC AND NOT LIBC)
-  endif()
-  # set(_INSTALL_EXE "SDL2-exe" )
-  target_link_libraries(SDL2-exe ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
-  target_include_directories(SDL2-exe PUBLIC $<INSTALL_INTERFACE:include>)
-endif()
+    add_executable(SDL2-exe ${SOURCE_FILES})
+    if(APPLE)
+      SET_TARGET_PROPERTIES(
+        SDL2-exe PROPERTIES
+        RESOURCE "${ASSET_CATALOGUE}"
+        )
+      if(NOT (IOS OR TVOS))
+        SET_TARGET_PROPERTIES (
+          SDL2-exe PROPERTIES
+          MACOSX_BUNDLE TRUE
+          MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake.in/platform.in/macOS/Info.plist"
+          XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
+          XCODE_ATTRIBUTE_PRODUCT_NAME "NJLICGameEngine"
+          XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.macos.source"
+          )
+      endif(NOT (IOS OR TVOS))
+
+      if(IOS)
+        SET_TARGET_PROPERTIES (
+          SDL2-exe PROPERTIES
+          XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
+          XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
+          XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
+          XCODE_ATTRIBUTE_INSTALL_PATH "${CMAKE_BINARY_DIR}/ProductRelease"
+          XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES "NO"
+          XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"
+          MACOSX_BUNDLE TRUE
+          MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake.in/platform.in/ios/Info.plist"
+          XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
+          XCODE_ATTRIBUTE_PRODUCT_NAME "NJLICGameEngine"
+          XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.ios.source"
+          XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
+          XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "$ENV{IOS_DEVELOPMENT_TEAM}"
+          )
+      endif(IOS)
+
+      if(TVOS)
+        SET_TARGET_PROPERTIES (
+          SDL2-exe PROPERTIES
+          XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
+          XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "3"
+          XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
+          XCODE_ATTRIBUTE_INSTALL_PATH "${CMAKE_BINARY_DIR}/ProductRelease"
+          XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES "NO"
+          XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"
+          MACOSX_BUNDLE TRUE
+          MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake.in/platform.in/appletv/Info.plist"
+          XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "App Icon & Top Shelf Image"
+          XCODE_ATTRIBUTE_PRODUCT_NAME "NJLICGameEngine"
+          XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.appletv.source"
+          XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
+          XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "$ENV{IOS_DEVELOPMENT_TEAM}"
+          )
+      endif(TVOS)
+    elseif(UNIX AND NOT ANDROID)
+    else()
+    endif()
+    if(MSVC AND NOT LIBC)
+    endif()
+    # set(_INSTALL_EXE "SDL2-exe" )
+    target_link_libraries(SDL2-exe ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
+    target_include_directories(SDL2-exe PUBLIC $<INSTALL_INTERFACE:include>)
+  endif(ANDROID)
+endif(SDL_EXE)
 
 if(SDL_SHARED)
   add_library(SDL2 SHARED ${SOURCE_FILES} ${VERSION_SOURCES})
