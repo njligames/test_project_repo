@@ -3,12 +3,14 @@
 PLATFORM=$1
 PRE=""
 
-BUILD_DIR=.build_$PLATFORM
-rm -rf $BUILD_DIR
-mkdir $BUILD_DIR
-cd $BUILD_DIR
-
-git clone git@github.com:njligames/test_engine_repo.git
+if [ "${PLATFORM}" != "android" ]
+then
+  BUILD_DIR=.build_$PLATFORM
+  rm -rf $BUILD_DIR
+  mkdir $BUILD_DIR
+  cd $BUILD_DIR
+  git clone git@github.com:njligames/test_engine_repo.git
+fi
 
 if [ "${PLATFORM}" == "emscripten" ]
 then
@@ -28,6 +30,10 @@ then
 elif [ "${PLATFORM}" == "appletv" ]
 then
   cmake .. -G "Xcode" -DTVOS:BOOL=TRUE
+elif [ "${PLATFORM}" == "android" ]
+then
+  cd android
+  ./gradlew assembleDebug
 else
   cmake -E env CFLAGS='-O0 -g' cmake ..
 fi

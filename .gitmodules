@@ -1,0 +1,3 @@
+[submodule "android/test_engine_repo"]
+	path = android/test_engine_repo
+	url = git@github.com:njligames/test_engine_repo.git

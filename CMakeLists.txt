@@ -287,6 +287,7 @@ if (NOT DEFINED SDL_SHARED_ENABLED_BY_DEFAULT)
     set(SDL_SHARED_ENABLED_BY_DEFAULT ON)
 endif()
 
+set(SDL_SHARED_ENABLED_BY_DEFAULT OFF)
 set(SDL_SUBSYSTEMS
     Atomic Audio Video Render Events Joystick Haptic Power Threads Timers
     File Loadso CPUinfo Filesystem Dlopen)
@@ -365,7 +366,7 @@ dep_option(KMSDRM_SHARED       "Dynamically load KMS DRM support" ON "VIDEO_KMSD
 # TODO: We should (should we?) respect cmake's ${BUILD_SHARED_LIBS} flag here
 # The options below are for compatibility to configure's default behaviour.
 set(SDL_SHARED ${SDL_SHARED_ENABLED_BY_DEFAULT} CACHE BOOL "Build a shared version of the library")
-set(SDL_STATIC ON CACHE BOOL "Build a static version of the library")
+set(SDL_STATIC OFF CACHE BOOL "Build a static version of the library")
 set(SDL_EXE ON CACHE BOOL "Build the executable of NJLIC")
 
 dep_option(SDL_STATIC_PIC      "Static version of the library should be built with Position Independent Code" OFF "SDL_STATIC" OFF)
@@ -1781,7 +1782,7 @@ if(UNIX)
   message(STATUS "")
 endif()
 
-if(IOS OR TVOS OR ANDROID OR EMSCRIPTEN)
+if(IOS OR TVOS OR EMSCRIPTEN)
   if(NOT ${LIBSDL_LIBRARY_TARGET_DIRECTORY} STREQUAL "" AND NOT ${LIBSDL_LIBRARY_URL} STREQUAL "")
     RETRIEVE_TAR(
       "${LIBSDL_LIBRARY_URL}"
@@ -1807,14 +1808,11 @@ if(IOS OR TVOS OR ANDROID OR EMSCRIPTEN)
   include_directories("${CMAKE_BINARY_DIR}/${LIBSDL_INCLUDE_TARGET_DIRECTORY}")
   print_target_properties(imported_SDL2)
 
-else()
+elseif(NOT ANDROID)
   find_package(SDL2 REQUIRED)
   list(APPEND EXTRA_LIBS ${SDL2_LIBRARY})
   include_directories(${SDL2_INCLUDE_DIR})
 endif(IOS OR TVOS OR ANDROID OR EMSCRIPTEN)
-
-
-
 
 # Ensure that the extra cflags are used at compile time
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS}")
@@ -1945,7 +1943,7 @@ if(SDL_STATIC)
   if(APPLE)
     if(IOS OR TVOS)
       SET_TARGET_PROPERTIES (
-        SDL2 PROPERTIES
+        SDL2-static PROPERTIES
         XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
         )
     endif(IOS OR TVOS)
