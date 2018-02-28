@@ -356,8 +356,8 @@ foreach(_SUB ${SDL_X11_OPTIONS})
   dep_option(${_OPT}           "Enable ${_SUB} support" ON "VIDEO_X11" OFF)
 endforeach()
 set_option(VIDEO_COCOA         "Use Cocoa video driver" ${APPLE})
-set_option(DIRECTX             "Use DirectX for Windows audio/video" ${WINDOWS})
-set_option(RENDER_D3D          "Enable the Direct3D render driver" ${WINDOWS})
+set_option(DIRECTX             "Use DirectX for Windows audio/video" OFF)
+set_option(RENDER_D3D          "Enable the Direct3D render driver" OFF)
 set_option(VIDEO_VIVANTE       "Use Vivante EGL video driver" ${UNIX_SYS})
 dep_option(VIDEO_VULKAN        "Enable Vulkan support" ON "ANDROID OR APPLE OR LINUX OR WINDOWS" OFF)
 set_option(VIDEO_KMSDRM        "Use KMS DRM video driver" ${UNIX_SYS})
@@ -1174,6 +1174,15 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID)
   endif()
 
 elseif(WINDOWS)
+
+  if(ARCH_64)
+    set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/windows/x64")
+    set(LIBSDL_LIBRARY_URL "${NJLIC_URL_SDL2_LIB_WINDOWS_X64_RELEASE}")
+  else()
+    set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/windows/x86")
+    set(LIBSDL_LIBRARY_URL "${NJLIC_URL_SDL2_LIB_WINDOWS_WIN32_RELEASE}")
+  endif(ARCH_64)
+
   find_program(WINDRES windres)
 
   check_c_source_compiles("
@@ -1737,6 +1746,41 @@ if(NOT WINDOWS OR CYGWIN)
     "${SDL2_BINARY_DIR}/SDL2.spec" @ONLY)
 endif()
 
+if(IOS OR TVOS OR EMSCRIPTEN OR WINDOWS)
+  if(NOT ${LIBSDL_LIBRARY_TARGET_DIRECTORY} STREQUAL "" AND NOT ${LIBSDL_LIBRARY_URL} STREQUAL "")
+    RETRIEVE_TAR(
+      "${LIBSDL_LIBRARY_URL}"
+      "${LIBSDL_LIBRARY_TARGET_DIRECTORY}"
+      "SKIP"
+      )
+  endif(NOT ${LIBSDL_LIBRARY_TARGET_DIRECTORY} STREQUAL "" AND NOT ${LIBSDL_LIBRARY_URL} STREQUAL "")
+
+  RETRIEVE_TAR(
+    "${LIBSDL_INCLUDE_URL}"
+    "${LIBSDL_INCLUDE_TARGET_DIRECTORY}"
+    "SKIP"
+    )
+
+  set(SDL_IMPORT_LOCATION "${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY}/libSDL2.${STATIC_LIBRARY_EXTENSION}")
+  if(IOS OR TVOS)
+    set(SDL_IMPORT_LOCATION "${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY}/Release\$(EFFECTIVE_PLATFORM_NAME)/libSDL2.${STATIC_LIBRARY_EXTENSION}")
+  elseif(WINDOWS)
+    set(SDL_IMPORT_LOCATION "${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY}/SDL2.${STATIC_LIBRARY_EXTENSION}")
+  endif()
+
+  message(STATUS "The location of SDL2 library ${SDL_IMPORT_LOCATION}")
+  ADD_LIBRARY(imported_SDL2 STATIC IMPORTED )
+  SET_TARGET_PROPERTIES(imported_SDL2 PROPERTIES IMPORTED_LOCATION "${SDL_IMPORT_LOCATION}")
+  list(APPEND EXTRA_LIBS imported_SDL2)
+  include_directories("${CMAKE_BINARY_DIR}/${LIBSDL_INCLUDE_TARGET_DIRECTORY}")
+  print_target_properties(imported_SDL2)
+
+elseif(NOT ANDROID)
+  find_package(SDL2 REQUIRED)
+  list(APPEND EXTRA_LIBS ${SDL2_LIBRARY})
+  include_directories(${SDL2_INCLUDE_DIR})
+endif(IOS OR TVOS OR EMSCRIPTEN OR WINDOWS)
+
 ##### Info output #####
 message(STATUS "")
 message(STATUS "SDL2 was configured with the following options:")
@@ -1781,38 +1825,6 @@ if(UNIX)
   message(STATUS "CFLAGS and LDFLAGS environment variables correctly.")
   message(STATUS "")
 endif()
-
-if(IOS OR TVOS OR EMSCRIPTEN)
-  if(NOT ${LIBSDL_LIBRARY_TARGET_DIRECTORY} STREQUAL "" AND NOT ${LIBSDL_LIBRARY_URL} STREQUAL "")
-    RETRIEVE_TAR(
-      "${LIBSDL_LIBRARY_URL}"
-      "${LIBSDL_LIBRARY_TARGET_DIRECTORY}"
-      "SKIP"
-      )
-  endif(NOT ${LIBSDL_LIBRARY_TARGET_DIRECTORY} STREQUAL "" AND NOT ${LIBSDL_LIBRARY_URL} STREQUAL "")
-
-  RETRIEVE_TAR(
-    "${LIBSDL_INCLUDE_URL}"
-    "${LIBSDL_INCLUDE_TARGET_DIRECTORY}"
-    "SKIP"
-    )
-
-  ADD_LIBRARY(imported_SDL2 STATIC IMPORTED )
-  if(IOS OR TVOS)
-    SET_TARGET_PROPERTIES(imported_SDL2 PROPERTIES IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY}/Release\$(EFFECTIVE_PLATFORM_NAME)/libSDL2.${STATIC_LIBRARY_EXTENSION}")
-  else()
-    SET_TARGET_PROPERTIES(imported_SDL2 PROPERTIES IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY}/libSDL2.${STATIC_LIBRARY_EXTENSION}")
-  endif()
-
-  list(APPEND EXTRA_LIBS imported_SDL2)
-  include_directories("${CMAKE_BINARY_DIR}/${LIBSDL_INCLUDE_TARGET_DIRECTORY}")
-  print_target_properties(imported_SDL2)
-
-elseif(NOT ANDROID)
-  find_package(SDL2 REQUIRED)
-  list(APPEND EXTRA_LIBS ${SDL2_LIBRARY})
-  include_directories(${SDL2_INCLUDE_DIR})
-endif(IOS OR TVOS OR ANDROID OR EMSCRIPTEN)
 
 # Ensure that the extra cflags are used at compile time
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS}")
