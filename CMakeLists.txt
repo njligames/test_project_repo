@@ -2,8 +2,17 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
   message(FATAL_ERROR "Prevented in-tree built. Please create a build directory outside of the SDL source code and call cmake from there")
 endif()
 
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required( VERSION 3.5.1 )
+
 project(SDL2)
+
+# include(ExternalProject)
+# set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
+# ExternalProject_Add(engine_code
+# 	BUILD_ALWAYS FALSE
+#         GIT_REPOSITORY git@github.com:njligames/test_engine_repo.git
+#         CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+#         )
 
 # !!! FIXME: this should probably do "MACOSX_RPATH ON" as a target property
 # !!! FIXME:  for the SDL2 shared library (so you get an
@@ -51,7 +60,17 @@ set(NJLIC_URL_SDL2_LIB_TVOS_RELEASE "https://www.dropbox.com/s/pykfzhv69xvw0jn/S
 set(NJLIC_URL_SDL2_LIB_WINDOWS_WIN32_RELEASE "https://www.dropbox.com/s/6khz9t3oizrihrq/SDL2-2.0.7_windows_Win32_Release.tar.gz?dl=0" CACHE STRING "The URL for the Windows 32bit version of SDL2")
 set(NJLIC_URL_SDL2_LIB_WINDOWS_X64_RELEASE "https://www.dropbox.com/s/8hozs9z89raqyyw/SDL2-2.0.7_windows_x64_Release.tar.gz?dl=0" CACHE STRING "The URL for the Windows 64bit version of SDL2")
 
-set(NJLIC_REPO_DIRECTORY "${CMAKE_BINARY_DIR}/test_engine_repo")
+
+set(NJLI_REPO_DIR "test_engine_repo")
+set(NJLIC_REPO_DIRECTORY "${CMAKE_BINARY_DIR}/${NJLI_REPO_DIR}")
+
+set(NJLIC_REPO_URL "https://github.com/njligames/test_engine_repo/archive/master.tar.gz")
+RETRIEVE_TAR(
+	"${NJLIC_REPO_URL}"
+	"${NJLI_REPO_DIR}"
+	"SKIP"
+)
+
 
 # General settings
 # Edit include/SDL_version.h and change the version, then:
@@ -1852,6 +1871,8 @@ if(SDL_EXE)
 
   else()
     add_executable(SDL2-exe ${SOURCE_FILES})
+    # add_dependencies(SDL2-exe engine_code)
+
     if(APPLE)
       SET_TARGET_PROPERTIES(
         SDL2-exe PROPERTIES

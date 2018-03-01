@@ -9,7 +9,6 @@ then
   rm -rf $BUILD_DIR
   mkdir $BUILD_DIR
   cd $BUILD_DIR
-  git clone git@github.com:njligames/test_engine_repo.git
 fi
 
 if [ "${PLATFORM}" == "emscripten" ]
