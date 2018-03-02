@@ -1802,6 +1802,22 @@ if(IOS OR TVOS OR EMSCRIPTEN OR WINDOWS)
     SET_TARGET_PROPERTIES(imported_SDL2main PROPERTIES IMPORTED_LOCATION "${SDLMAIN_IMPORT_LOCATION}")
     list(APPEND EXTRA_LIBS imported_SDL2main)
     print_target_properties(imported_SDL2main)
+
+
+    # SET(CMAKE_FIND_LIBRARY_SUFFIXES .dll)
+    # find_library(SDL2SHARED_LIBRARY
+    #   NAMES SDL2
+    #   HINTS "${CMAKE_BINARY_DIR}" "${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY}"
+    #   )
+
+
+    # message(STATUS "The location of shared SDL2 library ${SDL2SHARED_LIBRARY}")
+    # set(SDL2SHARED_FOUND TRUE)
+    # ADD_LIBRARY(imported_SDL2_shared SHARED IMPORTED )
+    # SET_TARGET_PROPERTIES(imported_SDL2_shared PROPERTIES IMPORTED_LOCATION "${SDL2SHARED_LIBRARY}")
+    # list(APPEND EXTRA_LIBS imported_SDL2_shared)
+    # print_target_properties(imported_SDL2_shared)
+
   endif(WINDOWS)
 
 elseif(NOT ANDROID)

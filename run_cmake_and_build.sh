@@ -19,7 +19,7 @@ then
   cmake .. -G "Visual Studio 14 2015 Win64"
 elif [ "${PLATFORM}" == "windows32" ]
 then
-  cmake .. -G "Visual Studio 14 2015 ARM"
+  cmake .. -G "Visual Studio 14 2015"
 elif [ "${PLATFORM}" == "macOS" ]
 then
   cmake .. -G "Xcode"
