@@ -281,7 +281,7 @@ endif()
 # General includes
 include_directories(${SDL2_BINARY_DIR}/include ${NJLIC_REPO_DIRECTORY}/include)
 if(USE_GCC OR USE_CLANG)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -idirafter ${SDL2_SOURCE_DIR}/src/video/khronos")
+  # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -idirafter ${SDL2_SOURCE_DIR}/src/video/khronos")
 else()
   include_directories(${SDL2_SOURCE_DIR}/src/video/khronos)
 endif()
@@ -945,6 +945,7 @@ endif()
 if(EMSCRIPTEN)
 
   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 --js-opts 0 -g4")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 --js-opts 0 -g4")
 
   set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/emscripten/Release")
   set(LIBSDL_LIBRARY_URL "${NJLIC_URL_SDL2_LIB_EMSCRIPTEN_RELEASE}")

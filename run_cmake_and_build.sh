@@ -13,6 +13,7 @@ fi
 
 if [ "${PLATFORM}" == "emscripten" ]
 then
+  export EMCC_DEBUG=1 # Verbose building...
   emcmake cmake ..
 elif [ "${PLATFORM}" == "windows64" ]
 then
