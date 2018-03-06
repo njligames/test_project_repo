@@ -247,8 +247,8 @@ endif()
 
 # Those are used for pkg-config and friends, so that the SDL2.pc, sdl2-config,
 # etc. are created correctly.
-set(SDL_LIBS "-lSDL2")
-set(SDL_CFLAGS "")
+set(NJLIC_LIBS "-lNJLIC")
+set(NJLIC_CFLAGS "")
 
 # Emscripten toolchain has a nonempty default value for this, and the checks 
 # in this file need to change that, so remember the original value, and 
@@ -265,9 +265,9 @@ if(CYGWIN)
   set(CMAKE_REQUIRED_FLAGS ${ORIG_CMAKE_REQUIRED_FLAGS})
   if(HAVE_GCC_NO_CYGWIN)
     list(APPEND EXTRA_LDFLAGS "-mno-cygwin")
-    list(APPEND SDL_LIBS "-mno-cygwin")
+    list(APPEND NJLIC_LIBS "-mno-cygwin")
   endif()
-  set(SDL_CFLAGS "${SDL_CFLAGS} -I/usr/include/mingw")
+  set(NJLIC_CFLAGS "${NJLIC_CFLAGS} -I/usr/include/mingw")
 endif()
 
 #add_definitions(-DUSING_GENERATED_CONFIG_H)
@@ -287,18 +287,34 @@ if(EMSCRIPTEN)
   # Emscripten/Javascript does not have assembly support, a dynamic library 
   # loading architecture, low-level CPU inspection or multithreading.
   set(OPT_DEF_ASM FALSE)
-  set(SDL_SHARED_ENABLED_BY_DEFAULT OFF)
-  set(SDL_ATOMIC_ENABLED_BY_DEFAULT OFF)
-  set(SDL_THREADS_ENABLED_BY_DEFAULT OFF)
-  set(SDL_LOADSO_ENABLED_BY_DEFAULT OFF)
-  set(SDL_CPUINFO_ENABLED_BY_DEFAULT OFF)
-  set(SDL_DLOPEN_ENABLED_BY_DEFAULT OFF)
+  set(NJLIC_SHARED_ENABLED_BY_DEFAULT OFF)
+  set(NJLIC_ATOMIC_ENABLED_BY_DEFAULT OFF)
+  set(NJLIC_THREADS_ENABLED_BY_DEFAULT OFF)
+  set(NJLIC_LOADSO_ENABLED_BY_DEFAULT OFF)
+  set(NJLIC_CPUINFO_ENABLED_BY_DEFAULT OFF)
+  set(NJLIC_DLOPEN_ENABLED_BY_DEFAULT OFF)
 endif()
 
-if (NOT DEFINED SDL_SHARED_ENABLED_BY_DEFAULT)
-    set(SDL_SHARED_ENABLED_BY_DEFAULT ON)
+if(ANDROID)
+  set(NJLIC_STATIC_ENABLED_BY_DEFAULT OFF)
+  set(NJLIC_EXE_ENABLED_BY_DEFAULT OFF)
 endif()
 
+if (NOT DEFINED NJLIC_SHARED_ENABLED_BY_DEFAULT)
+    set(NJLIC_SHARED_ENABLED_BY_DEFAULT ON)
+endif()
+
+if (NOT DEFINED NJLIC_STATIC_ENABLED_BY_DEFAULT)
+    set(NJLIC_STATIC_ENABLED_BY_DEFAULT ON)
+endif()
+
+if (NOT DEFINED NJLIC_EXE_ENABLED_BY_DEFAULT)
+    set(NJLIC_EXE_ENABLED_BY_DEFAULT ON)
+endif()
+
+# set(SDL_SUBSYSTEMS
+#     Atomic Audio Video Render Events Joystick Haptic Power Threads Timers
+#     File Loadso CPUinfo Filesystem Dlopen)
 set(SDL_SUBSYSTEMS
     Atomic Audio Video Render Events Joystick Haptic Power Threads Timers
     File Loadso CPUinfo Filesystem Dlopen)
@@ -331,7 +347,7 @@ set_option(VIDEO_OPENGL        "Include OpenGL support" ON)
 set_option(VIDEO_OPENGLES      "Include OpenGL ES support" ON)
 set_option(PTHREADS            "Use POSIX threads for multi-threading" ${SDL_PTHREADS_ENABLED_BY_DEFAULT})
 dep_option(PTHREADS_SEM        "Use pthread semaphores" ON "PTHREADS" OFF)
-set_option(SDL_DLOPEN          "Use dlopen for shared object loading" ${SDL_DLOPEN_ENABLED_BY_DEFAULT})
+set_option(SDL_DLOPEN          "Use dlopen for shared object loading" ${NJLIC_DLOPEN_ENABLED_BY_DEFAULT})
 set_option(OSS                 "Support the OSS audio API" ${UNIX_SYS})
 set_option(ALSA                "Support the ALSA audio API" ${UNIX_SYS})
 dep_option(ALSA_SHARED         "Dynamically load ALSA audio support" ON "ALSA" OFF)
@@ -376,11 +392,11 @@ dep_option(KMSDRM_SHARED       "Dynamically load KMS DRM support" ON "VIDEO_KMSD
 
 # TODO: We should (should we?) respect cmake's ${BUILD_SHARED_LIBS} flag here
 # The options below are for compatibility to configure's default behaviour.
-set(SDL_SHARED ${SDL_SHARED_ENABLED_BY_DEFAULT} CACHE BOOL "Build a shared version of the library")
-set(SDL_STATIC ON CACHE BOOL "Build a static version of the library")
-set(SDL_EXE ON CACHE BOOL "Build the executable of NJLIC")
+set(NJLIC_SHARED ${NJLIC_SHARED_ENABLED_BY_DEFAULT} CACHE BOOL "Build a shared version of the library")
+set(NJLIC_STATIC ${NJLIC_STATIC_ENABLED_BY_DEFAULT} CACHE BOOL "Build a static version of the library")
+set(NJLIC_EXE ${NJLIC_EXE_ENABLED_BY_DEFAULT} CACHE BOOL "Build the executable of NJLIC")
 
-dep_option(SDL_STATIC_PIC      "Static version of the library should be built with Position Independent Code" OFF "SDL_STATIC" OFF)
+dep_option(NJLIC_STATIC_PIC      "Static version of the library should be built with Position Independent Code" OFF "NJLIC_STATIC" OFF)
 
 set(LIBSDL_INCLUDE_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/include")
 set(LIBSDL_INCLUDE_URL "${NJLIC_URL_SDL2_INCLUDE}")
@@ -1398,8 +1414,8 @@ elseif(WINDOWS)
   if(MINGW OR CYGWIN)
     list(APPEND EXTRA_LIBS mingw32)
     list(APPEND EXTRA_LDFLAGS "-mwindows")
-    set(SDL_CFLAGS "${SDL_CFLAGS} -Dmain=SDL_main")
-    list(APPEND SDL_LIBS "-lmingw32" "-lSDL2main" "-mwindows")
+    set(NJLIC_CFLAGS "${NJLIC_CFLAGS} -Dmain=SDL_main")
+    list(APPEND NJLIC_LIBS "-lmingw32" "-lSDL2main" "-mwindows")
   endif()
 elseif(APPLE)
 
@@ -1705,14 +1721,14 @@ if(NOT WINDOWS OR CYGWIN)
   set(libdir "\${exec_prefix}/lib${LIB_SUFFIX}")
   set(bindir "\${exec_prefix}/bin")
   set(includedir "\${prefix}/include")
-  if(SDL_STATIC)
+  if(NJLIC_STATIC)
     set(ENABLE_STATIC_TRUE "")
     set(ENABLE_STATIC_FALSE "#")
   else()
     set(ENABLE_STATIC_TRUE "#")
     set(ENABLE_STATIC_FALSE "")
   endif()
-  if(SDL_SHARED)
+  if(NJLIC_SHARED)
     set(ENABLE_SHARED_TRUE "")
     set(ENABLE_SHARED_FALSE "#")
   else()
@@ -1722,12 +1738,12 @@ if(NOT WINDOWS OR CYGWIN)
 
   # Clean up the different lists
   listtostr(EXTRA_LIBS _EXTRA_LIBS "-l")
-  set(SDL_STATIC_LIBS ${SDL_LIBS} ${EXTRA_LDFLAGS} ${_EXTRA_LIBS})
-  list(REMOVE_DUPLICATES SDL_STATIC_LIBS)
-  listtostr(SDL_STATIC_LIBS _SDL_STATIC_LIBS)
-  set(SDL_STATIC_LIBS ${_SDL_STATIC_LIBS})
-  listtostr(SDL_LIBS _SDL_LIBS)
-  set(SDL_LIBS ${_SDL_LIBS})
+  set(NJLIC_STATIC_LIBS ${NJLIC_LIBS} ${EXTRA_LDFLAGS} ${_EXTRA_LIBS})
+  list(REMOVE_DUPLICATES NJLIC_STATIC_LIBS)
+  listtostr(NJLIC_STATIC_LIBS _NJLIC_STATIC_LIBS)
+  set(NJLIC_STATIC_LIBS ${_NJLIC_STATIC_LIBS})
+  listtostr(NJLIC_LIBS _NJLIC_LIBS)
+  set(NJLIC_LIBS ${_NJLIC_LIBS})
 
   configure_file("${NJLIC_SOURCE_DIR}/njlic.pc.in"
     "${NJLIC_BINARY_DIR}/njlic.pc" @ONLY)
@@ -1824,11 +1840,11 @@ message(STATUS " EXTRA_CFLAGS:  ${EXTRA_CFLAGS}")
 message(STATUS " EXTRA_LDFLAGS: ${EXTRA_LDFLAGS}")
 message(STATUS " EXTRA_LIBS:    ${EXTRA_LIBS}")
 message(STATUS "")
-message(STATUS " Build Shared Library: ${SDL_SHARED}")
-message(STATUS " Build Static Library: ${SDL_STATIC}")
-message(STATUS " Build Executable: ${SDL_EXE}")
-if(SDL_STATIC)
-    message(STATUS " Build Static Library with Position Independent Code: ${SDL_STATIC_PIC}")
+message(STATUS " Build Shared Library: ${NJLIC_SHARED}")
+message(STATUS " Build Static Library: ${NJLIC_STATIC}")
+message(STATUS " Build Executable: ${NJLIC_EXE}")
+if(NJLIC_STATIC)
+    message(STATUS " Build Static Library with Position Independent Code: ${NJLIC_STATIC_PIC}")
 endif()
 message(STATUS "")
 if(UNIX)
@@ -1994,7 +2010,92 @@ MESSAGE( STATUS "CMAKE_RANLIB: " ${CMAKE_RANLIB} )
 # Ensure that the extra cflags are used at compile time
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS}")
 
-if(SDL_EXE)
+if(NJLIC_EXE)
+  add_executable(NJLIC-exe ${SOURCE_FILES})
+  # add_dependencies(NJLIC-exe engine_code)
+
+  if(APPLE)
+    SET_TARGET_PROPERTIES(
+      NJLIC-exe PROPERTIES
+      RESOURCE "${ASSET_CATALOGUE}"
+      )
+
+    if(NOT (IOS OR TVOS))
+      SET_TARGET_PROPERTIES (
+        NJLIC-exe PROPERTIES
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake.in/platform.in/macOS/Info.plist"
+        XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
+        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.macos.source"
+        )
+    endif(NOT (IOS OR TVOS))
+
+    if(IOS)
+      SET_TARGET_PROPERTIES (
+        NJLIC-exe PROPERTIES
+        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
+        XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
+        XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
+        XCODE_ATTRIBUTE_INSTALL_PATH "${CMAKE_BINARY_DIR}/ProductRelease"
+        XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES "NO"
+        XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake.in/platform.in/ios/Info.plist"
+        XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
+        XCODE_ATTRIBUTE_PRODUCT_NAME "NJLICGameEngine"
+        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.ios.source"
+        XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
+        XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "$ENV{IOS_DEVELOPMENT_TEAM}"
+        )
+    endif(IOS)
+
+    if(TVOS)
+      SET_TARGET_PROPERTIES (
+        NJLIC-exe PROPERTIES
+        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
+        XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "3"
+        XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
+        XCODE_ATTRIBUTE_INSTALL_PATH "${CMAKE_BINARY_DIR}/ProductRelease"
+        XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES "NO"
+        XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake.in/platform.in/appletv/Info.plist"
+        XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "App Icon & Top Shelf Image"
+        XCODE_ATTRIBUTE_PRODUCT_NAME "NJLICGameEngine"
+        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.appletv.source"
+        XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
+        XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "$ENV{IOS_DEVELOPMENT_TEAM}"
+        )
+    endif(TVOS)
+  elseif(UNIX AND NOT ANDROID)
+  else()
+  endif()
+  if(MSVC AND NOT LIBC)
+
+    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/NJLIC-exe.Cpp.user.props" [=[
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+<LocalDebuggerEnvironment>PATH=]=] ${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY} [=[ ;$(PATH)</LocalDebuggerEnvironment>
+</PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+<LocalDebuggerEnvironment>PATH=]=] ${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY} [=[ ;$(PATH)</LocalDebuggerEnvironment>
+</PropertyGroup>
+</Project>
+]=])
+
+    set_target_properties(NJLIC-exe PROPERTIES VS_USER_PROPS "NJLIC-exe.Cpp.user.props")
+
+    # Don't try to link with the default set of libraries.
+    # set_target_properties(NJLIC-exe PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
+    # set_target_properties(NJLIC-exe PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
+    # set_target_properties(NJLIC-exe PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
+  endif()
+  set(_INSTALL_EXE "NJLIC-exe" )
+  target_link_libraries(NJLIC-exe ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
+  # target_include_directories(NJLIC-exe PUBLIC $<INSTALL_INTERFACE:include>)
+endif(NJLIC_EXE)
+
+if(NJLIC_SHARED)
   if(ANDROID)
     string(TOLOWER ${CMAKE_BUILD_TYPE} ANDROID_BUILD_DIR)
     set(DISTRIBUTION_DIR ${CMAKE_SOURCE_DIR}/android/distribution/android/SDL2/intermediates/ndkBuild)
@@ -2011,126 +2112,40 @@ if(SDL_EXE)
 
 
   else()
-    add_executable(NJLIC-exe ${SOURCE_FILES})
-    # add_dependencies(NJLIC-exe engine_code)
-
+    add_library(NJLIC SHARED ${SOURCE_FILES} ${VERSION_SOURCES})
     if(APPLE)
-      SET_TARGET_PROPERTIES(
-        NJLIC-exe PROPERTIES
-        RESOURCE "${ASSET_CATALOGUE}"
-        )
-      if(NOT (IOS OR TVOS))
+      set_target_properties(NJLIC PROPERTIES MACOSX_RPATH 1)
+      if(IOS OR TVOS)
         SET_TARGET_PROPERTIES (
-          NJLIC-exe PROPERTIES
-          MACOSX_BUNDLE TRUE
-          MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake.in/platform.in/macOS/Info.plist"
-          XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
-          XCODE_ATTRIBUTE_PRODUCT_NAME "NJLICGameEngine"
-          XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.macos.source"
-          )
-      endif(NOT (IOS OR TVOS))
-
-      if(IOS)
-        SET_TARGET_PROPERTIES (
-          NJLIC-exe PROPERTIES
-          XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
-          XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
-          XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
-          XCODE_ATTRIBUTE_INSTALL_PATH "${CMAKE_BINARY_DIR}/ProductRelease"
-          XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES "NO"
-          XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"
-          MACOSX_BUNDLE TRUE
-          MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake.in/platform.in/ios/Info.plist"
-          XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
-          XCODE_ATTRIBUTE_PRODUCT_NAME "NJLICGameEngine"
-          XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.ios.source"
+          NJLIC PROPERTIES
           XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
           XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "$ENV{IOS_DEVELOPMENT_TEAM}"
           )
-      endif(IOS)
-
-      if(TVOS)
-        SET_TARGET_PROPERTIES (
-          NJLIC-exe PROPERTIES
-          XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
-          XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "3"
-          XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
-          XCODE_ATTRIBUTE_INSTALL_PATH "${CMAKE_BINARY_DIR}/ProductRelease"
-          XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES "NO"
-          XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"
-          MACOSX_BUNDLE TRUE
-          MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake.in/platform.in/appletv/Info.plist"
-          XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "App Icon & Top Shelf Image"
-          XCODE_ATTRIBUTE_PRODUCT_NAME "NJLICGameEngine"
-          XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.appletv.source"
-          XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
-          XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "$ENV{IOS_DEVELOPMENT_TEAM}"
-          )
-      endif(TVOS)
+      endif(IOS OR TVOS)
     elseif(UNIX AND NOT ANDROID)
+      set_target_properties(NJLIC PROPERTIES
+        VERSION ${LT_VERSION}
+        SOVERSION ${LT_REVISION}
+        OUTPUT_NAME "NJLIC-${LT_RELEASE}")
     else()
+      set_target_properties(NJLIC PROPERTIES
+        VERSION ${NJLIC_VERSION}
+        SOVERSION ${LT_REVISION}
+        OUTPUT_NAME "NJLIC")
     endif()
     if(MSVC AND NOT LIBC)
-
-      file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/NJLIC-exe.Cpp.user.props" [=[
-<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-<LocalDebuggerEnvironment>PATH=]=] ${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY} [=[ ;$(PATH)</LocalDebuggerEnvironment>
-</PropertyGroup>
-<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-<LocalDebuggerEnvironment>PATH=]=] ${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY} [=[ ;$(PATH)</LocalDebuggerEnvironment>
-</PropertyGroup>
-</Project>
-]=])
-
-      set_target_properties(NJLIC-exe PROPERTIES VS_USER_PROPS "NJLIC-exe.Cpp.user.props")
-
       # Don't try to link with the default set of libraries.
-      # set_target_properties(NJLIC-exe PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
-      # set_target_properties(NJLIC-exe PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
-      # set_target_properties(NJLIC-exe PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
+      set_target_properties(NJLIC PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
+      set_target_properties(NJLIC PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
+      set_target_properties(NJLIC PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
     endif()
-    set(_INSTALL_EXE "NJLIC-exe" )
-    target_link_libraries(NJLIC-exe ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
-    # target_include_directories(NJLIC-exe PUBLIC $<INSTALL_INTERFACE:include>)
-  endif(ANDROID)
-endif(SDL_EXE)
-
-if(SDL_SHARED)
-  add_library(NJLIC SHARED ${SOURCE_FILES} ${VERSION_SOURCES})
-  if(APPLE)
-    set_target_properties(NJLIC PROPERTIES MACOSX_RPATH 1)
-    if(IOS OR TVOS)
-      SET_TARGET_PROPERTIES (
-        NJLIC PROPERTIES
-        XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
-        XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "$ENV{IOS_DEVELOPMENT_TEAM}"
-        )
-    endif(IOS OR TVOS)
-  elseif(UNIX AND NOT ANDROID)
-    set_target_properties(NJLIC PROPERTIES
-      VERSION ${LT_VERSION}
-      SOVERSION ${LT_REVISION}
-      OUTPUT_NAME "NJLIC-${LT_RELEASE}")
-  else()
-    set_target_properties(NJLIC PROPERTIES
-      VERSION ${NJLIC_VERSION}
-      SOVERSION ${LT_REVISION}
-      OUTPUT_NAME "NJLIC")
+    set(_INSTALL_LIBS "NJLIC" ${_INSTALL_LIBS})
+    target_link_libraries(NJLIC ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
+    target_include_directories(NJLIC PUBLIC $<INSTALL_INTERFACE:include>)
   endif()
-  if(MSVC AND NOT LIBC)
-    # Don't try to link with the default set of libraries.
-    set_target_properties(NJLIC PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
-    set_target_properties(NJLIC PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
-    set_target_properties(NJLIC PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
-  endif()
-  set(_INSTALL_LIBS "NJLIC" ${_INSTALL_LIBS})
-  target_link_libraries(NJLIC ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
-  target_include_directories(NJLIC PUBLIC $<INSTALL_INTERFACE:include>)
-endif()
+endif(NJLIC_SHARED)
 
-if(SDL_STATIC)
+if(NJLIC_STATIC)
   set (BUILD_SHARED_LIBS FALSE)
   add_library(NJLIC-static STATIC ${SOURCE_FILES})
   if(APPLE)
@@ -2142,14 +2157,14 @@ if(SDL_STATIC)
     endif(IOS OR TVOS)
   endif(APPLE)
 
-  if (NOT SDL_SHARED OR NOT WIN32)
+  if (NOT NJLIC_SHARED OR NOT WIN32)
     set_target_properties(NJLIC-static PROPERTIES OUTPUT_NAME "NJLIC")
     # Note: Apparently, OUTPUT_NAME must really be unique; even when
     # CMAKE_IMPORT_LIBRARY_SUFFIX or the like are given. Otherwise
     # the static build may race with the import lib and one will get
     # clobbered, when the suffix is realized via subsequent rename.
   endif()
-  set_target_properties(NJLIC-static PROPERTIES POSITION_INDEPENDENT_CODE ${SDL_STATIC_PIC})
+  set_target_properties(NJLIC-static PROPERTIES POSITION_INDEPENDENT_CODE ${NJLIC_STATIC_PIC})
   if(MSVC AND NOT LIBC)
     set_target_properties(NJLIC-static PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
     set_target_properties(NJLIC-static PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
@@ -2160,7 +2175,7 @@ if(SDL_STATIC)
   set(_INSTALL_LIBS "NJLIC-static" ${_INSTALL_LIBS})
   target_link_libraries(NJLIC-static ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
   target_include_directories(NJLIC-static PUBLIC $<INSTALL_INTERFACE:include>)
-endif()
+endif(NJLIC_STATIC)
 
 ##### Installation targets #####
 install(TARGETS ${_INSTALL_LIBS} EXPORT NJLICTargets
@@ -2174,7 +2189,7 @@ if (APPLE)
 elseif (WINDOWS)
   set(PKG_PREFIX "cmake")
 else ()
-  set(PKG_PREFIX "lib/cmake/SDL2")
+  set(PKG_PREFIX "lib/cmake/NJLIC")
 endif ()
 
 # include(CMakePackageConfigHelpers)
@@ -2206,7 +2221,7 @@ endif ()
 # install(FILES ${INCLUDE_FILES} DESTINATION include/SDL2)
 
 # if(NOT (WINDOWS OR CYGWIN))
-#   if(SDL_SHARED)
+#   if(NJLIC_SHARED)
 #     if (APPLE)
 #         set(SOEXT "dylib")
 #     else()
