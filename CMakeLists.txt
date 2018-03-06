@@ -4,7 +4,7 @@ endif()
 
 cmake_minimum_required( VERSION 3.5.1 )
 
-project(SDL2)
+project(NJLIC C CXX)
 
 # include(ExternalProject)
 # set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
@@ -37,25 +37,18 @@ include(CheckStructHasMember)
 include(CMakeDependentOption)
 include(FindPkgConfig)
 include(GNUInstallDirs)
-set(CMAKE_MODULE_PATH "${SDL2_SOURCE_DIR}/cmake")
-include(${SDL2_SOURCE_DIR}/cmake/macros.cmake)
-include(${SDL2_SOURCE_DIR}/cmake/sdlchecks.cmake)
-include(${SDL2_SOURCE_DIR}/cmake/download-extract.cmake)
-include(${SDL2_SOURCE_DIR}/cmake/print-targets.cmake)
+set(CMAKE_MODULE_PATH "${NJLIC_SOURCE_DIR}/cmake")
+include(${NJLIC_SOURCE_DIR}/cmake/macros.cmake)
+include(${NJLIC_SOURCE_DIR}/cmake/sdlchecks.cmake)
+include(${NJLIC_SOURCE_DIR}/cmake/download-extract.cmake)
+include(${NJLIC_SOURCE_DIR}/cmake/print-targets.cmake)
 
 set(NJLIC_URL_SDL2_INCLUDE "https://www.dropbox.com/s/g0qrc1xkz2qcb9y/SDL2-2.0.7_include.tar.gz?dl=0" CACHE STRING "The URL for the include files for SDL2")
 
-set(NJLIC_URL_SDL2_LIB_ANDROID_ARM64_RELEASE "https://www.dropbox.com/s/pjtjblgo7zcidio/SDL2-2.0.7_android_23_Release_arm64-v8a.tar.gz?dl=0" CACHE STRING "The URL for the Android arm64 version of SDL2")
-set(NJLIC_URL_SDL2_LIB_ANDROID_ARMEABI_V7A_RELEASE "https://www.dropbox.com/s/slyhgxvzoc5s23d/SDL2-2.0.7_android_23_Release_armeabi-v7a.tar.gz?dl=0" CACHE STRING "The URL for the Android armeabi-v7a version of SDL2")
-set(NJLIC_URL_SDL2_LIB_ANDROID_ARMEABI_RELEASE "https://www.dropbox.com/s/s08enkqf5j03xhb/SDL2-2.0.7_android_23_Release_armeabi.tar.gz?dl=0" CACHE STRING "The URL for the Android armeabi version of SDL2")
-set(NJLIC_URL_SDL2_LIB_ANDROID_MIPS_RELEASE "https://www.dropbox.com/s/1zlvc4hvuhtc7yt/SDL2-2.0.7_android_23_Release_mips.tar.gz?dl=0" CACHE STRING "The URL for the Android mips version of SDL2")
-set(NJLIC_URL_SDL2_LIB_ANDROID_MIPS64_RELEASE "https://www.dropbox.com/s/xg0l2dx0k7b9vl4/SDL2-2.0.7_android_23_Release_mips64.tar.gz?dl=0" CACHE STRING "The URL for the Android mips64 version of SDL2")
-set(NJLIC_URL_SDL2_LIB_ANDROID_X86_64_RELEASE "https://www.dropbox.com/s/rnn2rrtpelyfnps/SDL2-2.0.7_android_23_Release_x86_64.tar.gz?dl=0" CACHE STRING "The URL for the Android x86_64 version of SDL2")
-set(NJLIC_URL_SDL2_LIB_ANDROID_X86_RELEASE "https://www.dropbox.com/s/gamgt30xhga9puh/SDL2-2.0.7_android_23_Release_x86.tar.gz?dl=0" CACHE STRING "The URL for the Android x86 version of SDL2")
 set(NJLIC_URL_SDL2_LIB_EMSCRIPTEN_RELEASE "https://www.dropbox.com/s/qc35pwe0taci2y6/SDL2-2.0.7_emscripten_Release.tar.gz?dl=0" CACHE STRING "The URL for the Emscripten version of SDL2")
 set(NJLIC_URL_SDL2_LIB_IOS_RELEASE "https://www.dropbox.com/s/xsvgzfp2h4lk965/SDL2-2.0.7_ios.tar.gz?dl=0" CACHE STRING "The URL for the iOS version of SDL2")
-set(NJLIC_URL_SDL2_LIB_LINUX_RELEASE "https://www.dropbox.com/s/j93mqvomxo1p92c/SDL2-2.0.7_linux_16.04.2_LTS_Release.tar.gz?dl=0" CACHE STRING "The URL for the Linux version of SDL2")
-set(NJLIC_URL_SDL2_LIB_MACOS_RELEASE "https://www.dropbox.com/s/k424l8x6bpmdz71/SDL2-2.0.7_macOS_10.12_Release.tar.gz?dl=0" CACHE STRING "The URL for the MacOS version of SDL2")
+# set(NJLIC_URL_SDL2_LIB_LINUX_RELEASE "https://www.dropbox.com/s/j93mqvomxo1p92c/SDL2-2.0.7_linux_16.04.2_LTS_Release.tar.gz?dl=0" CACHE STRING "The URL for the Linux version of SDL2")
+# set(NJLIC_URL_SDL2_LIB_MACOS_RELEASE "https://www.dropbox.com/s/k424l8x6bpmdz71/SDL2-2.0.7_macOS_10.12_Release.tar.gz?dl=0" CACHE STRING "The URL for the MacOS version of SDL2")
 set(NJLIC_URL_SDL2_LIB_TVOS_RELEASE "https://www.dropbox.com/s/pykfzhv69xvw0jn/SDL2-2.0.7_tvos.tar.gz?dl=0" CACHE STRING "The URL for the tvOS version of SDL2")
 set(NJLIC_URL_SDL2_LIB_WINDOWS_WIN32_RELEASE "https://www.dropbox.com/s/6khz9t3oizrihrq/SDL2-2.0.7_windows_Win32_Release.tar.gz?dl=0" CACHE STRING "The URL for the Windows 32bit version of SDL2")
 set(NJLIC_URL_SDL2_LIB_WINDOWS_X64_RELEASE "https://www.dropbox.com/s/8hozs9z89raqyyw/SDL2-2.0.7_windows_x64_Release.tar.gz?dl=0" CACHE STRING "The URL for the Windows 64bit version of SDL2")
@@ -74,18 +67,18 @@ RETRIEVE_TAR(
 
 # General settings
 # Edit include/SDL_version.h and change the version, then:
-#   SDL_MICRO_VERSION += 1;
-#   SDL_INTERFACE_AGE += 1;
-#   SDL_BINARY_AGE += 1;
-# if any functions have been added, set SDL_INTERFACE_AGE to 0.
+#   NJLIC_MICRO_VERSION += 1;
+#   NJLIC_INTERFACE_AGE += 1;
+#   NJLIC_BINARY_AGE += 1;
+# if any functions have been added, set NJLIC_INTERFACE_AGE to 0.
 # if backwards compatibility has been broken,
-# set SDL_BINARY_AGE and SDL_INTERFACE_AGE to 0.
-set(SDL_MAJOR_VERSION 0)
-set(SDL_MINOR_VERSION 0)
-set(SDL_MICRO_VERSION 1)
-set(SDL_INTERFACE_AGE 0)
-set(SDL_BINARY_AGE 0)
-set(SDL_VERSION "${SDL_MAJOR_VERSION}.${SDL_MINOR_VERSION}.${SDL_MICRO_VERSION}")
+# set NJLIC_BINARY_AGE and NJLIC_INTERFACE_AGE to 0.
+set(NJLIC_MAJOR_VERSION 0)
+set(NJLIC_MINOR_VERSION 0)
+set(NJLIC_MICRO_VERSION 1)
+set(NJLIC_INTERFACE_AGE 0)
+set(NJLIC_BINARY_AGE 0)
+set(NJLIC_VERSION "${NJLIC_MAJOR_VERSION}.${NJLIC_MINOR_VERSION}.${NJLIC_MICRO_VERSION}")
 
 # Set defaults preventing destination file conflicts
 set(CMAKE_DEBUG_POSTFIX "d"
@@ -94,11 +87,11 @@ set(CMAKE_DEBUG_POSTFIX "d"
 mark_as_advanced(CMAKE_IMPORT_LIBRARY_SUFFIX CMAKE_DEBUG_POSTFIX)
 
 # Calculate a libtool-like version number
-math(EXPR LT_CURRENT "${SDL_MICRO_VERSION} - ${SDL_INTERFACE_AGE}")
-math(EXPR LT_AGE "${SDL_BINARY_AGE} - ${SDL_INTERFACE_AGE}")
+math(EXPR LT_CURRENT "${NJLIC_MICRO_VERSION} - ${NJLIC_INTERFACE_AGE}")
+math(EXPR LT_AGE "${NJLIC_BINARY_AGE} - ${NJLIC_INTERFACE_AGE}")
 math(EXPR LT_MAJOR "${LT_CURRENT}- ${LT_AGE}")
-set(LT_REVISION "${SDL_INTERFACE_AGE}")
-set(LT_RELEASE "${SDL_MAJOR_VERSION}.${SDL_MINOR_VERSION}")
+set(LT_REVISION "${NJLIC_INTERFACE_AGE}")
+set(LT_RELEASE "${NJLIC_MAJOR_VERSION}.${NJLIC_MINOR_VERSION}")
 set(LT_VERSION "${LT_MAJOR}.${LT_AGE}.${LT_REVISION}")
 
 message(STATUS "${LT_VERSION} :: ${LT_AGE} :: ${LT_REVISION} :: ${LT_CURRENT} :: ${LT_RELEASE}")
@@ -279,11 +272,11 @@ endif()
 
 #add_definitions(-DUSING_GENERATED_CONFIG_H)
 # General includes
-include_directories(${SDL2_BINARY_DIR}/include ${NJLIC_REPO_DIRECTORY}/include)
+include_directories(${NJLIC_BINARY_DIR}/include ${NJLIC_REPO_DIRECTORY}/include)
 if(USE_GCC OR USE_CLANG)
-  # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -idirafter ${SDL2_SOURCE_DIR}/src/video/khronos")
+  # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -idirafter ${NJLIC_SOURCE_DIR}/src/video/khronos")
 else()
-  include_directories(${SDL2_SOURCE_DIR}/src/video/khronos)
+  # include_directories(${NJLIC_SOURCE_DIR}/src/video/khronos)
 endif()
 
 # All these ENABLED_BY_DEFAULT vars will default to ON if not specified, so
@@ -306,7 +299,6 @@ if (NOT DEFINED SDL_SHARED_ENABLED_BY_DEFAULT)
     set(SDL_SHARED_ENABLED_BY_DEFAULT ON)
 endif()
 
-set(SDL_SHARED_ENABLED_BY_DEFAULT OFF)
 set(SDL_SUBSYSTEMS
     Atomic Audio Video Render Events Joystick Haptic Power Threads Timers
     File Loadso CPUinfo Filesystem Dlopen)
@@ -385,27 +377,10 @@ dep_option(KMSDRM_SHARED       "Dynamically load KMS DRM support" ON "VIDEO_KMSD
 # TODO: We should (should we?) respect cmake's ${BUILD_SHARED_LIBS} flag here
 # The options below are for compatibility to configure's default behaviour.
 set(SDL_SHARED ${SDL_SHARED_ENABLED_BY_DEFAULT} CACHE BOOL "Build a shared version of the library")
-set(SDL_STATIC OFF CACHE BOOL "Build a static version of the library")
+set(SDL_STATIC ON CACHE BOOL "Build a static version of the library")
 set(SDL_EXE ON CACHE BOOL "Build the executable of NJLIC")
 
 dep_option(SDL_STATIC_PIC      "Static version of the library should be built with Position Independent Code" OFF "SDL_STATIC" OFF)
-
-# General source files
-# file(GLOB SOURCE_FILES
-#   ${SDL2_SOURCE_DIR}/src/*.c
-#   ${SDL2_SOURCE_DIR}/src/atomic/*.c
-#   ${SDL2_SOURCE_DIR}/src/audio/*.c
-#   ${SDL2_SOURCE_DIR}/src/cpuinfo/*.c
-#   ${SDL2_SOURCE_DIR}/src/dynapi/*.c
-#   ${SDL2_SOURCE_DIR}/src/events/*.c
-#   ${SDL2_SOURCE_DIR}/src/file/*.c
-#   ${SDL2_SOURCE_DIR}/src/libm/*.c
-#   ${SDL2_SOURCE_DIR}/src/render/*.c
-#   ${SDL2_SOURCE_DIR}/src/render/*/*.c
-#   ${SDL2_SOURCE_DIR}/src/stdlib/*.c
-#   ${SDL2_SOURCE_DIR}/src/thread/*.c
-#   ${SDL2_SOURCE_DIR}/src/timer/*.c
-#   ${SDL2_SOURCE_DIR}/src/video/*.c)
 
 set(LIBSDL_INCLUDE_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/include")
 set(LIBSDL_INCLUDE_URL "${NJLIC_URL_SDL2_INCLUDE}")
@@ -413,6 +388,7 @@ set(LIBSDL_INCLUDE_URL "${NJLIC_URL_SDL2_INCLUDE}")
 set(LIBSDL_LIBRARY_TARGET_DIRECTORY "")
 set(LIBSDL_LIBRARY_URL "")
 
+# General source files
 file(GLOB SOURCE_FILES
   ${NJLIC_REPO_DIRECTORY}/src/main.cpp
   ${NJLIC_REPO_DIRECTORY}/src/SDL_test_common.c
@@ -785,7 +761,7 @@ foreach(_SUB ${SDL_SUBSYSTEMS})
   endif()
 endforeach()
 if(SDL_JOYSTICK)
-  file(GLOB JOYSTICK_SOURCES ${SDL2_SOURCE_DIR}/src/joystick/*.c)
+  # file(GLOB JOYSTICK_SOURCES ${NJLIC_SOURCE_DIR}/src/joystick/*.c)
   # set(SOURCE_FILES ${SOURCE_FILES} ${JOYSTICK_SOURCES})
 endif()
 if(SDL_HAPTIC)
@@ -793,11 +769,11 @@ if(SDL_HAPTIC)
     # Haptic requires some private functions from the joystick subsystem.
     message_error("SDL_HAPTIC requires SDL_JOYSTICK, which is not enabled")
   endif()
-  file(GLOB HAPTIC_SOURCES ${SDL2_SOURCE_DIR}/src/haptic/*.c)
+  # file(GLOB HAPTIC_SOURCES ${NJLIC_SOURCE_DIR}/src/haptic/*.c)
   # set(SOURCE_FILES ${SOURCE_FILES} ${HAPTIC_SOURCES})
 endif()
 if(SDL_POWER)
-  file(GLOB POWER_SOURCES ${SDL2_SOURCE_DIR}/src/power/*.c)
+  # file(GLOB POWER_SOURCES ${NJLIC_SOURCE_DIR}/src/power/*.c)
   # set(SOURCE_FILES ${SOURCE_FILES} ${POWER_SOURCES})
 endif()
 # TODO: in configure.in, the test for LOADSO and SDL_DLOPEN is a bit weird:
@@ -810,13 +786,13 @@ if(SDL_AUDIO)
   # CheckDummyAudio/CheckDiskAudio - valid for all platforms
   if(DUMMYAUDIO)
     set(SDL_AUDIO_DRIVER_DUMMY 1)
-    file(GLOB DUMMYAUDIO_SOURCES ${SDL2_SOURCE_DIR}/src/audio/dummy/*.c)
+    # file(GLOB DUMMYAUDIO_SOURCES ${NJLIC_SOURCE_DIR}/src/audio/dummy/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${DUMMYAUDIO_SOURCES})
     set(HAVE_DUMMYAUDIO TRUE)
   endif()
   if(DISKAUDIO)
     set(SDL_AUDIO_DRIVER_DISK 1)
-    file(GLOB DISKAUDIO_SOURCES ${SDL2_SOURCE_DIR}/src/audio/disk/*.c)
+    # file(GLOB DISKAUDIO_SOURCES ${NJLIC_SOURCE_DIR}/src/audio/disk/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${DISKAUDIO_SOURCES})
     set(HAVE_DISKAUDIO TRUE)
   endif()
@@ -832,7 +808,7 @@ endif()
 if(SDL_VIDEO)
   if(VIDEO_DUMMY)
     set(SDL_VIDEO_DRIVER_DUMMY 1)
-    file(GLOB VIDEO_DUMMY_SOURCES ${SDL2_SOURCE_DIR}/src/video/dummy/*.c)
+    # file(GLOB VIDEO_DUMMY_SOURCES ${NJLIC_SOURCE_DIR}/src/video/dummy/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${VIDEO_DUMMY_SOURCES})
     set(HAVE_VIDEO_DUMMY TRUE)
     set(HAVE_SDL_VIDEO TRUE)
@@ -840,7 +816,7 @@ if(SDL_VIDEO)
 endif()
 
 if(ANDROID)
-  file(GLOB ANDROID_CORE_SOURCES ${SDL2_SOURCE_DIR}/src/core/android/*.c)
+  # file(GLOB ANDROID_CORE_SOURCES ${NJLIC_SOURCE_DIR}/src/core/android/*.c)
   # set(SOURCE_FILES ${SOURCE_FILES} ${ANDROID_CORE_SOURCES})
 
   # SDL_spinlock.c Needs to be compiled in ARM mode.
@@ -849,57 +825,57 @@ if(ANDROID)
   # Another option would be to set ARM mode to all compiled files
   check_c_compiler_flag(-marm HAVE_ARM_MODE)
   if(HAVE_ARM_MODE)
-    set_source_files_properties(${SDL2_SOURCE_DIR}/src/atomic/SDL_spinlock.c PROPERTIES COMPILE_FLAGS -marm)
+    # set_source_files_properties(${NJLIC_SOURCE_DIR}/src/atomic/SDL_spinlock.c PROPERTIES COMPILE_FLAGS -marm)
   endif()
 
-  file(GLOB ANDROID_MAIN_SOURCES ${SDL2_SOURCE_DIR}/src/main/android/*.c)
+  # file(GLOB ANDROID_MAIN_SOURCES ${NJLIC_SOURCE_DIR}/src/main/android/*.c)
   set(SDLMAIN_SOURCES ${SDLMAIN_SOURCES} ${ANDROID_MAIN_SOURCES})
 
   if(SDL_AUDIO)
     set(SDL_AUDIO_DRIVER_ANDROID 1)
-    file(GLOB ANDROID_AUDIO_SOURCES ${SDL2_SOURCE_DIR}/src/audio/android/*.c)
+    # file(GLOB ANDROID_AUDIO_SOURCES ${NJLIC_SOURCE_DIR}/src/audio/android/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${ANDROID_AUDIO_SOURCES})
     set(HAVE_SDL_AUDIO TRUE)
   endif()
   if(SDL_FILESYSTEM)
     set(SDL_FILESYSTEM_ANDROID 1)
-    file(GLOB ANDROID_FILESYSTEM_SOURCES ${SDL2_SOURCE_DIR}/src/filesystem/android/*.c)
+    # file(GLOB ANDROID_FILESYSTEM_SOURCES ${NJLIC_SOURCE_DIR}/src/filesystem/android/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${ANDROID_FILESYSTEM_SOURCES})
     set(HAVE_SDL_FILESYSTEM TRUE)
   endif()
   if(SDL_HAPTIC)
     set(SDL_HAPTIC_ANDROID 1)
-    file(GLOB ANDROID_HAPTIC_SOURCES ${SDL2_SOURCE_DIR}/src/haptic/android/*.c)
+    # file(GLOB ANDROID_HAPTIC_SOURCES ${NJLIC_SOURCE_DIR}/src/haptic/android/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${ANDROID_HAPTIC_SOURCES})
     set(HAVE_SDL_HAPTIC TRUE)
   endif()
   if(SDL_JOYSTICK)
     set(SDL_JOYSTICK_ANDROID 1)
-    file(GLOB ANDROID_JOYSTICK_SOURCES ${SDL2_SOURCE_DIR}/src/joystick/android/*.c ${SDL2_SOURCE_DIR}/src/joystick/steam/*.c)
+    # file(GLOB ANDROID_JOYSTICK_SOURCES ${NJLIC_SOURCE_DIR}/src/joystick/android/*.c ${NJLIC_SOURCE_DIR}/src/joystick/steam/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${ANDROID_JOYSTICK_SOURCES})
     set(HAVE_SDL_JOYSTICK TRUE)
   endif()
   if(SDL_LOADSO)
     set(SDL_LOADSO_DLOPEN 1)
-    file(GLOB LOADSO_SOURCES ${SDL2_SOURCE_DIR}/src/loadso/dlopen/*.c)
+    # file(GLOB LOADSO_SOURCES ${NJLIC_SOURCE_DIR}/src/loadso/dlopen/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${LOADSO_SOURCES})
     set(HAVE_SDL_LOADSO TRUE)
   endif()
   if(SDL_POWER)
     set(SDL_POWER_ANDROID 1)
-    file(GLOB ANDROID_POWER_SOURCES ${SDL2_SOURCE_DIR}/src/power/android/*.c)
+    # file(GLOB ANDROID_POWER_SOURCES ${NJLIC_SOURCE_DIR}/src/power/android/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${ANDROID_POWER_SOURCES})
     set(HAVE_SDL_POWER TRUE)
   endif()
   if(SDL_TIMERS)
     set(SDL_TIMER_UNIX 1)
-    file(GLOB TIMER_SOURCES ${SDL2_SOURCE_DIR}/src/timer/unix/*.c)
+    # file(GLOB TIMER_SOURCES ${NJLIC_SOURCE_DIR}/src/timer/unix/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${TIMER_SOURCES})
     set(HAVE_SDL_TIMERS TRUE)
   endif()
   if(SDL_VIDEO)
     set(SDL_VIDEO_DRIVER_ANDROID 1)
-    file(GLOB ANDROID_VIDEO_SOURCES ${SDL2_SOURCE_DIR}/src/video/android/*.c)
+    # file(GLOB ANDROID_VIDEO_SOURCES ${NJLIC_SOURCE_DIR}/src/video/android/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${ANDROID_VIDEO_SOURCES})
     set(HAVE_SDL_VIDEO TRUE)
 
@@ -957,31 +933,31 @@ if(EMSCRIPTEN)
   add_definitions(-Wno-warn-absolute-paths)
   if(SDL_AUDIO)
     set(SDL_AUDIO_DRIVER_EMSCRIPTEN 1)
-    file(GLOB EM_AUDIO_SOURCES ${SDL2_SOURCE_DIR}/src/audio/emscripten/*.c)
+    # file(GLOB EM_AUDIO_SOURCES ${NJLIC_SOURCE_DIR}/src/audio/emscripten/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${EM_AUDIO_SOURCES})
     set(HAVE_SDL_AUDIO TRUE)
   endif()
   if(SDL_FILESYSTEM)
     set(SDL_FILESYSTEM_EMSCRIPTEN 1)
-    file(GLOB EM_FILESYSTEM_SOURCES ${SDL2_SOURCE_DIR}/src/filesystem/emscripten/*.c)
+    # file(GLOB EM_FILESYSTEM_SOURCES ${NJLIC_SOURCE_DIR}/src/filesystem/emscripten/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${EM_FILESYSTEM_SOURCES})
     set(HAVE_SDL_FILESYSTEM TRUE)
   endif()
   if(SDL_JOYSTICK)
     set(SDL_JOYSTICK_EMSCRIPTEN 1)
-    file(GLOB EM_JOYSTICK_SOURCES ${SDL2_SOURCE_DIR}/src/joystick/emscripten/*.c)
+    # file(GLOB EM_JOYSTICK_SOURCES ${NJLIC_SOURCE_DIR}/src/joystick/emscripten/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${EM_JOYSTICK_SOURCES})
     set(HAVE_SDL_JOYSTICK TRUE)
   endif()
   if(SDL_POWER)
     set(SDL_POWER_EMSCRIPTEN 1)
-    file(GLOB EM_POWER_SOURCES ${SDL2_SOURCE_DIR}/src/power/emscripten/*.c)
+    # file(GLOB EM_POWER_SOURCES ${NJLIC_SOURCE_DIR}/src/power/emscripten/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${EM_POWER_SOURCES})
     set(HAVE_SDL_POWER TRUE)
   endif()
   if(SDL_TIMERS)
     set(SDL_TIMER_UNIX 1)
-    file(GLOB TIMER_SOURCES ${SDL2_SOURCE_DIR}/src/timer/unix/*.c)
+    # file(GLOB TIMER_SOURCES ${NJLIC_SOURCE_DIR}/src/timer/unix/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${TIMER_SOURCES})
     set(HAVE_SDL_TIMERS TRUE)
 
@@ -991,7 +967,7 @@ if(EMSCRIPTEN)
   endif()
   if(SDL_VIDEO)
     set(SDL_VIDEO_DRIVER_EMSCRIPTEN 1)
-    file(GLOB EM_VIDEO_SOURCES ${SDL2_SOURCE_DIR}/src/video/emscripten/*.c)
+    # file(GLOB EM_VIDEO_SOURCES ${NJLIC_SOURCE_DIR}/src/video/emscripten/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${EM_VIDEO_SOURCES})
     set(HAVE_SDL_VIDEO TRUE)
 
@@ -1007,17 +983,17 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID)
   if(SDL_AUDIO)
     if(SYSV5 OR SOLARIS OR HPUX)
         set(SDL_AUDIO_DRIVER_SUNAUDIO 1)
-        file(GLOB SUN_AUDIO_SOURCES ${SDL2_SOURCE_DIR}/src/audio/sun/*.c)
+        # file(GLOB SUN_AUDIO_SOURCES ${NJLIC_SOURCE_DIR}/src/audio/sun/*.c)
         # set(SOURCE_FILES ${SOURCE_FILES} ${SUN_AUDIO_SOURCES})
         set(HAVE_SDL_AUDIO TRUE)
     elseif(NETBSD)
         set(SDL_AUDIO_DRIVER_NETBSD 1)
-        file(GLOB NETBSD_AUDIO_SOURCES ${SDL2_SOURCE_DIR}/src/audio/netbsd/*.c)
+        # file(GLOB NETBSD_AUDIO_SOURCES ${NJLIC_SOURCE_DIR}/src/audio/netbsd/*.c)
         # set(SOURCE_FILES ${SOURCE_FILES} ${NETBSD_AUDIO_SOURCES})
         set(HAVE_SDL_AUDIO TRUE)
     elseif(AIX)
         set(SDL_AUDIO_DRIVER_PAUDIO 1)
-        file(GLOB AIX_AUDIO_SOURCES ${SDL2_SOURCE_DIR}/src/audio/paudio/*.c)
+        # file(GLOB AIX_AUDIO_SOURCES ${NJLIC_SOURCE_DIR}/src/audio/paudio/*.c)
         # set(SOURCE_FILES ${SOURCE_FILES} ${AIX_AUDIO_SOURCES})
         set(HAVE_SDL_AUDIO TRUE)
     endif()
@@ -1047,7 +1023,7 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID)
   endif()
 
   if(UNIX)
-    file(GLOB CORE_UNIX_SOURCES ${SDL2_SOURCE_DIR}/src/core/unix/*.c)
+    # file(GLOB CORE_UNIX_SOURCES ${NJLIC_SOURCE_DIR}/src/core/unix/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${CORE_UNIX_SOURCES})
   endif()
 
@@ -1073,7 +1049,7 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID)
             ioctl(0, KDGKBENT, &kbe);
         }" HAVE_INPUT_KD)
 
-    file(GLOB CORE_LINUX_SOURCES ${SDL2_SOURCE_DIR}/src/core/linux/*.c)
+        # file(GLOB CORE_LINUX_SOURCES ${NJLIC_SOURCE_DIR}/src/core/linux/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${CORE_LINUX_SOURCES})
 
     if(HAVE_INPUT_EVENTS)
@@ -1082,7 +1058,7 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID)
 
     if(SDL_HAPTIC AND HAVE_INPUT_EVENTS)
       set(SDL_HAPTIC_LINUX 1)
-      file(GLOB HAPTIC_SOURCES ${SDL2_SOURCE_DIR}/src/haptic/linux/*.c)
+      # file(GLOB HAPTIC_SOURCES ${NJLIC_SOURCE_DIR}/src/haptic/linux/*.c)
       # set(SOURCE_FILES ${SOURCE_FILES} ${HAPTIC_SOURCES})
       set(HAVE_SDL_HAPTIC TRUE)
     endif()
@@ -1126,7 +1102,7 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID)
     CheckUSBHID()   # seems to be BSD specific - limit the test to BSD only?
     if(LINUX AND NOT ANDROID)
       set(SDL_JOYSTICK_LINUX 1)
-      file(GLOB JOYSTICK_SOURCES ${SDL2_SOURCE_DIR}/src/joystick/linux/*.c ${SDL2_SOURCE_DIR}/src/joystick/steam/*.c)
+      # file(GLOB JOYSTICK_SOURCES ${NJLIC_SOURCE_DIR}/src/joystick/linux/*.c ${NJLIC_SOURCE_DIR}/src/joystick/steam/*.c)
       # set(SOURCE_FILES ${SOURCE_FILES} ${JOYSTICK_SOURCES})
       set(HAVE_SDL_JOYSTICK TRUE)
     endif()
@@ -1155,7 +1131,7 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID)
   if(SDL_POWER)
     if(LINUX)
       set(SDL_POWER_LINUX 1)
-      file(GLOB POWER_SOURCES ${SDL2_SOURCE_DIR}/src/power/linux/*.c)
+      # file(GLOB POWER_SOURCES ${NJLIC_SOURCE_DIR}/src/power/linux/*.c)
       # set(SOURCE_FILES ${SOURCE_FILES} ${POWER_SOURCES})
       set(HAVE_SDL_POWER TRUE)
     endif()
@@ -1163,14 +1139,14 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID)
 
   if(SDL_FILESYSTEM)
     set(SDL_FILESYSTEM_UNIX 1)
-    file(GLOB FILESYSTEM_SOURCES ${SDL2_SOURCE_DIR}/src/filesystem/unix/*.c)
+    # file(GLOB FILESYSTEM_SOURCES ${NJLIC_SOURCE_DIR}/src/filesystem/unix/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${FILESYSTEM_SOURCES})
     set(HAVE_SDL_FILESYSTEM TRUE)
   endif()
 
   if(SDL_TIMERS)
     set(SDL_TIMER_UNIX 1)
-    file(GLOB TIMER_SOURCES ${SDL2_SOURCE_DIR}/src/timer/unix/*.c)
+    # file(GLOB TIMER_SOURCES ${NJLIC_SOURCE_DIR}/src/timer/unix/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${TIMER_SOURCES})
     set(HAVE_SDL_TIMERS TRUE)
   endif()
@@ -1209,7 +1185,7 @@ elseif(WINDOWS)
     #include <windows.h>
     int main(int argc, char **argv) { }" HAVE_WIN32_CC)
 
-  file(GLOB CORE_SOURCES ${SDL2_SOURCE_DIR}/src/core/windows/*.c)
+    # file(GLOB CORE_SOURCES ${NJLIC_SOURCE_DIR}/src/core/windows/*.c)
   # set(SOURCE_FILES ${SOURCE_FILES} ${CORE_SOURCES})
 
   if(MSVC)
@@ -1274,25 +1250,25 @@ elseif(WINDOWS)
 
   if(SDL_AUDIO)
     set(SDL_AUDIO_DRIVER_WINMM 1)
-    file(GLOB WINMM_AUDIO_SOURCES ${SDL2_SOURCE_DIR}/src/audio/winmm/*.c)
+    # file(GLOB WINMM_AUDIO_SOURCES ${NJLIC_SOURCE_DIR}/src/audio/winmm/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${WINMM_AUDIO_SOURCES})
     set(HAVE_SDL_AUDIO TRUE)
 
     if(HAVE_DSOUND_H)
       set(SDL_AUDIO_DRIVER_DSOUND 1)
-      file(GLOB DSOUND_AUDIO_SOURCES ${SDL2_SOURCE_DIR}/src/audio/directsound/*.c)
+      # file(GLOB DSOUND_AUDIO_SOURCES ${NJLIC_SOURCE_DIR}/src/audio/directsound/*.c)
       # set(SOURCE_FILES ${SOURCE_FILES} ${DSOUND_AUDIO_SOURCES})
     endif()
 
     if(HAVE_XAUDIO2_H)
       set(SDL_AUDIO_DRIVER_XAUDIO2 1)
-      file(GLOB XAUDIO2_AUDIO_SOURCES ${SDL2_SOURCE_DIR}/src/audio/xaudio2/*.c)
+      # file(GLOB XAUDIO2_AUDIO_SOURCES ${NJLIC_SOURCE_DIR}/src/audio/xaudio2/*.c)
       # set(SOURCE_FILES ${SOURCE_FILES} ${XAUDIO2_AUDIO_SOURCES})
     endif()
 
     if(HAVE_AUDIOCLIENT_H AND HAVE_MMDEVICEAPI_H)
       set(SDL_AUDIO_DRIVER_WASAPI 1)
-      file(GLOB WASAPI_AUDIO_SOURCES ${SDL2_SOURCE_DIR}/src/audio/wasapi/*.c)
+      # file(GLOB WASAPI_AUDIO_SOURCES ${NJLIC_SOURCE_DIR}/src/audio/wasapi/*.c)
       # set(SOURCE_FILES ${SOURCE_FILES} ${WASAPI_AUDIO_SOURCES})
     endif()
   endif()
@@ -1303,7 +1279,7 @@ elseif(WINDOWS)
       message_error("SDL_VIDEO requires SDL_LOADSO, which is not enabled")
     endif()
     set(SDL_VIDEO_DRIVER_WINDOWS 1)
-    file(GLOB WIN_VIDEO_SOURCES ${SDL2_SOURCE_DIR}/src/video/windows/*.c)
+    # file(GLOB WIN_VIDEO_SOURCES ${NJLIC_SOURCE_DIR}/src/video/windows/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${WIN_VIDEO_SOURCES})
 
     if(RENDER_D3D AND HAVE_D3D_H)
@@ -1320,23 +1296,23 @@ elseif(WINDOWS)
   if(SDL_THREADS)
     set(SDL_THREAD_WINDOWS 1)
     # set(SOURCE_FILES ${SOURCE_FILES}
-    #  ${SDL2_SOURCE_DIR}/src/thread/windows/SDL_sysmutex.c
-    #  ${SDL2_SOURCE_DIR}/src/thread/windows/SDL_syssem.c
-    #  ${SDL2_SOURCE_DIR}/src/thread/windows/SDL_systhread.c
-    #  ${SDL2_SOURCE_DIR}/src/thread/windows/SDL_systls.c
-    #  ${SDL2_SOURCE_DIR}/src/thread/generic/SDL_syscond.c)
+    #  ${NJLIC_SOURCE_DIR}/src/thread/windows/SDL_sysmutex.c
+    #  ${NJLIC_SOURCE_DIR}/src/thread/windows/SDL_syssem.c
+    #  ${NJLIC_SOURCE_DIR}/src/thread/windows/SDL_systhread.c
+    #  ${NJLIC_SOURCE_DIR}/src/thread/windows/SDL_systls.c
+    #  ${NJLIC_SOURCE_DIR}/src/thread/generic/SDL_syscond.c)
     set(HAVE_SDL_THREADS TRUE)
   endif()
 
   if(SDL_POWER)
     set(SDL_POWER_WINDOWS 1)
-    # set(SOURCE_FILES ${SOURCE_FILES} ${SDL2_SOURCE_DIR}/src/power/windows/SDL_syspower.c)
+    # set(SOURCE_FILES ${SOURCE_FILES} ${NJLIC_SOURCE_DIR}/src/power/windows/SDL_syspower.c)
     set(HAVE_SDL_POWER TRUE)
   endif()
 
   if(SDL_FILESYSTEM)
     set(SDL_FILESYSTEM_WINDOWS 1)
-    file(GLOB FILESYSTEM_SOURCES ${SDL2_SOURCE_DIR}/src/filesystem/windows/*.c)
+    # file(GLOB FILESYSTEM_SOURCES ${NJLIC_SOURCE_DIR}/src/filesystem/windows/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${FILESYSTEM_SOURCES})
     set(HAVE_SDL_FILESYSTEM TRUE)
   endif()
@@ -1348,19 +1324,19 @@ elseif(WINDOWS)
   # cygwin | mingw32* - does this include mingw32CE?
   if(SDL_TIMERS)
     set(SDL_TIMER_WINDOWS 1)
-    file(GLOB TIMER_SOURCES ${SDL2_SOURCE_DIR}/src/timer/windows/*.c)
+    # file(GLOB TIMER_SOURCES ${NJLIC_SOURCE_DIR}/src/timer/windows/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${TIMER_SOURCES})
     set(HAVE_SDL_TIMERS TRUE)
   endif()
 
   if(SDL_LOADSO)
     set(SDL_LOADSO_WINDOWS 1)
-    file(GLOB LOADSO_SOURCES ${SDL2_SOURCE_DIR}/src/loadso/windows/*.c)
+    # file(GLOB LOADSO_SOURCES ${NJLIC_SOURCE_DIR}/src/loadso/windows/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${LOADSO_SOURCES})
     set(HAVE_SDL_LOADSO TRUE)
   endif()
 
-  file(GLOB CORE_SOURCES ${SDL2_SOURCE_DIR}/src/core/windows/*.c)
+  # file(GLOB CORE_SOURCES ${NJLIC_SOURCE_DIR}/src/core/windows/*.c)
   # set(SOURCE_FILES ${SOURCE_FILES} ${CORE_SOURCES})
 
   if(SDL_VIDEO)
@@ -1380,7 +1356,7 @@ elseif(WINDOWS)
   endif()
 
   if(SDL_JOYSTICK)
-    file(GLOB JOYSTICK_SOURCES ${SDL2_SOURCE_DIR}/src/joystick/windows/*.c)
+    # file(GLOB JOYSTICK_SOURCES ${NJLIC_SOURCE_DIR}/src/joystick/windows/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${JOYSTICK_SOURCES})
     if(HAVE_DINPUT_H)
       set(SDL_JOYSTICK_DINPUT 1)
@@ -1401,7 +1377,7 @@ elseif(WINDOWS)
 
     if(SDL_HAPTIC)
       if(HAVE_DINPUT_H OR HAVE_XINPUT_H)
-        file(GLOB HAPTIC_SOURCES ${SDL2_SOURCE_DIR}/src/haptic/windows/*.c)
+        # file(GLOB HAPTIC_SOURCES ${NJLIC_SOURCE_DIR}/src/haptic/windows/*.c)
         if(HAVE_DINPUT_H)
           set(SDL_HAPTIC_DINPUT 1)
         endif()
@@ -1409,7 +1385,7 @@ elseif(WINDOWS)
           set(SDL_HAPTIC_XINPUT 1)
         endif()
       else()
-        file(GLOB HAPTIC_SOURCES ${SDL2_SOURCE_DIR}/src/haptic/dummy/*.c)
+        # file(GLOB HAPTIC_SOURCES ${NJLIC_SOURCE_DIR}/src/haptic/dummy/*.c)
         set(SDL_HAPTIC_DUMMY 1)
       endif()
       # set(SOURCE_FILES ${SOURCE_FILES} ${HAPTIC_SOURCES})
@@ -1417,8 +1393,8 @@ elseif(WINDOWS)
     endif()
   endif()
 
-  file(GLOB VERSION_SOURCES ${SDL2_SOURCE_DIR}/src/main/windows/*.rc)
-  file(GLOB SDLMAIN_SOURCES ${SDL2_SOURCE_DIR}/src/main/windows/*.c)
+  # file(GLOB VERSION_SOURCES ${NJLIC_SOURCE_DIR}/src/main/windows/*.rc)
+  # file(GLOB SDLMAIN_SOURCES ${NJLIC_SOURCE_DIR}/src/main/windows/*.c)
   if(MINGW OR CYGWIN)
     list(APPEND EXTRA_LIBS mingw32)
     list(APPEND EXTRA_LDFLAGS "-mwindows")
@@ -1486,7 +1462,7 @@ elseif(APPLE)
 
   # Requires the darwin file implementation
   if(SDL_FILE)
-    file(GLOB EXTRA_SOURCES ${SDL2_SOURCE_DIR}/src/file/cocoa/*.m)
+    # file(GLOB EXTRA_SOURCES ${NJLIC_SOURCE_DIR}/src/file/cocoa/*.m)
     # set(SOURCE_FILES ${EXTRA_SOURCES} ${SOURCE_FILES})
     # !!! FIXME: modern CMake doesn't need "LANGUAGE C" for Objective-C.
     set_source_files_properties(${EXTRA_SOURCES} PROPERTIES LANGUAGE C)
@@ -1499,7 +1475,7 @@ elseif(APPLE)
 
   if(SDL_AUDIO)
     set(SDL_AUDIO_DRIVER_COREAUDIO 1)
-    file(GLOB AUDIO_SOURCES ${SDL2_SOURCE_DIR}/src/audio/coreaudio/*.m)
+    # file(GLOB AUDIO_SOURCES ${NJLIC_SOURCE_DIR}/src/audio/coreaudio/*.m)
     # !!! FIXME: modern CMake doesn't need "LANGUAGE C" for Objective-C.
     set_source_files_properties(${AUDIO_SOURCES} PROPERTIES LANGUAGE C)
     # set(SOURCE_FILES ${SOURCE_FILES} ${AUDIO_SOURCES})
@@ -1511,9 +1487,9 @@ elseif(APPLE)
   if(SDL_JOYSTICK)
     set(SDL_JOYSTICK_IOKIT 1)
     if ((IOS OR TVOS))
-      file(GLOB JOYSTICK_SOURCES ${SDL2_SOURCE_DIR}/src/joystick/iphoneos/*.m ${SDL2_SOURCE_DIR}/src/joystick/steam/*.c)
+      # file(GLOB JOYSTICK_SOURCES ${NJLIC_SOURCE_DIR}/src/joystick/iphoneos/*.m ${NJLIC_SOURCE_DIR}/src/joystick/steam/*.c)
     else()
-      file(GLOB JOYSTICK_SOURCES ${SDL2_SOURCE_DIR}/src/joystick/darwin/*.c)
+      # file(GLOB JOYSTICK_SOURCES ${NJLIC_SOURCE_DIR}/src/joystick/darwin/*.c)
     endif()
     # set(SOURCE_FILES ${SOURCE_FILES} ${JOYSTICK_SOURCES})
     set(HAVE_SDL_JOYSTICK TRUE)
@@ -1524,10 +1500,10 @@ elseif(APPLE)
   if(SDL_HAPTIC)
     set(SDL_HAPTIC_IOKIT 1)
     if ((IOS OR TVOS))
-      file(GLOB HAPTIC_SOURCES ${SDL2_SOURCE_DIR}/src/haptic/dummy/*.c)
+      # file(GLOB HAPTIC_SOURCES ${NJLIC_SOURCE_DIR}/src/haptic/dummy/*.c)
       set(SDL_HAPTIC_DUMMY 1)
     else()
-      file(GLOB HAPTIC_SOURCES ${SDL2_SOURCE_DIR}/src/haptic/darwin/*.c)
+      # file(GLOB HAPTIC_SOURCES ${NJLIC_SOURCE_DIR}/src/haptic/darwin/*.c)
     endif()
     # set(SOURCE_FILES ${SOURCE_FILES} ${HAPTIC_SOURCES})
     set(HAVE_SDL_HAPTIC TRUE)
@@ -1541,9 +1517,9 @@ elseif(APPLE)
   if(SDL_POWER)
     set(SDL_POWER_MACOSX 1)
     if ((IOS OR TVOS))
-      file(GLOB POWER_SOURCES ${SDL2_SOURCE_DIR}/src/power/uikit/*.m)
+      # file(GLOB POWER_SOURCES ${NJLIC_SOURCE_DIR}/src/power/uikit/*.m)
     else()
-      file(GLOB POWER_SOURCES ${SDL2_SOURCE_DIR}/src/power/macosx/*.c)
+      # file(GLOB POWER_SOURCES ${NJLIC_SOURCE_DIR}/src/power/macosx/*.c)
     endif()
     # set(SOURCE_FILES ${SOURCE_FILES} ${POWER_SOURCES})
     set(HAVE_SDL_POWER TRUE)
@@ -1552,14 +1528,14 @@ elseif(APPLE)
 
   if(SDL_TIMERS)
     set(SDL_TIMER_UNIX 1)
-    file(GLOB TIMER_SOURCES ${SDL2_SOURCE_DIR}/src/timer/unix/*.c)
+    # file(GLOB TIMER_SOURCES ${NJLIC_SOURCE_DIR}/src/timer/unix/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${TIMER_SOURCES})
     set(HAVE_SDL_TIMERS TRUE)
   endif(SDL_TIMERS)
 
   if(SDL_FILESYSTEM)
     set(SDL_FILESYSTEM_COCOA 1)
-    file(GLOB FILESYSTEM_SOURCES ${SDL2_SOURCE_DIR}/src/filesystem/cocoa/*.m)
+    # file(GLOB FILESYSTEM_SOURCES ${NJLIC_SOURCE_DIR}/src/filesystem/cocoa/*.m)
     # !!! FIXME: modern CMake doesn't need "LANGUAGE C" for Objective-C.
     set_source_files_properties(${FILESYSTEM_SOURCES} PROPERTIES LANGUAGE C)
     # set(SOURCE_FILES ${SOURCE_FILES} ${FILESYSTEM_SOURCES})
@@ -1598,7 +1574,7 @@ elseif(APPLE)
   if(SDL_VIDEO)
     if ((IOS OR TVOS))
       set(SDL_VIDEO_DRIVER_UIKIT 1)
-      file(GLOB UIKITVIDEO_SOURCES ${SDL2_SOURCE_DIR}/src/video/uikit/*.m)
+      # file(GLOB UIKITVIDEO_SOURCES ${NJLIC_SOURCE_DIR}/src/video/uikit/*.m)
       # set(SOURCE_FILES ${SOURCE_FILES} ${UIKITVIDEO_SOURCES})
     else()
       CheckCOCOA()
@@ -1615,18 +1591,18 @@ elseif(APPLE)
 elseif(HAIKU)
   if(SDL_VIDEO)
     set(SDL_VIDEO_DRIVER_HAIKU 1)
-    file(GLOB HAIKUVIDEO_SOURCES ${SDL2_SOURCE_DIR}/src/video/haiku/*.c)
+    # file(GLOB HAIKUVIDEO_SOURCES ${NJLIC_SOURCE_DIR}/src/video/haiku/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${HAIKUVIDEO_SOURCES})
     set(HAVE_SDL_VIDEO TRUE)
 
     set(SDL_FILESYSTEM_HAIKU 1)
-    file(GLOB FILESYSTEM_SOURCES ${SDL2_SOURCE_DIR}/src/filesystem/haiku/*.cc)
+    # file(GLOB FILESYSTEM_SOURCES ${NJLIC_SOURCE_DIR}/src/filesystem/haiku/*.cc)
     # set(SOURCE_FILES ${SOURCE_FILES} ${FILESYSTEM_SOURCES})
     set(HAVE_SDL_FILESYSTEM TRUE)
 
     if(SDL_TIMERS)
       set(SDL_TIMER_HAIKU 1)
-      file(GLOB TIMER_SOURCES ${SDL2_SOURCE_DIR}/src/timer/haiku/*.c)
+      file(GLOB TIMER_SOURCES ${NJLIC_SOURCE_DIR}/src/timer/haiku/*.c)
       # set(SOURCE_FILES ${SOURCE_FILES} ${TIMER_SOURCES})
       set(HAVE_SDL_TIMERS TRUE)
     endif(SDL_TIMERS)
@@ -1660,40 +1636,40 @@ if(NOT HAVE_SDL_JOYSTICK)
   set(SDL_JOYSTICK_DISABLED 1)
   if(SDL_JOYSTICK AND NOT APPLE) # results in unresolved symbols on OSX
 
-    file(GLOB JOYSTICK_SOURCES ${SDL2_SOURCE_DIR}/src/joystick/dummy/*.c)
+    # file(GLOB JOYSTICK_SOURCES ${NJLIC_SOURCE_DIR}/src/joystick/dummy/*.c)
     # set(SOURCE_FILES ${SOURCE_FILES} ${JOYSTICK_SOURCES})
   endif()
 endif()
 if(NOT HAVE_SDL_HAPTIC)
   set(SDL_HAPTIC_DISABLED 1)
-  file(GLOB HAPTIC_SOURCES ${SDL2_SOURCE_DIR}/src/haptic/dummy/*.c)
+  # file(GLOB HAPTIC_SOURCES ${NJLIC_SOURCE_DIR}/src/haptic/dummy/*.c)
   # set(SOURCE_FILES ${SOURCE_FILES} ${HAPTIC_SOURCES})
 endif()
 if(NOT HAVE_SDL_LOADSO)
   set(SDL_LOADSO_DISABLED 1)
-  file(GLOB LOADSO_SOURCES ${SDL2_SOURCE_DIR}/src/loadso/dummy/*.c)
+  # file(GLOB LOADSO_SOURCES ${NJLIC_SOURCE_DIR}/src/loadso/dummy/*.c)
   # set(SOURCE_FILES ${SOURCE_FILES} ${LOADSO_SOURCES})
 endif()
 if(NOT HAVE_SDL_FILESYSTEM)
   set(SDL_FILESYSTEM_DISABLED 1)
-  file(GLOB FILESYSTEM_SOURCES ${SDL2_SOURCE_DIR}/src/filesystem/dummy/*.c)
+  # file(GLOB FILESYSTEM_SOURCES ${NJLIC_SOURCE_DIR}/src/filesystem/dummy/*.c)
   # set(SOURCE_FILES ${SOURCE_FILES} ${FILESYSTEM_SOURCES})
 endif()
 
 # We always need to have threads and timers around
 if(NOT HAVE_SDL_THREADS)
   set(SDL_THREADS_DISABLED 1)
-  file(GLOB THREADS_SOURCES ${SDL2_SOURCE_DIR}/src/thread/generic/*.c)
+  # file(GLOB THREADS_SOURCES ${NJLIC_SOURCE_DIR}/src/thread/generic/*.c)
   # set(SOURCE_FILES ${SOURCE_FILES} ${THREADS_SOURCES})
 endif()
 if(NOT HAVE_SDL_TIMERS)
   set(SDL_TIMERS_DISABLED 1)
-  file(GLOB TIMER_SOURCES ${SDL2_SOURCE_DIR}/src/timer/dummy/*.c)
+  # file(GLOB TIMER_SOURCES ${NJLIC_SOURCE_DIR}/src/timer/dummy/*.c)
   # set(SOURCE_FILES ${SOURCE_FILES} ${TIMER_SOURCES})
 endif()
 
 if(NOT SDLMAIN_SOURCES)
-  file(GLOB SDLMAIN_SOURCES ${SDL2_SOURCE_DIR}/src/main/dummy/*.c)
+  # file(GLOB SDLMAIN_SOURCES ${NJLIC_SOURCE_DIR}/src/main/dummy/*.c)
 endif()
 
 # Append the -MMD -MT flags
@@ -1703,8 +1679,8 @@ endif()
 #   endif()
 # endif()
 
-configure_file("${SDL2_SOURCE_DIR}/SDL_config.h.cmake"
-  "${SDL2_BINARY_DIR}/SDL_config.h")
+configure_file("${NJLIC_SOURCE_DIR}/SDL_config.h.cmake"
+  "${NJLIC_BINARY_DIR}/SDL_config.h")
 
 # Prepare the flags and remove duplicates
 if(EXTRA_LDFLAGS)
@@ -1722,7 +1698,7 @@ set(EXTRA_CFLAGS ${_EXTRA_CFLAGS})
 # Compat helpers for the configuration files
 if(NOT WINDOWS OR CYGWIN)
   # TODO: we need a Windows script, too
-  execute_process(COMMAND sh ${SDL2_SOURCE_DIR}/build-scripts/updaterev.sh)
+  execute_process(COMMAND sh ${NJLIC_SOURCE_DIR}/build-scripts/updaterev.sh)
 
   set(prefix ${CMAKE_INSTALL_PREFIX})
   set(exec_prefix "\${prefix}")
@@ -1753,17 +1729,14 @@ if(NOT WINDOWS OR CYGWIN)
   listtostr(SDL_LIBS _SDL_LIBS)
   set(SDL_LIBS ${_SDL_LIBS})
 
-  # MESSAGE(STATUS "SDL_LIBS: ${SDL_LIBS}")
-  # MESSAGE(STATUS "SDL_STATIC_LIBS: ${SDL_STATIC_LIBS}")
-
-  configure_file("${SDL2_SOURCE_DIR}/sdl2.pc.in"
-    "${SDL2_BINARY_DIR}/sdl2.pc" @ONLY)
-  configure_file("${SDL2_SOURCE_DIR}/sdl2-config.in"
-    "${SDL2_BINARY_DIR}/sdl2-config")
-  configure_file("${SDL2_SOURCE_DIR}/sdl2-config.in"
-    "${SDL2_BINARY_DIR}/sdl2-config" @ONLY)
-  configure_file("${SDL2_SOURCE_DIR}/SDL2.spec.in"
-    "${SDL2_BINARY_DIR}/SDL2.spec" @ONLY)
+  configure_file("${NJLIC_SOURCE_DIR}/njlic.pc.in"
+    "${NJLIC_BINARY_DIR}/njlic.pc" @ONLY)
+  configure_file("${NJLIC_SOURCE_DIR}/njlic-config.in"
+    "${NJLIC_BINARY_DIR}/njlic-config")
+  configure_file("${NJLIC_SOURCE_DIR}/njlic-config.in"
+    "${NJLIC_BINARY_DIR}/njlic-config" @ONLY)
+  configure_file("${NJLIC_SOURCE_DIR}/NJLIC.spec.in"
+    "${NJLIC_BINARY_DIR}/NJLIC.spec" @ONLY)
 endif()
 
 if(IOS OR TVOS OR EMSCRIPTEN OR WINDOWS)
@@ -1821,7 +1794,7 @@ endif(IOS OR TVOS OR EMSCRIPTEN OR WINDOWS)
 
 ##### Info output #####
 message(STATUS "")
-message(STATUS "SDL2 was configured with the following options:")
+message(STATUS "NJLIC was configured with the following options:")
 message(STATUS "")
 message(STATUS "Platform: ${CMAKE_SYSTEM}")
 message(STATUS "64-bit:   ${ARCH_64}")
@@ -2021,11 +1994,6 @@ MESSAGE( STATUS "CMAKE_RANLIB: " ${CMAKE_RANLIB} )
 # Ensure that the extra cflags are used at compile time
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS}")
 
-# Always build SDLmain
-# add_library(SDL2main STATIC ${SDLMAIN_SOURCES})
-# target_include_directories(SDL2main PUBLIC $<INSTALL_INTERFACE:include>)
-# set(_INSTALL_LIBS "SDL2main")
-
 if(SDL_EXE)
   if(ANDROID)
     string(TOLOWER ${CMAKE_BUILD_TYPE} ANDROID_BUILD_DIR)
@@ -2043,17 +2011,17 @@ if(SDL_EXE)
 
 
   else()
-    add_executable(SDL2-exe ${SOURCE_FILES})
-    # add_dependencies(SDL2-exe engine_code)
+    add_executable(NJLIC-exe ${SOURCE_FILES})
+    # add_dependencies(NJLIC-exe engine_code)
 
     if(APPLE)
       SET_TARGET_PROPERTIES(
-        SDL2-exe PROPERTIES
+        NJLIC-exe PROPERTIES
         RESOURCE "${ASSET_CATALOGUE}"
         )
       if(NOT (IOS OR TVOS))
         SET_TARGET_PROPERTIES (
-          SDL2-exe PROPERTIES
+          NJLIC-exe PROPERTIES
           MACOSX_BUNDLE TRUE
           MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake.in/platform.in/macOS/Info.plist"
           XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
@@ -2064,7 +2032,7 @@ if(SDL_EXE)
 
       if(IOS)
         SET_TARGET_PROPERTIES (
-          SDL2-exe PROPERTIES
+          NJLIC-exe PROPERTIES
           XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
           XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
           XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
@@ -2083,7 +2051,7 @@ if(SDL_EXE)
 
       if(TVOS)
         SET_TARGET_PROPERTIES (
-          SDL2-exe PROPERTIES
+          NJLIC-exe PROPERTIES
           XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
           XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "3"
           XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
@@ -2104,7 +2072,7 @@ if(SDL_EXE)
     endif()
     if(MSVC AND NOT LIBC)
 
-      file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/SDL2-exe.Cpp.user.props" [=[
+      file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/NJLIC-exe.Cpp.user.props" [=[
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -2116,93 +2084,93 @@ if(SDL_EXE)
 </Project>
 ]=])
 
-      set_target_properties(SDL2-exe PROPERTIES VS_USER_PROPS "SDL2-exe.Cpp.user.props")
+      set_target_properties(NJLIC-exe PROPERTIES VS_USER_PROPS "NJLIC-exe.Cpp.user.props")
 
       # Don't try to link with the default set of libraries.
-      # set_target_properties(SDL2-exe PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
-      # set_target_properties(SDL2-exe PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
-      # set_target_properties(SDL2-exe PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
+      # set_target_properties(NJLIC-exe PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
+      # set_target_properties(NJLIC-exe PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
+      # set_target_properties(NJLIC-exe PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
     endif()
-    # set(_INSTALL_EXE "SDL2-exe" )
-    target_link_libraries(SDL2-exe ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
-    # target_include_directories(SDL2-exe PUBLIC $<INSTALL_INTERFACE:include>)
+    set(_INSTALL_EXE "NJLIC-exe" )
+    target_link_libraries(NJLIC-exe ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
+    # target_include_directories(NJLIC-exe PUBLIC $<INSTALL_INTERFACE:include>)
   endif(ANDROID)
 endif(SDL_EXE)
 
 if(SDL_SHARED)
-  add_library(SDL2 SHARED ${SOURCE_FILES} ${VERSION_SOURCES})
+  add_library(NJLIC SHARED ${SOURCE_FILES} ${VERSION_SOURCES})
   if(APPLE)
-    set_target_properties(SDL2 PROPERTIES MACOSX_RPATH 1)
+    set_target_properties(NJLIC PROPERTIES MACOSX_RPATH 1)
     if(IOS OR TVOS)
       SET_TARGET_PROPERTIES (
-        SDL2 PROPERTIES
+        NJLIC PROPERTIES
         XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
         XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "$ENV{IOS_DEVELOPMENT_TEAM}"
         )
     endif(IOS OR TVOS)
   elseif(UNIX AND NOT ANDROID)
-    set_target_properties(SDL2 PROPERTIES
+    set_target_properties(NJLIC PROPERTIES
       VERSION ${LT_VERSION}
       SOVERSION ${LT_REVISION}
-      OUTPUT_NAME "SDL2-${LT_RELEASE}")
+      OUTPUT_NAME "NJLIC-${LT_RELEASE}")
   else()
-    set_target_properties(SDL2 PROPERTIES
-      VERSION ${SDL_VERSION}
+    set_target_properties(NJLIC PROPERTIES
+      VERSION ${NJLIC_VERSION}
       SOVERSION ${LT_REVISION}
-      OUTPUT_NAME "SDL2")
+      OUTPUT_NAME "NJLIC")
   endif()
   if(MSVC AND NOT LIBC)
     # Don't try to link with the default set of libraries.
-    set_target_properties(SDL2 PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
-    set_target_properties(SDL2 PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
-    set_target_properties(SDL2 PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
+    set_target_properties(NJLIC PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
+    set_target_properties(NJLIC PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
+    set_target_properties(NJLIC PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
   endif()
-  set(_INSTALL_LIBS "SDL2" ${_INSTALL_LIBS})
-  target_link_libraries(SDL2 ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
-  target_include_directories(SDL2 PUBLIC $<INSTALL_INTERFACE:include>)
+  set(_INSTALL_LIBS "NJLIC" ${_INSTALL_LIBS})
+  target_link_libraries(NJLIC ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
+  target_include_directories(NJLIC PUBLIC $<INSTALL_INTERFACE:include>)
 endif()
 
 if(SDL_STATIC)
   set (BUILD_SHARED_LIBS FALSE)
-  add_library(SDL2-static STATIC ${SOURCE_FILES})
+  add_library(NJLIC-static STATIC ${SOURCE_FILES})
   if(APPLE)
     if(IOS OR TVOS)
       SET_TARGET_PROPERTIES (
-        SDL2-static PROPERTIES
+        NJLIC-static PROPERTIES
         XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
         )
     endif(IOS OR TVOS)
   endif(APPLE)
 
   if (NOT SDL_SHARED OR NOT WIN32)
-    set_target_properties(SDL2-static PROPERTIES OUTPUT_NAME "SDL2")
+    set_target_properties(NJLIC-static PROPERTIES OUTPUT_NAME "NJLIC")
     # Note: Apparently, OUTPUT_NAME must really be unique; even when
     # CMAKE_IMPORT_LIBRARY_SUFFIX or the like are given. Otherwise
     # the static build may race with the import lib and one will get
     # clobbered, when the suffix is realized via subsequent rename.
   endif()
-  set_target_properties(SDL2-static PROPERTIES POSITION_INDEPENDENT_CODE ${SDL_STATIC_PIC})
+  set_target_properties(NJLIC-static PROPERTIES POSITION_INDEPENDENT_CODE ${SDL_STATIC_PIC})
   if(MSVC AND NOT LIBC)
-    set_target_properties(SDL2-static PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
-    set_target_properties(SDL2-static PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
-    set_target_properties(SDL2-static PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
+    set_target_properties(NJLIC-static PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
+    set_target_properties(NJLIC-static PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
+    set_target_properties(NJLIC-static PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
   endif()
   # TODO: Win32 platforms keep the same suffix .lib for import and static
   # libraries - do we need to consider this?
-  set(_INSTALL_LIBS "SDL2-static" ${_INSTALL_LIBS})
-  target_link_libraries(SDL2-static ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
-  target_include_directories(SDL2-static PUBLIC $<INSTALL_INTERFACE:include>)
+  set(_INSTALL_LIBS "NJLIC-static" ${_INSTALL_LIBS})
+  target_link_libraries(NJLIC-static ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
+  target_include_directories(NJLIC-static PUBLIC $<INSTALL_INTERFACE:include>)
 endif()
 
 ##### Installation targets #####
-install(TARGETS ${_INSTALL_LIBS} EXPORT SDL2Targets
+install(TARGETS ${_INSTALL_LIBS} EXPORT NJLICTargets
   LIBRARY DESTINATION "lib${LIB_SUFFIX}"
   ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
   RUNTIME DESTINATION bin)
 
 ##### Export files #####
 if (APPLE)
-  set(PKG_PREFIX "SDL2.framework/Resources")
+  set(PKG_PREFIX "NJLIC.framework/Resources")
 elseif (WINDOWS)
   set(PKG_PREFIX "cmake")
 else ()
@@ -2211,7 +2179,7 @@ endif ()
 
 # include(CMakePackageConfigHelpers)
 # write_basic_package_version_file("${CMAKE_BINARY_DIR}/SDL2ConfigVersion.cmake"
-#   VERSION ${SDL_VERSION}
+#   VERSION ${NJLIC_VERSION}
 #   COMPATIBILITY AnyNewerVersion
 # )
 # 
@@ -2228,11 +2196,11 @@ endif ()
 #   COMPONENT Devel
 # )
 
-# file(GLOB INCLUDE_FILES ${SDL2_SOURCE_DIR}/include/*.h)
-# file(GLOB BIN_INCLUDE_FILES ${SDL2_BINARY_DIR}/include/*.h)
+# file(GLOB INCLUDE_FILES ${NJLIC_SOURCE_DIR}/include/*.h)
+# file(GLOB BIN_INCLUDE_FILES ${NJLIC_BINARY_DIR}/include/*.h)
 # foreach(_FNAME ${BIN_INCLUDE_FILES})
 #   get_filename_component(_INCNAME ${_FNAME} NAME)
-#   list(REMOVE_ITEM INCLUDE_FILES ${SDL2_SOURCE_DIR}/include/${_INCNAME})
+#   list(REMOVE_ITEM INCLUDE_FILES ${NJLIC_SOURCE_DIR}/include/${_INCNAME})
 # endforeach()
 # list(APPEND INCLUDE_FILES ${BIN_INCLUDE_FILES})
 # install(FILES ${INCLUDE_FILES} DESTINATION include/SDL2)
@@ -2247,18 +2215,18 @@ endif ()
 #     install(CODE "
 #       execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
 #       \"libSDL2-2.0.${SOEXT}\" \"libSDL2.${SOEXT}\")")
-#     install(FILES ${SDL2_BINARY_DIR}/libSDL2.${SOEXT} DESTINATION "lib${LIB_SUFFIX}")
+#     install(FILES ${NJLIC_BINARY_DIR}/libSDL2.${SOEXT} DESTINATION "lib${LIB_SUFFIX}")
 #   endif()
 #   if(FREEBSD)
 #     # FreeBSD uses ${PREFIX}/libdata/pkgconfig
-#     install(FILES ${SDL2_BINARY_DIR}/sdl2.pc DESTINATION "libdata/pkgconfig")
+#     install(FILES ${NJLIC_BINARY_DIR}/sdl2.pc DESTINATION "libdata/pkgconfig")
 #   else()
-#     install(FILES ${SDL2_BINARY_DIR}/sdl2.pc
+#     install(FILES ${NJLIC_BINARY_DIR}/sdl2.pc
 #       DESTINATION "lib${LIB_SUFFIX}/pkgconfig")
 #   endif()
-#   install(PROGRAMS ${SDL2_BINARY_DIR}/sdl2-config DESTINATION bin)
+#   install(PROGRAMS ${NJLIC_BINARY_DIR}/sdl2-config DESTINATION bin)
 #   # TODO: what about the .spec file? Is it only needed for RPM creation?
-#   install(FILES "${SDL2_SOURCE_DIR}/sdl2.m4" DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/aclocal")
+#   install(FILES "${NJLIC_SOURCE_DIR}/sdl2.m4" DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/aclocal")
 # endif()
 
 ##### Uninstall target #####
