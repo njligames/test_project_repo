@@ -37,22 +37,15 @@ include(CheckStructHasMember)
 include(CMakeDependentOption)
 include(FindPkgConfig)
 include(GNUInstallDirs)
+
 set(CMAKE_MODULE_PATH "${NJLIC_SOURCE_DIR}/cmake")
+
 include(${NJLIC_SOURCE_DIR}/cmake/macros.cmake)
 include(${NJLIC_SOURCE_DIR}/cmake/sdlchecks.cmake)
 include(${NJLIC_SOURCE_DIR}/cmake/download-extract.cmake)
 include(${NJLIC_SOURCE_DIR}/cmake/print-targets.cmake)
 
 set(NJLIC_URL_SDL2_INCLUDE "https://www.dropbox.com/s/g0qrc1xkz2qcb9y/SDL2-2.0.7_include.tar.gz?dl=0" CACHE STRING "The URL for the include files for SDL2")
-
-set(NJLIC_URL_SDL2_LIB_EMSCRIPTEN_RELEASE "https://www.dropbox.com/s/qc35pwe0taci2y6/SDL2-2.0.7_emscripten_Release.tar.gz?dl=0" CACHE STRING "The URL for the Emscripten version of SDL2")
-set(NJLIC_URL_SDL2_LIB_IOS_RELEASE "https://www.dropbox.com/s/xsvgzfp2h4lk965/SDL2-2.0.7_ios.tar.gz?dl=0" CACHE STRING "The URL for the iOS version of SDL2")
-# set(NJLIC_URL_SDL2_LIB_LINUX_RELEASE "https://www.dropbox.com/s/j93mqvomxo1p92c/SDL2-2.0.7_linux_16.04.2_LTS_Release.tar.gz?dl=0" CACHE STRING "The URL for the Linux version of SDL2")
-# set(NJLIC_URL_SDL2_LIB_MACOS_RELEASE "https://www.dropbox.com/s/k424l8x6bpmdz71/SDL2-2.0.7_macOS_10.12_Release.tar.gz?dl=0" CACHE STRING "The URL for the MacOS version of SDL2")
-set(NJLIC_URL_SDL2_LIB_TVOS_RELEASE "https://www.dropbox.com/s/pykfzhv69xvw0jn/SDL2-2.0.7_tvos.tar.gz?dl=0" CACHE STRING "The URL for the tvOS version of SDL2")
-set(NJLIC_URL_SDL2_LIB_WINDOWS_WIN32_RELEASE "https://www.dropbox.com/s/6khz9t3oizrihrq/SDL2-2.0.7_windows_Win32_Release.tar.gz?dl=0" CACHE STRING "The URL for the Windows 32bit version of SDL2")
-set(NJLIC_URL_SDL2_LIB_WINDOWS_X64_RELEASE "https://www.dropbox.com/s/8hozs9z89raqyyw/SDL2-2.0.7_windows_x64_Release.tar.gz?dl=0" CACHE STRING "The URL for the Windows 64bit version of SDL2")
-
 
 set(NJLI_REPO_DIR "test_engine_repo")
 set(NJLIC_REPO_DIRECTORY "${CMAKE_BINARY_DIR}/${NJLI_REPO_DIR}")
@@ -935,6 +928,7 @@ endif()
 
 # Platform-specific options and settings
 if(EMSCRIPTEN)
+  set(NJLIC_URL_SDL2_LIB_EMSCRIPTEN_RELEASE "https://www.dropbox.com/s/qc35pwe0taci2y6/SDL2-2.0.7_emscripten_Release.tar.gz?dl=0" CACHE STRING "The URL for the Emscripten version of SDL2")
 
   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 --js-opts 0 -g4")
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 --js-opts 0 -g4")
@@ -1188,9 +1182,13 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID)
 elseif(WINDOWS)
 
   if(ARCH_64)
+    set(NJLIC_URL_SDL2_LIB_WINDOWS_X64_RELEASE "https://www.dropbox.com/s/8hozs9z89raqyyw/SDL2-2.0.7_windows_x64_Release.tar.gz?dl=0" CACHE STRING "The URL for the Windows 64bit version of SDL2")
+
     set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/windows/x64")
     set(LIBSDL_LIBRARY_URL "${NJLIC_URL_SDL2_LIB_WINDOWS_X64_RELEASE}")
   else()
+    set(NJLIC_URL_SDL2_LIB_WINDOWS_WIN32_RELEASE "https://www.dropbox.com/s/6khz9t3oizrihrq/SDL2-2.0.7_windows_Win32_Release.tar.gz?dl=0" CACHE STRING "The URL for the Windows 32bit version of SDL2")
+
     set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/windows/x86")
     set(LIBSDL_LIBRARY_URL "${NJLIC_URL_SDL2_LIB_WINDOWS_WIN32_RELEASE}")
   endif(ARCH_64)
@@ -1432,6 +1430,8 @@ elseif(APPLE)
     set(SDL_FRAMEWORK_CARBON 1)
   else()
     if(IOS)
+      set(NJLIC_URL_SDL2_LIB_IOS_RELEASE "https://www.dropbox.com/s/xsvgzfp2h4lk965/SDL2-2.0.7_ios.tar.gz?dl=0" CACHE STRING "The URL for the iOS version of SDL2")
+
       SET( ASSET_CATALOGUE "${CMAKE_CURRENT_SOURCE_DIR}/cmake.in/platform.in/ios/Assets.xcassets" )
       set(SOURCE_FILES ${SOURCE_FILES} ${ASSET_CATALOGUE})
       set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/ios")
@@ -1457,6 +1457,8 @@ elseif(APPLE)
       set(SOURCE_FILES ${SOURCE_FILES} ${ASSET_CATALOGUE})
 
 
+
+      set(NJLIC_URL_SDL2_LIB_TVOS_RELEASE "https://www.dropbox.com/s/pykfzhv69xvw0jn/SDL2-2.0.7_tvos.tar.gz?dl=0" CACHE STRING "The URL for the tvOS version of SDL2")
 
       set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/tvos")
       set(LIBSDL_LIBRARY_URL "${NJLIC_URL_SDL2_LIB_TVOS_RELEASE}")
@@ -2192,58 +2194,59 @@ else ()
   set(PKG_PREFIX "lib/cmake/NJLIC")
 endif ()
 
-# include(CMakePackageConfigHelpers)
-# write_basic_package_version_file("${CMAKE_BINARY_DIR}/SDL2ConfigVersion.cmake"
-#   VERSION ${NJLIC_VERSION}
-#   COMPATIBILITY AnyNewerVersion
-# )
-# 
-# install(EXPORT SDL2Targets
-#   FILE SDL2Targets.cmake
-#   NAMESPACE SDL2::
-#   DESTINATION ${PKG_PREFIX}
-# )
-# install(
-#   FILES
-#     ${CMAKE_CURRENT_SOURCE_DIR}/SDL2Config.cmake
-#     ${CMAKE_BINARY_DIR}/SDL2ConfigVersion.cmake
-#   DESTINATION ${PKG_PREFIX}
-#   COMPONENT Devel
-# )
+if(NOT ANDROID)
+  include(CMakePackageConfigHelpers)
+  write_basic_package_version_file("${CMAKE_BINARY_DIR}/NJLICConfigVersion.cmake"
+    VERSION ${NJLIC_VERSION}
+    COMPATIBILITY AnyNewerVersion
+  )
 
-# file(GLOB INCLUDE_FILES ${NJLIC_SOURCE_DIR}/include/*.h)
-# file(GLOB BIN_INCLUDE_FILES ${NJLIC_BINARY_DIR}/include/*.h)
-# foreach(_FNAME ${BIN_INCLUDE_FILES})
-#   get_filename_component(_INCNAME ${_FNAME} NAME)
-#   list(REMOVE_ITEM INCLUDE_FILES ${NJLIC_SOURCE_DIR}/include/${_INCNAME})
-# endforeach()
-# list(APPEND INCLUDE_FILES ${BIN_INCLUDE_FILES})
-# install(FILES ${INCLUDE_FILES} DESTINATION include/SDL2)
+  install(EXPORT NJLICTargets
+    FILE NJLICTargets.cmake
+    NAMESPACE NJLIC::
+    DESTINATION ${PKG_PREFIX}
+  )
+  install(
+    FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/NJLICConfig.cmake
+    ${CMAKE_BINARY_DIR}/NJLICConfigVersion.cmake
+    DESTINATION ${PKG_PREFIX}
+    COMPONENT Devel
+  )
 
-# if(NOT (WINDOWS OR CYGWIN))
-#   if(NJLIC_SHARED)
-#     if (APPLE)
-#         set(SOEXT "dylib")
-#     else()
-#         set(SOEXT "so")
-#     endif()
-#     install(CODE "
-#       execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-#       \"libSDL2-2.0.${SOEXT}\" \"libSDL2.${SOEXT}\")")
-#     install(FILES ${NJLIC_BINARY_DIR}/libSDL2.${SOEXT} DESTINATION "lib${LIB_SUFFIX}")
-#   endif()
-#   if(FREEBSD)
-#     # FreeBSD uses ${PREFIX}/libdata/pkgconfig
-#     install(FILES ${NJLIC_BINARY_DIR}/sdl2.pc DESTINATION "libdata/pkgconfig")
-#   else()
-#     install(FILES ${NJLIC_BINARY_DIR}/sdl2.pc
-#       DESTINATION "lib${LIB_SUFFIX}/pkgconfig")
-#   endif()
-#   install(PROGRAMS ${NJLIC_BINARY_DIR}/sdl2-config DESTINATION bin)
-#   # TODO: what about the .spec file? Is it only needed for RPM creation?
-#   install(FILES "${NJLIC_SOURCE_DIR}/sdl2.m4" DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/aclocal")
-# endif()
+  file(GLOB INCLUDE_FILES ${NJLIC_SOURCE_DIR}/include/*.h)
+  file(GLOB BIN_INCLUDE_FILES ${NJLIC_BINARY_DIR}/include/*.h)
+  foreach(_FNAME ${BIN_INCLUDE_FILES})
+    get_filename_component(_INCNAME ${_FNAME} NAME)
+    list(REMOVE_ITEM INCLUDE_FILES ${NJLIC_SOURCE_DIR}/include/${_INCNAME})
+  endforeach()
+  list(APPEND INCLUDE_FILES ${BIN_INCLUDE_FILES})
+  install(FILES ${INCLUDE_FILES} DESTINATION include/NJLIC)
 
+  if(NOT (WINDOWS OR CYGWIN))
+    if(NJLIC_SHARED)
+      if (APPLE)
+          set(SOEXT "dylib")
+      else()
+          set(SOEXT "so")
+      endif()
+      install(CODE "
+        execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+          \"libNJLIC-1.0.${SOEXT}\" \"libNJLIC.${SOEXT}\")")
+      install(FILES ${NJLIC_BINARY_DIR}/libNJLIC.${SOEXT} DESTINATION "lib${LIB_SUFFIX}")
+    endif()
+    if(FREEBSD)
+      # FreeBSD uses ${PREFIX}/libdata/pkgconfig
+      install(FILES ${NJLIC_BINARY_DIR}/njlic.pc DESTINATION "libdata/pkgconfig")
+    else()
+      install(FILES ${NJLIC_BINARY_DIR}/njlic.pc
+        DESTINATION "lib${LIB_SUFFIX}/pkgconfig")
+    endif()
+    install(PROGRAMS ${NJLIC_BINARY_DIR}/njlic-config DESTINATION bin)
+    # TODO: what about the .spec file? Is it only needed for RPM creation?
+    install(FILES "${NJLIC_SOURCE_DIR}/njlic.m4" DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/aclocal")
+  endif()
+endif(NOT ANDROID)
 ##### Uninstall target #####
 
 if(NOT TARGET uninstall)
