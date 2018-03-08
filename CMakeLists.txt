@@ -100,7 +100,7 @@ else()
   set(ARCH_64 FALSE)
   set(PROCESSOR_ARCH "x86")
 endif()
-set(LIBNAME SDL2)
+set(LIBNAME NJLIC)
 if(NOT LIBTYPE)
   set(LIBTYPE SHARED)
 endif()
@@ -150,7 +150,7 @@ elseif(APPLE)
   endif()
   # TODO: iOS?
 elseif(CMAKE_SYSTEM_NAME MATCHES "BeOS.*")
-  message_error("BeOS support has been removed as of SDL 2.0.2.")
+  # message_error("BeOS support has been removed as of SDL 2.0.2.")
 elseif(CMAKE_SYSTEM_NAME MATCHES "Haiku.*")
   set(HAIKU TRUE)
 endif()
@@ -169,9 +169,9 @@ else()
 endif()
 
 if (UNIX_OR_MAC_SYS AND NOT EMSCRIPTEN) # JavaScript does not yet have threading support, so disable pthreads when building for Emscripten.
-  set(SDL_PTHREADS_ENABLED_BY_DEFAULT ON)
+  set(NJLIC_PTHREADS_ENABLED_BY_DEFAULT ON)
 else()
-  set(SDL_PTHREADS_ENABLED_BY_DEFAULT OFF)
+  set(NJLIC_PTHREADS_ENABLED_BY_DEFAULT OFF)
 endif()
 
 # Default option knobs
@@ -238,7 +238,7 @@ if(MSVC)
   endforeach(flag_var)
 endif()
 
-# Those are used for pkg-config and friends, so that the SDL2.pc, sdl2-config,
+# Those are used for pkg-config and friends, so that the NJLIC.pc, njlic-config,
 # etc. are created correctly.
 set(NJLIC_LIBS "-lNJLIC")
 set(NJLIC_CFLAGS "")
@@ -250,7 +250,7 @@ set(NJLIC_CFLAGS "")
 set(ORIG_CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS})
 
 if(CYGWIN)
-  # We build SDL on cygwin without the UNIX emulation layer
+  # We build NJLIC on cygwin without the UNIX emulation layer
   include_directories("-I/usr/include/mingw")
   set(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} -mno-cygwin")
   check_c_source_compiles("int main(int argc, char **argv) {}"
@@ -305,9 +305,6 @@ if (NOT DEFINED NJLIC_EXE_ENABLED_BY_DEFAULT)
     set(NJLIC_EXE_ENABLED_BY_DEFAULT ON)
 endif()
 
-# set(SDL_SUBSYSTEMS
-#     Atomic Audio Video Render Events Joystick Haptic Power Threads Timers
-#     File Loadso CPUinfo Filesystem Dlopen)
 set(SDL_SUBSYSTEMS
     Atomic Audio Video Render Events Joystick Haptic Power Threads Timers
     File Loadso CPUinfo Filesystem Dlopen)
@@ -338,9 +335,9 @@ dep_option(DIRECTFB_SHARED     "Dynamically load directfb support" ON "VIDEO_DIR
 set_option(VIDEO_DUMMY         "Use dummy video driver" ON)
 set_option(VIDEO_OPENGL        "Include OpenGL support" ON)
 set_option(VIDEO_OPENGLES      "Include OpenGL ES support" ON)
-set_option(PTHREADS            "Use POSIX threads for multi-threading" ${SDL_PTHREADS_ENABLED_BY_DEFAULT})
+set_option(PTHREADS            "Use POSIX threads for multi-threading" ${NJLIC_PTHREADS_ENABLED_BY_DEFAULT})
 dep_option(PTHREADS_SEM        "Use pthread semaphores" ON "PTHREADS" OFF)
-set_option(SDL_DLOPEN          "Use dlopen for shared object loading" ${NJLIC_DLOPEN_ENABLED_BY_DEFAULT})
+set_option(NJLIC_DLOPEN          "Use dlopen for shared object loading" ${NJLIC_DLOPEN_ENABLED_BY_DEFAULT})
 set_option(OSS                 "Support the OSS audio API" ${UNIX_SYS})
 set_option(ALSA                "Support the ALSA audio API" ${UNIX_SYS})
 dep_option(ALSA_SHARED         "Dynamically load ALSA audio support" ON "ALSA" OFF)
@@ -359,7 +356,7 @@ set_option(FUSIONSOUND         "Use FusionSound audio driver" OFF)
 dep_option(FUSIONSOUND_SHARED  "Dynamically load fusionsound audio support" ON "FUSIONSOUND" OFF)
 set_option(LIBSAMPLERATE       "Use libsamplerate for audio rate conversion" ${UNIX_SYS})
 dep_option(LIBSAMPLERATE_SHARED "Dynamically load libsamplerate" ON "LIBSAMPLERATE" OFF)
-set_option(RPATH               "Use an rpath when linking SDL" ${UNIX_SYS})
+set_option(RPATH               "Use an rpath when linking NJLIC" ${UNIX_SYS})
 set_option(CLOCK_GETTIME       "Use clock_gettime() instead of gettimeofday()" OFF)
 set_option(INPUT_TSLIB         "Use the Touchscreen library for input" ${UNIX_SYS})
 set_option(VIDEO_X11           "Use X11 video driver" ${UNIX_SYS})
@@ -406,13 +403,13 @@ file(GLOB SOURCE_FILES
 if(ASSERTIONS STREQUAL "auto")
   # Do nada - use optimization settings to determine the assertion level
 elseif(ASSERTIONS STREQUAL "disabled")
-  set(SDL_DEFAULT_ASSERT_LEVEL 0)
+  set(NJLIC_DEFAULT_ASSERT_LEVEL 0)
 elseif(ASSERTIONS STREQUAL "release")
-  set(SDL_DEFAULT_ASSERT_LEVEL 1)
+  set(NJLIC_DEFAULT_ASSERT_LEVEL 1)
 elseif(ASSERTIONS STREQUAL "enabled")
-  set(SDL_DEFAULT_ASSERT_LEVEL 2)
+  set(NJLIC_DEFAULT_ASSERT_LEVEL 2)
 elseif(ASSERTIONS STREQUAL "paranoid")
-  set(SDL_DEFAULT_ASSERT_LEVEL 3)
+  set(NJLIC_DEFAULT_ASSERT_LEVEL 3)
 else()
   message_error("unknown assertion level")
 endif()
@@ -471,7 +468,7 @@ if(USE_GCC OR USE_CLANG)
   set(CMAKE_REQUIRED_FLAGS "-fvisibility=hidden -Werror")
   check_c_source_compiles("
       #if !defined(__GNUC__) || __GNUC__ < 4
-      #error SDL only uses visibility attributes in GCC 4 or newer
+      #error NJLIC only uses visibility attributes in GCC 4 or newer
       #endif
       int main(int argc, char **argv) {}" HAVE_GCC_FVISIBILITY)
   if(HAVE_GCC_FVISIBILITY)
@@ -498,7 +495,7 @@ endif()
 
 if(ASSEMBLY)
   if(USE_GCC OR USE_CLANG)
-    set(SDL_ASSEMBLY_ROUTINES 1)
+    set(NJLIC_ASSEMBLY_ROUTINES 1)
     # TODO: Those all seem to be quite GCC specific - needs to be
     # reworked for better compiler support
     set(HAVE_ASSEMBLY TRUE)
@@ -640,7 +637,7 @@ if(ASSEMBLY)
       if(HAVE_ALTIVEC OR HAVE_ALTIVEC_H_HDR)
         set(HAVE_ALTIVEC TRUE) # if only HAVE_ALTIVEC_H_HDR is set
         list(APPEND EXTRA_CFLAGS "-maltivec")
-        set(SDL_ALTIVEC_BLITTERS 1)
+        set(NJLIC_ALTIVEC_BLITTERS 1)
         if(HAVE_ALTIVEC_H_HDR)
           set(HAVE_ALTIVEC_H 1)
         endif()
@@ -656,7 +653,7 @@ if(ASSEMBLY)
     set(HAVE_SSE TRUE)
     set(HAVE_SSE2 TRUE)
     set(HAVE_SSE3 TRUE)
-    set(SDL_ASSEMBLY_ROUTINES 1)
+    set(NJLIC_ASSEMBLY_ROUTINES 1)
   endif()
 # TODO:
 #else()
@@ -785,7 +782,7 @@ if(SDL_POWER)
   # file(GLOB POWER_SOURCES ${NJLIC_SOURCE_DIR}/src/power/*.c)
   # set(SOURCE_FILES ${SOURCE_FILES} ${POWER_SOURCES})
 endif()
-# TODO: in configure.in, the test for LOADSO and SDL_DLOPEN is a bit weird:
+# TODO: in configure.in, the test for LOADSO and NJLIC_DLOPEN is a bit weird:
 # if LOADSO is not wanted, SDL_LOADSO_DISABLED is set
 # If however on Unix or APPLE dlopen() is detected via CheckDLOPEN(),
 # SDL_LOADSO_DISABLED will not be set, regardless of the LOADSO settings
@@ -807,7 +804,7 @@ if(SDL_AUDIO)
   endif()
 endif()
 
-if(SDL_DLOPEN)
+if(NJLIC_DLOPEN)
   # Relevant for Unix/Darwin only
   if(UNIX OR APPLE)
     CheckDLOPEN()
@@ -1472,7 +1469,6 @@ elseif(APPLE)
       list(APPEND EXTRA_LIBS "-framework Foundation")
       list(APPEND EXTRA_LIBS "-framework AVFoundation")
       list(APPEND EXTRA_LIBS "-framework GameController")
-      #list(APPEND EXTRA_LIBS "-framework CoreMotion")
       list(APPEND EXTRA_LIBS "-framework CoreGraphics")
       list(APPEND EXTRA_LIBS "-framework QuartzCore")
     endif(TVOS)
@@ -1801,7 +1797,6 @@ if(IOS OR TVOS OR EMSCRIPTEN OR WINDOWS)
       HINTS "${CMAKE_BINARY_DIR}" "${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY}"
       )
     file(COPY "${SDL2SHARED_LIBRARY}" DESTINATION ${PROJECT_BINARY_DIR})
-
   endif(WINDOWS)
 
 elseif(NOT ANDROID)
@@ -2017,55 +2012,56 @@ if(NJLIC_EXE)
   # add_dependencies(NJLIC-exe engine_code)
 
   if(APPLE)
+
+    # macOS and iOS and tvOS
     SET_TARGET_PROPERTIES(
       NJLIC-exe PROPERTIES
       RESOURCE "${ASSET_CATALOGUE}"
       )
 
-    if(NOT (IOS OR TVOS))
+    if(NOT IOS AND NOT TVOS)
+      # macOS
       SET_TARGET_PROPERTIES (
         NJLIC-exe PROPERTIES
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake.in/platform.in/macOS/Info.plist"
         XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
         XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.macos.source"
         )
-    endif(NOT (IOS OR TVOS))
+    else()
+      # iOS and tvOS
+      SET_TARGET_PROPERTIES(
+        NJLIC-exe PROPERTIES
+        RESOURCE "${ASSET_CATALOGUE}"
+        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
+        XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
+        XCODE_ATTRIBUTE_INSTALL_PATH "${CMAKE_BINARY_DIR}/ProductRelease"
+        XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"
+        MACOSX_BUNDLE TRUE
+        XCODE_ATTRIBUTE_PRODUCT_NAME "NJLICGameEngine"
+        XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
+        XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "$ENV{IOS_DEVELOPMENT_TEAM}"
+        )
+    endif(NOT IOS AND NOT TVOS)
 
     if(IOS)
       SET_TARGET_PROPERTIES (
         NJLIC-exe PROPERTIES
-        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
         XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
-        XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
-        XCODE_ATTRIBUTE_INSTALL_PATH "${CMAKE_BINARY_DIR}/ProductRelease"
         XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES "NO"
-        XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"
-        MACOSX_BUNDLE TRUE
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake.in/platform.in/ios/Info.plist"
         XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
-        XCODE_ATTRIBUTE_PRODUCT_NAME "NJLICGameEngine"
         XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.ios.source"
-        XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
-        XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "$ENV{IOS_DEVELOPMENT_TEAM}"
         )
     endif(IOS)
 
     if(TVOS)
       SET_TARGET_PROPERTIES (
         NJLIC-exe PROPERTIES
-        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
         XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "3"
-        XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
-        XCODE_ATTRIBUTE_INSTALL_PATH "${CMAKE_BINARY_DIR}/ProductRelease"
         XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES "NO"
-        XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"
-        MACOSX_BUNDLE TRUE
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake.in/platform.in/appletv/Info.plist"
         XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "App Icon & Top Shelf Image"
-        XCODE_ATTRIBUTE_PRODUCT_NAME "NJLICGameEngine"
         XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.appletv.source"
-        XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
-        XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "$ENV{IOS_DEVELOPMENT_TEAM}"
         )
     endif(TVOS)
   elseif(UNIX AND NOT ANDROID)
@@ -2092,7 +2088,7 @@ if(NJLIC_EXE)
     # set_target_properties(NJLIC-exe PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
     # set_target_properties(NJLIC-exe PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
   endif()
-  set(_INSTALL_EXE "NJLIC-exe" )
+  # set(_INSTALL_EXE "NJLIC-exe" )
   target_link_libraries(NJLIC-exe ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
   # target_include_directories(NJLIC-exe PUBLIC $<INSTALL_INTERFACE:include>)
 endif(NJLIC_EXE)
@@ -2247,6 +2243,7 @@ if(NOT ANDROID)
     install(FILES "${NJLIC_SOURCE_DIR}/njlic.m4" DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/aclocal")
   endif()
 endif(NOT ANDROID)
+
 ##### Uninstall target #####
 
 if(NOT TARGET uninstall)
