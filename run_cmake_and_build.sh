@@ -6,7 +6,7 @@ INSTALL_PREFIX=install
 
 if [ "${PLATFORM}" != "android" ]
 then
-  BUILD_DIR=.build_$PLATFORM
+  BUILD_DIR=_build_$PLATFORM
   rm -rf $BUILD_DIR
   mkdir $BUILD_DIR
   cd $BUILD_DIR
