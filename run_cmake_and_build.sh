@@ -2,6 +2,7 @@
 
 PLATFORM=$1
 PRE=""
+INSTALL_PREFIX=install
 
 if [ "${PLATFORM}" != "android" ]
 then
@@ -14,30 +15,31 @@ fi
 if [ "${PLATFORM}" == "emscripten" ]
 then
   export EMCC_DEBUG=1 # Verbose building...
-  emcmake cmake ..
+  emcmake cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
 elif [ "${PLATFORM}" == "windows64" ]
 then
-  cmake .. -G "Visual Studio 14 2015 Win64"
+  cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -G "Visual Studio 14 2015 Win64"
 elif [ "${PLATFORM}" == "windows32" ]
 then
-  cmake .. -G "Visual Studio 14 2015"
+  cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -G "Visual Studio 14 2015"
 elif [ "${PLATFORM}" == "macOS" ]
 then
-  cmake .. -G "Xcode"
+  cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -G "Xcode"
 elif [ "${PLATFORM}" == "ios" ]
 then
-  cmake .. -G "Xcode" -DIOS:BOOL=TRUE
+  cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -G "Xcode" -DIOS:BOOL=TRUE
 elif [ "${PLATFORM}" == "appletv" ]
 then
-  cmake .. -G "Xcode" -DTVOS:BOOL=TRUE
+  cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -G "Xcode" -DTVOS:BOOL=TRUE
 elif [ "${PLATFORM}" == "android" ]
 then
   cd android
   ./gradlew assembleDebug
 else
-  cmake -E env CFLAGS='-O0 -g' cmake ..
+  cmake -E env CFLAGS='-O0 -g' cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
 fi
 
+# cmake --build . --config Release --target install
 cmake --build . --config Release
 cd ..
 

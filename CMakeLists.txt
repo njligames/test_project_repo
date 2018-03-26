@@ -203,11 +203,13 @@ if(USE_GCC OR USE_CLANG)
 endif()
 
 # Default flags, if not set otherwise
-if("$ENV{CFLAGS}" STREQUAL "" AND NOT EMSCRIPTEN)
+if("$ENV{CFLAGS}" STREQUAL "")
   if(CMAKE_BUILD_TYPE STREQUAL "")
     if(USE_GCC OR USE_CLANG)
-      set(CMAKE_C_FLAGS "-g -O3")
-      set(CMAKE_BUILD_TYPE "Debug")
+      if(NOT EMSCRIPTEN)
+        set(CMAKE_C_FLAGS "-g -O3")
+        set(CMAKE_BUILD_TYPE "Debug")
+      endif()
     endif()
   endif()
 else()
@@ -2008,15 +2010,21 @@ MESSAGE( STATUS "CMAKE_RANLIB: " ${CMAKE_RANLIB} )
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS}")
 
 if(NJLIC_EXE)
-  add_executable(NJLIC-exe ${SOURCE_FILES})
+  add_executable(NJLIC-exe MACOSX_BUNDLE ${SOURCE_FILES} ${ASSET_CATALOGUE})
   # add_dependencies(NJLIC-exe engine_code)
 
   if(APPLE)
+    SET_SOURCE_FILES_PROPERTIES(
+      ${NJLI_RESOURCES}
+      PROPERTIES
+      MACOSX_PACKAGE_LOCATION NJLIC-exe/Contents/Resources/
+      )
 
     # macOS and iOS and tvOS
     SET_TARGET_PROPERTIES(
       NJLIC-exe PROPERTIES
       RESOURCE "${ASSET_CATALOGUE}"
+      MACOSX_BUNDLE TRUE
       )
 
     if(NOT IOS AND NOT TVOS)
@@ -2036,7 +2044,6 @@ if(NJLIC_EXE)
         XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
         XCODE_ATTRIBUTE_INSTALL_PATH "${CMAKE_BINARY_DIR}/ProductRelease"
         XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"
-        MACOSX_BUNDLE TRUE
         XCODE_ATTRIBUTE_PRODUCT_NAME "NJLICGameEngine"
         XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
         XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "$ENV{IOS_DEVELOPMENT_TEAM}"
@@ -2088,7 +2095,6 @@ if(NJLIC_EXE)
     # set_target_properties(NJLIC-exe PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
     # set_target_properties(NJLIC-exe PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
   endif()
-  # set(_INSTALL_EXE "NJLIC-exe" )
   target_link_libraries(NJLIC-exe ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
   # target_include_directories(NJLIC-exe PUBLIC $<INSTALL_INTERFACE:include>)
 endif(NJLIC_EXE)
@@ -2239,6 +2245,22 @@ if(NOT ANDROID)
         DESTINATION "lib${LIB_SUFFIX}/pkgconfig")
     endif()
     install(PROGRAMS ${NJLIC_BINARY_DIR}/njlic-config DESTINATION bin)
+
+    if(EMSCRIPTEN)
+      file(GLOB_RECURSE EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/NJLIC-exe.*)
+      list(REMOVE_DUPLICATES EMSCRIPTEN_BINARY_FILES)
+      list(REMOVE_ITEM EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/NJLIC-exe.html)
+      message(STATUS "EMSCRIPTEN_BINARY_FILES ${EMSCRIPTEN_BINARY_FILES}")
+      install(FILES ${EMSCRIPTEN_BINARY_FILES} DESTINATION bin)
+    endif()
+
+    if (NOT APPLE)
+      INSTALL(TARGETS NJLIC-exe 
+        RUNTIME DESTINATION bin 
+        BUNDLE DESTINATION bin
+        )
+    endif()
+
     # TODO: what about the .spec file? Is it only needed for RPM creation?
     install(FILES "${NJLIC_SOURCE_DIR}/njlic.m4" DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/aclocal")
   endif()
