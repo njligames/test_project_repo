@@ -47,15 +47,24 @@ include(${NJLIC_SOURCE_DIR}/cmake/print-targets.cmake)
 
 set(NJLIC_URL_SDL2_INCLUDE "https://www.dropbox.com/s/g0qrc1xkz2qcb9y/SDL2-2.0.7_include.tar.gz?dl=0" CACHE STRING "The URL for the include files for SDL2")
 
-set(NJLI_REPO_DIR "test_engine_repo")
-set(NJLIC_REPO_DIRECTORY "${CMAKE_BINARY_DIR}/${NJLI_REPO_DIR}")
 
 set(NJLIC_REPO_URL "https://github.com/njligames/test_engine_repo/archive/master.tar.gz")
+set(NJLIC_REPO_DIR "test_engine_repo")
 RETRIEVE_TAR(
 	"${NJLIC_REPO_URL}"
-	"${NJLI_REPO_DIR}"
+  "${NJLIC_REPO_DIR}"
 	"SKIP"
 )
+set(NJLIC_REPO_DIRECTORY "${CMAKE_BINARY_DIR}/${NJLIC_REPO_DIR}")
+
+set(CMAKEIN_REPO_URL "https://github.com/njligames/cmake.in/archive/master.tar.gz")
+set(CMAKEIN_REPO_DIR "cmake.in")
+RETRIEVE_TAR(
+	"${CMAKEIN_REPO_URL}"
+	"${CMAKEIN_REPO_DIR}"
+	"SKIP"
+)
+set(CMAKEIN_REPO_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKEIN_REPO_DIR}")
 
 
 # General settings
@@ -1423,7 +1432,7 @@ elseif(APPLE)
   # !!! FIXME:  src/video/cocoa/SDL_cocoakeyboard.c, but we should figure out
   # !!! FIXME:  how to dump those.
   if(NOT (IOS OR TVOS))
-    SET( ASSET_CATALOGUE "${CMAKE_CURRENT_SOURCE_DIR}/cmake.in/platform.in/macOS/Assets.xcassets" )
+    SET( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/macOS/Assets.xcassets" )
     set(SOURCE_FILES ${SOURCE_FILES} ${ASSET_CATALOGUE})
     set(SDL_FRAMEWORK_COCOA 1)
     set(SDL_FRAMEWORK_CARBON 1)
@@ -1431,7 +1440,7 @@ elseif(APPLE)
     if(IOS)
       set(NJLIC_URL_SDL2_LIB_IOS_RELEASE "https://www.dropbox.com/s/xsvgzfp2h4lk965/SDL2-2.0.7_ios.tar.gz?dl=0" CACHE STRING "The URL for the iOS version of SDL2")
 
-      SET( ASSET_CATALOGUE "${CMAKE_CURRENT_SOURCE_DIR}/cmake.in/platform.in/ios/Assets.xcassets" )
+      SET( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/ios/Assets.xcassets" )
       set(SOURCE_FILES ${SOURCE_FILES} ${ASSET_CATALOGUE})
       set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/ios")
       set(LIBSDL_LIBRARY_URL "${NJLIC_URL_SDL2_LIB_IOS_RELEASE}")
@@ -1452,7 +1461,7 @@ elseif(APPLE)
     endif(IOS)
     
     if(TVOS)
-      SET( ASSET_CATALOGUE "${CMAKE_CURRENT_SOURCE_DIR}/cmake.in/platform.in/appletv/Assets.xcassets" )
+      SET( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/appletv/Assets.xcassets" )
       set(SOURCE_FILES ${SOURCE_FILES} ${ASSET_CATALOGUE})
 
 
@@ -2031,7 +2040,7 @@ if(NJLIC_EXE)
       # macOS
       SET_TARGET_PROPERTIES (
         NJLIC-exe PROPERTIES
-        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake.in/platform.in/macOS/Info.plist"
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKEIN_REPO_DIRECTORY}/platform.in/macOS/Info.plist"
         XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
         XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.macos.source"
         )
@@ -2055,7 +2064,7 @@ if(NJLIC_EXE)
         NJLIC-exe PROPERTIES
         XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
         XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES "NO"
-        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake.in/platform.in/ios/Info.plist"
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKEIN_REPO_DIRECTORY}/platform.in/ios/Info.plist"
         XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
         XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.ios.source"
         )
@@ -2066,7 +2075,7 @@ if(NJLIC_EXE)
         NJLIC-exe PROPERTIES
         XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "3"
         XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES "NO"
-        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake.in/platform.in/appletv/Info.plist"
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKEIN_REPO_DIRECTORY}/platform.in/appletv/Info.plist"
         XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "App Icon & Top Shelf Image"
         XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.appletv.source"
         )
