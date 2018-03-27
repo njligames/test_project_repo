@@ -8,14 +8,13 @@ if [ "${PLATFORM}" != "android" ]
 then
   BUILD_DIR=.build_$PLATFORM
   rm -rf $BUILD_DIR
-  mkdir $BUILD_DIR
+  mkdir -p $BUILD_DIR
   cd $BUILD_DIR
 fi
 
 if [ "${PLATFORM}" == "emscripten" ]
 then
   export EMCC_DEBUG=1 # Verbose building...
-  emcmake cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
   emcmake cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
 elif [ "${PLATFORM}" == "windows64" ]
 then
@@ -41,8 +40,11 @@ else
 fi
 
 cmake --build . --config Release --target install
-# cmake --build . --config Release
+
+if [ "${PLATFORM}" == "emscripten" ]
+then
+  emcmake cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
+  cmake --build . --config Release --target install
+fi
+
 cd ..
-
-
-
