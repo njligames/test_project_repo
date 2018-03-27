@@ -2023,6 +2023,25 @@ if(NJLIC_EXE)
   # add_dependencies(NJLIC-exe engine_code)
 
   if(APPLE)
+
+    # https://stackoverflow.com/questions/40664125/cmake-and-code-signing-in-xcode-8-for-ios-projects?rq=1
+    # Automatic
+    # SET_XCODE_PROPERTY(MyTarget CODE_SIGN_IDENTITY "iPhone Developer")
+    # SET_XCODE_PROPERTY(MyTarget DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID})
+
+    # Manual
+    # SET_XCODE_PROPERTY(MyTarget CODE_SIGN_IDENTITY ${CODESIGNIDENTITY})
+    # SET_XCODE_PROPERTY(MyTarget DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID})
+    # SET_XCODE_PROPERTY(MyTarget PROVISIONING_PROFILE_SPECIFIER ${PROVISIONING_PROFILE_NAME})
+    # 
+    # PROVISIONING_PROFILE_NAME - file name without extension eg. My full name: Game_AppStore.mobileprovision so here I write Game_AppStore
+    # CODESIGNIDENTITY - Set to your preferred code sign identity, to see list: /usr/bin/env xcrun security find-identity -v -p codesigning
+
+    # This little macro lets you set any XCode specific property
+    # macro (set_xcode_property TARGET XCODE_PROPERTY XCODE_VALUE)
+    #     set_property (TARGET ${TARGET} PROPERTY XCODE_ATTRIBUTE_${XCODE_PROPERTY} ${XCODE_VALUE})
+    # endmacro (set_xcode_property)
+
     SET_SOURCE_FILES_PROPERTIES(
       ${NJLI_RESOURCES}
       PROPERTIES
