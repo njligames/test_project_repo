@@ -66,7 +66,6 @@ RETRIEVE_TAR(
 )
 set(CMAKEIN_REPO_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKEIN_REPO_DIR}")
 
-
 # General settings
 # Edit include/SDL_version.h and change the version, then:
 #   NJLIC_MICRO_VERSION += 1;
@@ -218,6 +217,9 @@ if("$ENV{CFLAGS}" STREQUAL "")
       if(NOT EMSCRIPTEN)
         set(CMAKE_C_FLAGS "-g -O3")
         set(CMAKE_BUILD_TYPE "Debug")
+      else()
+        set(CMAKE_C_FLAGS "-O2 --js-opts 0 -g4")
+        set(CMAKE_CXX_FLAGS "-O2 --js-opts 0 -g4")
       endif()
     endif()
   endif()
@@ -938,13 +940,12 @@ endif()
 if(EMSCRIPTEN)
   set(NJLIC_URL_SDL2_LIB_EMSCRIPTEN_RELEASE "https://www.dropbox.com/s/qc35pwe0taci2y6/SDL2-2.0.7_emscripten_Release.tar.gz?dl=0" CACHE STRING "The URL for the Emscripten version of SDL2")
 
-  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 --js-opts 0 -g4")
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 --js-opts 0 -g4")
-
   set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/emscripten/Release")
   set(LIBSDL_LIBRARY_URL "${NJLIC_URL_SDL2_LIB_EMSCRIPTEN_RELEASE}")
 
   SET(CMAKE_EXECUTABLE_SUFFIX ".html")
+
+  list(APPEND EXTRA_LDFLAGS "--shell-file ${CMAKEIN_REPO_DIRECTORY}/platform.in/emscripten/executable/release_shell.html")
 
   # Hide noisy warnings that intend to aid mostly during initial stages of porting a new
   # project. Uncomment at will for verbose cross-compiling -I/../ path info.
@@ -2280,8 +2281,8 @@ if(NOT ANDROID)
       file(GLOB_RECURSE EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/NJLIC-exe.*)
       list(REMOVE_DUPLICATES EMSCRIPTEN_BINARY_FILES)
       list(REMOVE_ITEM EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/NJLIC-exe.html)
-      message(STATUS "EMSCRIPTEN_BINARY_FILES ${EMSCRIPTEN_BINARY_FILES}")
       install(FILES ${EMSCRIPTEN_BINARY_FILES} DESTINATION bin)
+      install(FILES "${CMAKEIN_REPO_DIRECTORY}/platform.in/emscripten/executable/favicon-32x32.ico" DESTINATION bin)
     endif()
 
     if (NOT APPLE)
