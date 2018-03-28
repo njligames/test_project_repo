@@ -290,7 +290,17 @@ if(EMSCRIPTEN)
   set(CMAKE_C_FLAGS_DEBUG "--js-opts 0 -g4")
   set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 --js-opts 0 -g4 -DNDEBUG")
 
-  list(APPEND EXTRA_LDFLAGS "--shell-file ${CMAKEIN_REPO_DIRECTORY}/platform.in/emscripten/executable/release_shell.html")
+  if(FACEBOOK)
+    list(APPEND EXTRA_LDFLAGS "--shell-file ${CMAKEIN_REPO_DIRECTORY}/platform.in/emscripten/executable/facebook_shell.html")
+    list(APPEND EXTRA_LDFLAGS "--pre-js ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/facebook.js")
+
+    set(facebook-app-id "344740292600474" CACHE STRING "The app id for the facebook game")
+    set(facebook-api-version "v2.12" CACHE STRING "The version for the facebook game")
+    configure_file("${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/facebook.js.in"
+      "${${CMAKE_PROJECT_NAME}_BINARY_DIR}/facebook.js")
+  else()
+    list(APPEND EXTRA_LDFLAGS "--shell-file ${CMAKEIN_REPO_DIRECTORY}/platform.in/emscripten/executable/release_shell.html")
+  endif()
   
   # Set up default values for the currently supported set of subsystems:
   # Emscripten/Javascript does not have assembly support, a dynamic library 

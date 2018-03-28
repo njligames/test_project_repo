@@ -16,6 +16,9 @@ if [ "${PLATFORM}" == "emscripten" ]
 then
   export EMCC_DEBUG=1 # Verbose building...
   emcmake cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
+elif [ "${PLATFORM}" == "facebook" ]
+then
+  emcmake cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DFACEBOOK:BOOL=TRUE
 elif [ "${PLATFORM}" == "windows64" ]
 then
   cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -G "Visual Studio 14 2015 Win64"
@@ -44,6 +47,10 @@ cmake --build . --config Release --target install
 if [ "${PLATFORM}" == "emscripten" ]
 then
   emcmake cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
+  cmake --build . --config Release --target install
+elif [ "${PLATFORM}" == "facebook" ]
+then
+  emcmake cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DFACEBOOK:BOOL=TRUE
   cmake --build . --config Release --target install
 fi
 
