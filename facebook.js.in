@@ -29,10 +29,10 @@ Module['preInit'] = [
 
     window.fbAsyncInit = function() {
       FB.init({
-        appId      : '@facebook-app-id@',
+        appId      : '@FACEBOOK-APP-ID@',
         cookie     : true,
         xfbml      : true,
-        version    : '@facebook-api-version@'
+        version    : '@FACEBOOK-API-VERSION@'
       });
 
       FB.AppEvents.logPageView();

@@ -285,17 +285,34 @@ endif()
 set(OPT_DEF_ASM TRUE)
 if(EMSCRIPTEN)
   set(CMAKE_CXX_FLAGS_DEBUG "--js-opts 0 -g4")
+  set(CMAKE_CXX_FLAGS_MINSIZEREL "-Os -DNDEBUG --llvm-opts 3 --js-opts 1 --closure 1")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG --llvm-opts 3 --js-opts 1 --closure 1")
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 --js-opts 0 -g4 -DNDEBUG")
 
   set(CMAKE_C_FLAGS_DEBUG "--js-opts 0 -g4")
+  set(CMAKE_C_FLAGS_MINSIZEREL "-Os -DNDEBUG --llvm-opts 3 --js-opts 1 --closure 1")
+  set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG --llvm-opts 3 --js-opts 1 --closure 1")
   set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 --js-opts 0 -g4 -DNDEBUG")
+
+  # list(APPEND EXTRA_LDFLAGS "-s USE_PTHREADS=2")
+  # list(APPEND EXTRA_LDFLAGS "-s PTHREAD_POOL_SIZE=8")
+  list(APPEND EXTRA_LDFLAGS "-s FULL_ES2=1")
+  list(APPEND EXTRA_LDFLAGS "-s TOTAL_MEMORY=256*1024*1024")
+  # list(APPEND EXTRA_LDFLAGS "-s WASM=1")
+  list(APPEND EXTRA_LDFLAGS "-v")
 
   if(FACEBOOK)
     list(APPEND EXTRA_LDFLAGS "--shell-file ${CMAKEIN_REPO_DIRECTORY}/platform.in/emscripten/executable/facebook_shell.html")
     list(APPEND EXTRA_LDFLAGS "--pre-js ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/facebook.js")
 
-    set(facebook-app-id "344740292600474" CACHE STRING "The app id for the facebook game")
-    set(facebook-api-version "v2.12" CACHE STRING "The version for the facebook game")
+    if( NOT FACEBOOK-APP-ID )
+      error( "There must be a facebook app id set." )
+    endif()
+
+    if( NOT FACEBOOK-API-VERSION )
+      error( "There must be a facebook version set." )
+    endif()
+
     configure_file("${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/facebook.js.in"
       "${${CMAKE_PROJECT_NAME}_BINARY_DIR}/facebook.js")
   else()

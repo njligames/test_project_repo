@@ -18,7 +18,7 @@ then
   emcmake cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
 elif [ "${PLATFORM}" == "facebook" ]
 then
-  emcmake cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DFACEBOOK:BOOL=TRUE
+  emcmake cmake .. -DFACEBOOK-APP-ID="344740292600474" -DFACEBOOK-API-VERSION="v2.12" -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DFACEBOOK:BOOL=TRUE
 elif [ "${PLATFORM}" == "windows64" ]
 then
   cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -G "Visual Studio 14 2015 Win64"
@@ -50,7 +50,7 @@ then
   cmake --build . --config Release --target install
 elif [ "${PLATFORM}" == "facebook" ]
 then
-  emcmake cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DFACEBOOK:BOOL=TRUE
+  emcmake cmake .. -DFACEBOOK-APP-ID="344740292600474" -DFACEBOOK-API-VERSION="v2.12" -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DFACEBOOK:BOOL=TRUE
   cmake --build . --config Release --target install
 fi
 
