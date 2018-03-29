@@ -439,8 +439,10 @@ set(LIBSDL_LIBRARY_URL "")
 
 # General source files
 file(GLOB SOURCE_FILES
-  ${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/src/main.cpp
   ${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/src/SDL_test_common.c
+  )
+file(GLOB MAIN_FILE
+  ${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/src/main.cpp
   )
 
 if(ASSERTIONS STREQUAL "auto")
@@ -1217,6 +1219,8 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID)
   endif()
 
 elseif(WINDOWS)
+  set( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/windows/resource.rc" )
+  set(MAIN_FILE ${MAIN_FILE} ${ASSET_CATALOGUE})
 
   if(ARCH_64)
     set(${CMAKE_PROJECT_NAME}_URL_SDL2_LIB_WINDOWS_X64_RELEASE "https://www.dropbox.com/s/8hozs9z89raqyyw/SDL2-2.0.7_windows_x64_Release.tar.gz?dl=0" CACHE STRING "The URL for the Windows 64bit version of SDL2")
@@ -1462,7 +1466,7 @@ elseif(APPLE)
   # !!! FIXME:  how to dump those.
   if(NOT (IOS OR TVOS))
     SET( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/macOS/Assets.xcassets" )
-    set(SOURCE_FILES ${SOURCE_FILES} ${ASSET_CATALOGUE})
+    set(MAIN_FILE ${MAIN_FILE} ${ASSET_CATALOGUE})
     set(SDL_FRAMEWORK_COCOA 1)
     set(SDL_FRAMEWORK_CARBON 1)
   else()
@@ -1470,7 +1474,7 @@ elseif(APPLE)
       set(${CMAKE_PROJECT_NAME}_URL_SDL2_LIB_IOS_RELEASE "https://www.dropbox.com/s/xsvgzfp2h4lk965/SDL2-2.0.7_ios.tar.gz?dl=0" CACHE STRING "The URL for the iOS version of SDL2")
 
       SET( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/ios/Assets.xcassets" )
-      set(SOURCE_FILES ${SOURCE_FILES} ${ASSET_CATALOGUE})
+      set(MAIN_FILE ${MAIN_FILE} ${ASSET_CATALOGUE})
       set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/ios")
       set(LIBSDL_LIBRARY_URL "${${CMAKE_PROJECT_NAME}_URL_SDL2_LIB_IOS_RELEASE}")
 
@@ -1491,7 +1495,7 @@ elseif(APPLE)
     
     if(TVOS)
       SET( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/appletv/Assets.xcassets" )
-      set(SOURCE_FILES ${SOURCE_FILES} ${ASSET_CATALOGUE})
+      set(MAIN_FILE ${MAIN_FILE} ${ASSET_CATALOGUE})
 
 
 
@@ -2048,7 +2052,7 @@ MESSAGE( STATUS "CMAKE_RANLIB: " ${CMAKE_RANLIB} )
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS}")
 
 if(${CMAKE_PROJECT_NAME}_EXE)
-  add_executable(${CMAKE_PROJECT_NAME}-exe MACOSX_BUNDLE ${SOURCE_FILES} ${ASSET_CATALOGUE})
+  add_executable(${CMAKE_PROJECT_NAME}-exe MACOSX_BUNDLE ${SOURCE_FILES} ${MAIN_FILE} ${ASSET_CATALOGUE})
   # add_dependencies(${CMAKE_PROJECT_NAME}-exe engine_code)
 
   if(APPLE)
@@ -2135,6 +2139,14 @@ if(${CMAKE_PROJECT_NAME}_EXE)
   else()
   endif()
   if(MSVC AND NOT LIBC)
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${CMAKE_PROJECT_NAME}-exe)
+
+    set(SDL_DYNAMIC_IMPORT_LOCATION "${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY}/SDL2.${DYNAMIC_LIBRARY_EXTENSION}")
+
+    add_custom_command(TARGET ${CMAKE_PROJECT_NAME}-exe POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy
+      ${SDL_DYNAMIC_IMPORT_LOCATION}
+      $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}-exe>)
 
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exe.Cpp.user.props" [=[
 <?xml version="1.0" encoding="utf-8"?>
@@ -2170,7 +2182,7 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
 
     include_directories(${SDL_LOCATION}/SDL2/include)
 
-    add_library( main SHARED ${SDL_LOCATION}/SDL2/src/main/android/SDL_android_main.c ${SOURCE_FILES} )
+    add_library( main SHARED ${SDL_LOCATION}/SDL2/src/main/android/SDL_android_main.c ${SOURCE_FILES} ${MAIN_FILE})
 
     target_link_libraries( main SDL2 )
 
@@ -2198,9 +2210,9 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
     endif()
     if(MSVC AND NOT LIBC)
       # Don't try to link with the default set of libraries.
-      set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
-      set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
-      set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
+      # set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
+      # set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
+      # set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
     endif()
     set(_INSTALL_LIBS "${CMAKE_PROJECT_NAME}" ${_INSTALL_LIBS})
     target_link_libraries(${CMAKE_PROJECT_NAME} ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
