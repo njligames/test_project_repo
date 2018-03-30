@@ -438,15 +438,7 @@ set(LIBSDL_INCLUDE_URL "${${CMAKE_PROJECT_NAME}_URL_SDL2_INCLUDE}")
 set(LIBSDL_LIBRARY_TARGET_DIRECTORY "")
 set(LIBSDL_LIBRARY_URL "")
 
-# General source files
-file(GLOB_RECURSE SOURCE_FILES
-  ${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/src/*.c
-  ${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/src/*.cpp
-  ${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/src/*.cxx
-  )
-file(GLOB MAIN_FILE
-  ${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/src/main.cpp
-  )
+include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/sources.cmake")
 
 if(ASSERTIONS STREQUAL "auto")
   # Do nada - use optimization settings to determine the assertion level
@@ -1223,7 +1215,7 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID)
 
 elseif(WINDOWS)
   set( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/windows/resource.rc" )
-  set(MAIN_FILE ${MAIN_FILE} ${ASSET_CATALOGUE})
+  set(RESOURCE_FILES ${RESOURCE_FILES} ${ASSET_CATALOGUE})
 
   if(ARCH_64)
     set(${CMAKE_PROJECT_NAME}_URL_SDL2_LIB_WINDOWS_X64_RELEASE "https://www.dropbox.com/s/8hozs9z89raqyyw/SDL2-2.0.7_windows_x64_Release.tar.gz?dl=0" CACHE STRING "The URL for the Windows 64bit version of SDL2")
@@ -1469,7 +1461,7 @@ elseif(APPLE)
   # !!! FIXME:  how to dump those.
   if(NOT (IOS OR TVOS))
     SET( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/macOS/Assets.xcassets" )
-    set(MAIN_FILE ${MAIN_FILE} ${ASSET_CATALOGUE})
+    set(RESOURCE_FILES ${RESOURCE_FILES} ${ASSET_CATALOGUE})
     set(SDL_FRAMEWORK_COCOA 1)
     set(SDL_FRAMEWORK_CARBON 1)
   else()
@@ -1477,7 +1469,7 @@ elseif(APPLE)
       set(${CMAKE_PROJECT_NAME}_URL_SDL2_LIB_IOS_RELEASE "https://www.dropbox.com/s/xsvgzfp2h4lk965/SDL2-2.0.7_ios.tar.gz?dl=0" CACHE STRING "The URL for the iOS version of SDL2")
 
       SET( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/ios/Assets.xcassets" )
-      set(MAIN_FILE ${MAIN_FILE} ${ASSET_CATALOGUE})
+      set(RESOURCE_FILES ${RESOURCE_FILES} ${ASSET_CATALOGUE})
       set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/ios")
       set(LIBSDL_LIBRARY_URL "${${CMAKE_PROJECT_NAME}_URL_SDL2_LIB_IOS_RELEASE}")
 
@@ -1498,7 +1490,7 @@ elseif(APPLE)
     
     if(TVOS)
       SET( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/appletv/Assets.xcassets" )
-      set(MAIN_FILE ${MAIN_FILE} ${ASSET_CATALOGUE})
+      set(RESOURCE_FILES ${RESOURCE_FILES} ${ASSET_CATALOGUE})
 
 
 
@@ -2054,8 +2046,10 @@ MESSAGE( STATUS "CMAKE_RANLIB: " ${CMAKE_RANLIB} )
 # Ensure that the extra cflags are used at compile time
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS}")
 
+include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/source_groups.cmake")
+
 if(${CMAKE_PROJECT_NAME}_EXE)
-  add_executable(${CMAKE_PROJECT_NAME}-exe MACOSX_BUNDLE ${SOURCE_FILES} ${MAIN_FILE} ${ASSET_CATALOGUE})
+  add_executable(${CMAKE_PROJECT_NAME}-exe MACOSX_BUNDLE ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES})
   # add_dependencies(${CMAKE_PROJECT_NAME}-exe engine_code)
 
   if(APPLE)
@@ -2186,7 +2180,7 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
 
     include_directories(${SDL_LOCATION}/SDL2/include)
 
-    add_library( main SHARED ${SDL_LOCATION}/SDL2/src/main/android/SDL_android_main.c ${SOURCE_FILES} ${MAIN_FILE})
+    add_library( main SHARED ${SDL_LOCATION}/SDL2/src/main/android/SDL_android_main.c ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES})
 
     target_link_libraries( main SDL2 )
 
