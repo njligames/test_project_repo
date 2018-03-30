@@ -36,6 +36,9 @@ then
   cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -G "Xcode" -DTVOS:BOOL=TRUE
 elif [ "${PLATFORM}" == "android" ]
 then
+  # /Users/jamesfolk/Documents/NJLI/TESTBED/test_project_repo/android/app/.externalNativeBuild/cmake/release/arm64-v8a/cmake.in/platform.in/android/res
+  # /Users/jamesfolk/Documents/NJLI/TESTBED/test_project_repo/android/app/src/main/res
+
   cd android
   ./gradlew assembleDebug
 else

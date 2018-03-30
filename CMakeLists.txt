@@ -2176,6 +2176,7 @@ endif(${CMAKE_PROJECT_NAME}_EXE)
 
 if(${CMAKE_PROJECT_NAME}_SHARED)
   if(ANDROID)
+
     string(TOLOWER ${CMAKE_BUILD_TYPE} ANDROID_BUILD_DIR)
     set(DISTRIBUTION_DIR ${CMAKE_SOURCE_DIR}/android/distribution/android/SDL2/intermediates/ndkBuild)
     set(SDL_LOCATION ${CMAKE_SOURCE_DIR}/android/thirdparty/SDL2)
@@ -2189,6 +2190,21 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
 
     target_link_libraries( main SDL2 )
 
+    # # /Users/jamesfolk/Documents/NJLI/TESTBED/test_project_repo/android/app/.externalNativeBuild/cmake/release/arm64-v8a/cmake.in/platform.in/android/res
+    # # /Users/jamesfolk/Documents/NJLI/TESTBED/test_project_repo/android/app/src/main/res
+    # add_custom_command(TARGET main PRE_BUILD
+    #   COMMAND ${CMAKE_COMMAND} -E copy
+    #   "${CMAKE_SOURCE_DIR}/android/app/.externalNativeBuild/cmake/${ANDROID_BUILD_DIR}/${ANDROID_ABI}/cmake.in/platform.in/android/res"
+    #   "${CMAKE_SOURCE_DIR}/android/app/src/main/res"
+    #   )
+
+    # add_custom_target(
+    #   copy_icons
+    #   COMMAND ${CMAKE_COMMAND} -E copy
+    #   "${CMAKE_SOURCE_DIR}/android/app/.externalNativeBuild/cmake/${ANDROID_BUILD_DIR}/${ANDROID_ABI}/cmake.in/platform.in/android/res"
+    #   "${CMAKE_SOURCE_DIR}/android/app/src/main/res"
+    #   )
+    # add_dependencies(main copy_icons)
 
   else()
     add_library(${CMAKE_PROJECT_NAME} SHARED ${SOURCE_FILES} ${VERSION_SOURCES})

@@ -6,3 +6,7 @@ cmake-build-debug/
 *~
 android/thirdparty/SDL2/SDL2/VisualC/
 *.iml
+android/app/.externalNativeBuild/
+android/distribution/
+android/.gradle/
+android/.idea/
