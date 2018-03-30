@@ -4,4 +4,5 @@ _build*
 .idea/
 cmake-build-debug/
 *~
-
+android/thirdparty/SDL2/SDL2/VisualC/
+*.iml

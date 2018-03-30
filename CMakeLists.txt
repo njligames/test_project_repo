@@ -81,11 +81,12 @@ set(${CMAKE_PROJECT_NAME}_INTERFACE_AGE 0)
 set(${CMAKE_PROJECT_NAME}_BINARY_AGE 0)
 set(${CMAKE_PROJECT_NAME}_VERSION "${${CMAKE_PROJECT_NAME}_MAJOR_VERSION}.${${CMAKE_PROJECT_NAME}_MINOR_VERSION}.${${CMAKE_PROJECT_NAME}_MICRO_VERSION}")
 
-# Set defaults preventing destination file conflicts
-set(CMAKE_DEBUG_POSTFIX "d"
-    CACHE STRING "Name suffix for debug builds")
+if(NOT ANDROID)
+  # Set defaults preventing destination file conflicts
+  set(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "Name suffix for debug builds")
 
-mark_as_advanced(CMAKE_IMPORT_LIBRARY_SUFFIX CMAKE_DEBUG_POSTFIX)
+  mark_as_advanced(CMAKE_IMPORT_LIBRARY_SUFFIX CMAKE_DEBUG_POSTFIX)
+endif()
 
 # Calculate a libtool-like version number
 math(EXPR LT_CURRENT "${${CMAKE_PROJECT_NAME}_MICRO_VERSION} - ${${CMAKE_PROJECT_NAME}_INTERFACE_AGE}")

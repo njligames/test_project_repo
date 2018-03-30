@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2017 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2016 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -109,12 +109,6 @@ SDL_copysign(double x, double y)
     return copysign(x, y);
 #elif defined(HAVE__COPYSIGN)
     return _copysign(x, y);
-#elif defined(__WATCOMC__) && defined(__386__)
-    /* this is nasty as hell, but it works.. */
-    unsigned int *xi = (unsigned int *) &x,
-                 *yi = (unsigned int *) &y;
-    xi[1] = (yi[1] & 0x80000000) | (xi[1] & 0x7fffffff);
-    return x;
 #else
     return SDL_uclibc_copysign(x, y);
 #endif /* HAVE_COPYSIGN */
@@ -187,10 +181,6 @@ SDL_scalbn(double x, int n)
     return scalbn(x, n);
 #elif defined(HAVE__SCALB)
     return _scalb(x, n);
-#elif defined(HAVE_LIBC) && defined(HAVE_FLOAT_H) && (FLT_RADIX == 2)
-/* from scalbn(3): If FLT_RADIX equals 2 (which is
- * usual), then scalbn() is equivalent to ldexp(3). */
-    return ldexp(x, n);
 #else
     return SDL_uclibc_scalbn(x, n);
 #endif /* HAVE_SCALBN */
@@ -924,8 +914,8 @@ _allshr()
 {
     /* *INDENT-OFF* */
     __asm {
-        cmp         cl,3Fh
-        jae         RETSIGN
+        cmp         cl,40h
+        jae         RETZERO
         cmp         cl,20h
         jae         MORE32
         shrd        eax,edx,cl
@@ -933,13 +923,13 @@ _allshr()
         ret
 MORE32:
         mov         eax,edx
-        sar         edx,1Fh
+        xor         edx,edx
         and         cl,1Fh
         sar         eax,cl
         ret
-RETSIGN:
-        sar         edx,1Fh
-        mov         eax,edx
+RETZERO:
+        xor         eax,eax
+        xor         edx,edx
         ret
     }
     /* *INDENT-ON* */

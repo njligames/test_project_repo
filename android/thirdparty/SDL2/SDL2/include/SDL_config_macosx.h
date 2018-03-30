@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2017 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2016 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -19,9 +19,8 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef SDL_config_macosx_h_
-#define SDL_config_macosx_h_
-#define SDL_config_h_
+#ifndef _SDL_config_macosx_h
+#define _SDL_config_macosx_h
 
 #include "SDL_platform.h"
 
@@ -37,19 +36,16 @@
 #endif
 
 /* Useful headers */
-#define STDC_HEADERS    1
 #define HAVE_ALLOCA_H       1
-#define HAVE_CTYPE_H    1
-#define HAVE_FLOAT_H    1
+#define HAVE_SYS_TYPES_H    1
+#define HAVE_STDIO_H    1
+#define STDC_HEADERS    1
+#define HAVE_STRING_H   1
 #define HAVE_INTTYPES_H 1
-#define HAVE_LIMITS_H   1
+#define HAVE_STDINT_H   1
+#define HAVE_CTYPE_H    1
 #define HAVE_MATH_H 1
 #define HAVE_SIGNAL_H   1
-#define HAVE_STDINT_H   1
-#define HAVE_STDIO_H    1
-#define HAVE_STRING_H   1
-#define HAVE_SYS_TYPES_H    1
-#define HAVE_LIBUNWIND_H    1
 
 /* C library functions */
 #define HAVE_MALLOC 1
@@ -71,6 +67,7 @@
 #define HAVE_STRLEN 1
 #define HAVE_STRLCPY    1
 #define HAVE_STRLCAT    1
+#define HAVE_STRDUP 1
 #define HAVE_STRCHR 1
 #define HAVE_STRRCHR    1
 #define HAVE_STRSTR 1
@@ -176,14 +173,6 @@
 #define SDL_VIDEO_OPENGL_GLX    1
 #endif
 
-/* Enable Vulkan support */
-/* Metal/MoltenVK/Vulkan only supported on 64-bit architectures with 10.11+ */
-#if TARGET_CPU_X86_64 && (MAC_OS_X_VERSION_MAX_ALLOWED >= 101100)
-#define SDL_VIDEO_VULKAN 1
-#else
-#define  SDL_VIDEO_VULKAN 0
-#endif
-
 /* Enable system power support */
 #define SDL_POWER_MACOSX 1
 
@@ -196,4 +185,4 @@
 #define SDL_ALTIVEC_BLITTERS    1
 #endif
 
-#endif /* SDL_config_macosx_h_ */
+#endif /* _SDL_config_macosx_h */
