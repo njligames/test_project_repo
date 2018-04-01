@@ -47,7 +47,6 @@ include(${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake/print-targets.cmake)
 
 set(${CMAKE_PROJECT_NAME}_URL_SDL2_INCLUDE "https://www.dropbox.com/s/g0qrc1xkz2qcb9y/SDL2-2.0.7_include.tar.gz?dl=0" CACHE STRING "The URL for the include files for SDL2")
 
-
 set(${CMAKE_PROJECT_NAME}_REPO_URL "https://github.com/njligames/test_engine_repo/archive/master.tar.gz")
 set(${CMAKE_PROJECT_NAME}_REPO_DIR "test_engine_repo")
 RETRIEVE_TAR(
@@ -1072,6 +1071,10 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID)
   endif()
 
   if(LINUX)
+    if(OCULUS)
+      add_definitions(-DOVR_OS_LINUX)
+    endif()
+
     list(APPEND EXTRA_LDFLAGS "-ldl")
     list(APPEND EXTRA_LDFLAGS "-lsndio")
 
@@ -1214,6 +1217,10 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID)
   endif()
 
 elseif(WINDOWS)
+  if(OCULUS)
+    add_definitions(-DOVR_OS_WIN32)
+  endif()
+
   set( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/windows/resource.rc" )
   set(RESOURCE_FILES ${RESOURCE_FILES} ${ASSET_CATALOGUE})
 
@@ -1222,11 +1229,13 @@ elseif(WINDOWS)
 
     set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/windows/x64")
     set(LIBSDL_LIBRARY_URL "${${CMAKE_PROJECT_NAME}_URL_SDL2_LIB_WINDOWS_X64_RELEASE}")
+
   else()
     set(${CMAKE_PROJECT_NAME}_URL_SDL2_LIB_WINDOWS_WIN32_RELEASE "https://www.dropbox.com/s/6khz9t3oizrihrq/SDL2-2.0.7_windows_Win32_Release.tar.gz?dl=0" CACHE STRING "The URL for the Windows 32bit version of SDL2")
 
     set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/windows/x86")
     set(LIBSDL_LIBRARY_URL "${${CMAKE_PROJECT_NAME}_URL_SDL2_LIB_WINDOWS_WIN32_RELEASE}")
+
   endif(ARCH_64)
 
   find_program(WINDRES windres)
@@ -1452,6 +1461,9 @@ elseif(WINDOWS)
     list(APPEND ${CMAKE_PROJECT_NAME}_LIBS "-lmingw32" "-lSDL2main" "-mwindows")
   endif()
 elseif(APPLE)
+  if(OCULUS)
+    add_definitions(-DOVR_OS_MAC)
+  endif()
 
   # TODO: rework this all for proper MacOS X, iOS and Darwin support
 
@@ -1843,6 +1855,9 @@ elseif(NOT ANDROID)
   list(APPEND EXTRA_LIBS ${SDL2_LIBRARY})
   include_directories(${SDL2_INCLUDE_DIR})
 endif(IOS OR TVOS OR EMSCRIPTEN OR WINDOWS)
+
+include("${CMAKE_SOURCE_DIR}/cmake/external_libraries.cmake")
+include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/external_libraries.cmake")
 
 ##### Info output #####
 message(STATUS "")

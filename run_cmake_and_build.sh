@@ -41,6 +41,12 @@ then
 
   cd android
   ./gradlew assembleDebug
+elif [ "${PLATFORM}" == "oculus_windows64" ]
+then
+  cmake .. -DOCULUS=TRUE -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -G "Visual Studio 14 2015 Win64"
+elif [ "${PLATFORM}" == "oculus_windows32" ]
+then
+  cmake .. -DOCULUS=TRUE -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -G "Visual Studio 14 2015"
 else
   cmake -E env CFLAGS='-O0 -g' cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
 fi
