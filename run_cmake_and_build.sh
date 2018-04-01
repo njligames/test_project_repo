@@ -47,6 +47,9 @@ then
 elif [ "${PLATFORM}" == "oculus_windows32" ]
 then
   cmake .. -DOCULUS=TRUE -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -G "Visual Studio 14 2015"
+elif [ "${PLATFORM}" == "oculus_macOS" ]
+then
+  cmake .. -DOCULUS=TRUE -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -G "Xcode"
 else
   cmake -E env CFLAGS='-O0 -g' cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
 fi
