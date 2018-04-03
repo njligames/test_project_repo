@@ -45,6 +45,8 @@ include(${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake/sdlchecks.cmake)
 include(${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake/download-extract.cmake)
 include(${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake/print-targets.cmake)
 
+set(EXECUTABLE_NAME "PLACEHOLDER" CACHE STRING "The name of the executable")
+
 set(${CMAKE_PROJECT_NAME}_URL_SDL2_INCLUDE "https://www.dropbox.com/s/g0qrc1xkz2qcb9y/SDL2-2.0.7_include.tar.gz?dl=0" CACHE STRING "The URL for the include files for SDL2")
 
 set(${CMAKE_PROJECT_NAME}_REPO_URL "https://github.com/njligames/test_engine_repo/archive/master.tar.gz")
@@ -301,10 +303,8 @@ if(EMSCRIPTEN)
   # list(APPEND EXTRA_LDFLAGS "-s WASM=1")
   list(APPEND EXTRA_LDFLAGS "-v")
 
-  if(FACEBOOK)
-    list(APPEND EXTRA_LDFLAGS "--shell-file ${CMAKEIN_REPO_DIRECTORY}/platform.in/emscripten/executable/facebook_shell.html")
-    list(APPEND EXTRA_LDFLAGS "--pre-js ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/facebook.js")
 
+  if(FACEBOOK)
     if( NOT FACEBOOK-APP-ID )
       error( "There must be a facebook app id set." )
     endif()
@@ -313,10 +313,19 @@ if(EMSCRIPTEN)
       error( "There must be a facebook version set." )
     endif()
 
-    configure_file("${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/facebook.js.in"
-      "${${CMAKE_PROJECT_NAME}_BINARY_DIR}/facebook.js")
+    configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/facebook/facebook_shell.html.in"
+      "${CMAKE_BINARY_DIR}/facebook_shell.html")
+
+    configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/facebook/facebook.js.in"
+      "${CMAKE_BINARY_DIR}/facebook.js")
+
+    list(APPEND EXTRA_LDFLAGS "--shell-file ${CMAKE_BINARY_DIR}/facebook_shell.html")
+    list(APPEND EXTRA_LDFLAGS "--pre-js ${CMAKE_BINARY_DIR}/facebook.js")
   else()
-    list(APPEND EXTRA_LDFLAGS "--shell-file ${CMAKEIN_REPO_DIRECTORY}/platform.in/emscripten/executable/release_shell.html")
+    configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/emscripten/executable/release_shell.html.in"
+      "${CMAKE_BINARY_DIR}/release_shell.html")
+
+    list(APPEND EXTRA_LDFLAGS "--shell-file ${CMAKE_BINARY_DIR}/release_shell.html")
   endif()
   
   # Set up default values for the currently supported set of subsystems:
@@ -1221,7 +1230,10 @@ elseif(WINDOWS)
     add_definitions(-DOVR_OS_WIN32)
   endif()
 
-  set( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/windows/resource.rc" )
+  configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/windows/resource.rc.in"
+    "${CMAKE_BINARY_DIR}/resource.rc")
+
+  set( ASSET_CATALOGUE "${CMAKE_BINARY_DIR}/resource.rc" )
   set(RESOURCE_FILES ${RESOURCE_FILES} ${ASSET_CATALOGUE})
 
   if(ARCH_64)
@@ -2109,10 +2121,13 @@ if(${CMAKE_PROJECT_NAME}_EXE)
       )
 
     if(NOT IOS AND NOT TVOS)
+      configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/macOS/Info.plist.in"
+        "${CMAKE_BINARY_DIR}/Info.plist")
+
       # macOS
       SET_TARGET_PROPERTIES (
         ${CMAKE_PROJECT_NAME}-exe PROPERTIES
-        MACOSX_BUNDLE_INFO_PLIST "${CMAKEIN_REPO_DIRECTORY}/platform.in/macOS/Info.plist"
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_BINARY_DIR}/Info.plist"
         XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
         XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.macos.source"
         XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "Mac Developer"
@@ -2132,22 +2147,28 @@ if(${CMAKE_PROJECT_NAME}_EXE)
     endif(NOT IOS AND NOT TVOS)
 
     if(IOS)
+      configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/ios/Info.plist.in"
+        "${CMAKE_BINARY_DIR}/Info.plist")
+
       SET_TARGET_PROPERTIES (
         ${CMAKE_PROJECT_NAME}-exe PROPERTIES
         XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
         XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES "NO"
-        MACOSX_BUNDLE_INFO_PLIST "${CMAKEIN_REPO_DIRECTORY}/platform.in/ios/Info.plist"
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_BINARY_DIR}/Info.plist"
         XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
         XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.ios.source"
         )
     endif(IOS)
 
     if(TVOS)
+      configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/appletv/Info.plist.in"
+        "${CMAKE_BINARY_DIR}/Info.plist")
+
       SET_TARGET_PROPERTIES (
         ${CMAKE_PROJECT_NAME}-exe PROPERTIES
         XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "3"
         XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES "NO"
-        MACOSX_BUNDLE_INFO_PLIST "${CMAKEIN_REPO_DIRECTORY}/platform.in/appletv/Info.plist"
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_BINARY_DIR}/Info.plist"
         XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "App Icon & Top Shelf Image"
         XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.appletv.source"
         )
@@ -2210,6 +2231,8 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
       "${CMAKE_SOURCE_DIR}/android/app/src/main/res"
       )
 
+    configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/android/res/values/generated_strings.xml.in"
+      "${CMAKE_SOURCE_DIR}/android/app/src/main/res/values/generated_strings.xml")
 
   else()
     add_library(${CMAKE_PROJECT_NAME} SHARED ${SOURCE_FILES} ${VERSION_SOURCES})
