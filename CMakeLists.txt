@@ -1218,9 +1218,9 @@ elseif(WINDOWS)
   endif()
 
   configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/windows/resource.rc.in"
-    "${CMAKE_BINARY_DIR}/resource.rc")
+    "${CMAKEIN_REPO_DIRECTORY}/platform.in/windows/resource.rc")
 
-  set( ASSET_CATALOGUE "${CMAKE_BINARY_DIR}/resource.rc" )
+  set( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/windows/resource.rc" )
   set(RESOURCE_FILES ${RESOURCE_FILES} ${ASSET_CATALOGUE})
 
   find_program(WINDRES windres)
@@ -1991,6 +1991,13 @@ include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/source_groups.cmake")
 if(${CMAKE_PROJECT_NAME}_EXE)
   add_executable(${CMAKE_PROJECT_NAME}-exe MACOSX_BUNDLE ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES})
   # add_dependencies(${CMAKE_PROJECT_NAME}-exe engine_code)
+
+  if(EMSCRIPTEN)
+    set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES OUTPUT_NAME "index")
+  else()
+    set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES OUTPUT_NAME "${EXECUTABLE_NAME}")
+  endif()
+  add_definitions(-DEXECUTABLE_NAME="\\"${EXECUTABLE_NAME}\\"")
 
   if(APPLE)
 
