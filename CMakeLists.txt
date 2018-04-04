@@ -2147,7 +2147,13 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
       )
 
     configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/android/res/values/generated_strings.xml.in"
-      "${CMAKE_SOURCE_DIR}/android/app/src/main/res/values/generated_strings.xml")
+      "${CMAKEIN_REPO_DIRECTORY}/platform.in/android/res/values/generated_strings.xml")
+
+    add_custom_command(TARGET main POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy
+      "${CMAKEIN_REPO_DIRECTORY}/platform.in/android/res/values/generated_strings.xml"
+      "${CMAKE_SOURCE_DIR}/android/app/src/main/res/values"
+      )
 
   else()
     add_library(${CMAKE_PROJECT_NAME} SHARED ${SOURCE_FILES} ${VERSION_SOURCES})
