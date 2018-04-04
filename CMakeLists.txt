@@ -1778,7 +1778,7 @@ if(NOT WINDOWS OR CYGWIN)
 endif()
 
 include("${CMAKE_SOURCE_DIR}/cmake/external_libraries.cmake")
-# include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/external_libraries.cmake")
+include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/external_libraries.cmake")
 
 ##### Info output #####
 message(STATUS "")
