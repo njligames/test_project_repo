@@ -1,5 +1,5 @@
 
-message(STATUS "Platform is windows32 for engine")
+message(STATUS "Platform is oculus windows32 for engine")
 
 set(${CMAKE_PROJECT_NAME}_URL_SDL2_INCLUDE 
   "https://www.dropbox.com/s/g0qrc1xkz2qcb9y/SDL2-2.0.7_include.tar.gz?dl=0" 
