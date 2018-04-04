@@ -47,8 +47,6 @@ include(${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake/print-targets.cmake)
 
 set(EXECUTABLE_NAME "PLACEHOLDER" CACHE STRING "The name of the executable")
 
-set(${CMAKE_PROJECT_NAME}_URL_SDL2_INCLUDE "https://www.dropbox.com/s/g0qrc1xkz2qcb9y/SDL2-2.0.7_include.tar.gz?dl=0" CACHE STRING "The URL for the include files for SDL2")
-
 set(${CMAKE_PROJECT_NAME}_REPO_URL "https://github.com/njligames/test_engine_repo/archive/master.tar.gz")
 set(${CMAKE_PROJECT_NAME}_REPO_DIR "test_engine_repo")
 RETRIEVE_TAR(
@@ -439,12 +437,6 @@ set(${CMAKE_PROJECT_NAME}_STATIC ${${CMAKE_PROJECT_NAME}_STATIC_ENABLED_BY_DEFAU
 set(${CMAKE_PROJECT_NAME}_EXE ${${CMAKE_PROJECT_NAME}_EXE_ENABLED_BY_DEFAULT} CACHE BOOL "Build the executable of ${CMAKE_PROJECT_NAME}")
 
 dep_option(${CMAKE_PROJECT_NAME}_STATIC_PIC      "Static version of the library should be built with Position Independent Code" OFF "${CMAKE_PROJECT_NAME}_STATIC" OFF)
-
-set(LIBSDL_INCLUDE_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/include")
-set(LIBSDL_INCLUDE_URL "${${CMAKE_PROJECT_NAME}_URL_SDL2_INCLUDE}")
-
-set(LIBSDL_LIBRARY_TARGET_DIRECTORY "")
-set(LIBSDL_LIBRARY_URL "")
 
 include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/sources.cmake")
 
@@ -973,11 +965,6 @@ endif()
 
 # Platform-specific options and settings
 if(EMSCRIPTEN)
-  set(${CMAKE_PROJECT_NAME}_URL_SDL2_LIB_EMSCRIPTEN_RELEASE "https://www.dropbox.com/s/qc35pwe0taci2y6/SDL2-2.0.7_emscripten_Release.tar.gz?dl=0" CACHE STRING "The URL for the Emscripten version of SDL2")
-
-  set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/emscripten/Release")
-  set(LIBSDL_LIBRARY_URL "${${CMAKE_PROJECT_NAME}_URL_SDL2_LIB_EMSCRIPTEN_RELEASE}")
-
   SET(CMAKE_EXECUTABLE_SUFFIX ".html")
 
   # Hide noisy warnings that intend to aid mostly during initial stages of porting a new
@@ -1236,20 +1223,6 @@ elseif(WINDOWS)
   set( ASSET_CATALOGUE "${CMAKE_BINARY_DIR}/resource.rc" )
   set(RESOURCE_FILES ${RESOURCE_FILES} ${ASSET_CATALOGUE})
 
-  if(ARCH_64)
-    set(${CMAKE_PROJECT_NAME}_URL_SDL2_LIB_WINDOWS_X64_RELEASE "https://www.dropbox.com/s/8hozs9z89raqyyw/SDL2-2.0.7_windows_x64_Release.tar.gz?dl=0" CACHE STRING "The URL for the Windows 64bit version of SDL2")
-
-    set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/windows/x64")
-    set(LIBSDL_LIBRARY_URL "${${CMAKE_PROJECT_NAME}_URL_SDL2_LIB_WINDOWS_X64_RELEASE}")
-
-  else()
-    set(${CMAKE_PROJECT_NAME}_URL_SDL2_LIB_WINDOWS_WIN32_RELEASE "https://www.dropbox.com/s/6khz9t3oizrihrq/SDL2-2.0.7_windows_Win32_Release.tar.gz?dl=0" CACHE STRING "The URL for the Windows 32bit version of SDL2")
-
-    set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/windows/x86")
-    set(LIBSDL_LIBRARY_URL "${${CMAKE_PROJECT_NAME}_URL_SDL2_LIB_WINDOWS_WIN32_RELEASE}")
-
-  endif(ARCH_64)
-
   find_program(WINDRES windres)
 
   check_c_source_compiles("
@@ -1490,12 +1463,8 @@ elseif(APPLE)
     set(SDL_FRAMEWORK_CARBON 1)
   else()
     if(IOS)
-      set(${CMAKE_PROJECT_NAME}_URL_SDL2_LIB_IOS_RELEASE "https://www.dropbox.com/s/xsvgzfp2h4lk965/SDL2-2.0.7_ios.tar.gz?dl=0" CACHE STRING "The URL for the iOS version of SDL2")
-
       SET( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/ios/Assets.xcassets" )
       set(RESOURCE_FILES ${RESOURCE_FILES} ${ASSET_CATALOGUE})
-      set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/ios")
-      set(LIBSDL_LIBRARY_URL "${${CMAKE_PROJECT_NAME}_URL_SDL2_LIB_IOS_RELEASE}")
 
       SET( CMAKE_OSX_SYSROOT "iphoneos" )
       SET( CMAKE_XCODE_EFFECTIVE_PLATFORMS "-iphoneos;-iphonesimulator" )
@@ -1515,14 +1484,6 @@ elseif(APPLE)
     if(TVOS)
       SET( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/appletv/Assets.xcassets" )
       set(RESOURCE_FILES ${RESOURCE_FILES} ${ASSET_CATALOGUE})
-
-
-
-      set(${CMAKE_PROJECT_NAME}_URL_SDL2_LIB_TVOS_RELEASE "https://www.dropbox.com/s/pykfzhv69xvw0jn/SDL2-2.0.7_tvos.tar.gz?dl=0" CACHE STRING "The URL for the tvOS version of SDL2")
-
-      set(LIBSDL_LIBRARY_TARGET_DIRECTORY "thirdparty/SDL2-2.0.7/lib/tvos")
-      set(LIBSDL_LIBRARY_URL "${${CMAKE_PROJECT_NAME}_URL_SDL2_LIB_TVOS_RELEASE}")
-
       SET( CMAKE_OSX_SYSROOT "appletvos" )
       SET( CMAKE_XCODE_EFFECTIVE_PLATFORMS "-appletvos;-appletvsimulator" )
       SET ( CMAKE_OSX_ARCHITECTURES $(ARCHS_UNIVERSAL_APPLETV_OS) CACHE string "Build architecture for appletv" )
@@ -1816,65 +1777,8 @@ if(NOT WINDOWS OR CYGWIN)
     "${${CMAKE_PROJECT_NAME}_BINARY_DIR}/${CMAKE_PROJECT_NAME}.spec" @ONLY)
 endif()
 
-if(IOS OR TVOS OR EMSCRIPTEN OR WINDOWS)
-  if(NOT ${LIBSDL_LIBRARY_TARGET_DIRECTORY} STREQUAL "" AND NOT ${LIBSDL_LIBRARY_URL} STREQUAL "")
-    RETRIEVE_TAR(
-      "${LIBSDL_LIBRARY_URL}"
-      "${LIBSDL_LIBRARY_TARGET_DIRECTORY}"
-      "SKIP"
-      )
-  endif(NOT ${LIBSDL_LIBRARY_TARGET_DIRECTORY} STREQUAL "" AND NOT ${LIBSDL_LIBRARY_URL} STREQUAL "")
-
-  RETRIEVE_TAR(
-    "${LIBSDL_INCLUDE_URL}"
-    "${LIBSDL_INCLUDE_TARGET_DIRECTORY}"
-    "SKIP"
-    )
-
-  include_directories("${CMAKE_BINARY_DIR}/${LIBSDL_INCLUDE_TARGET_DIRECTORY}")
-
-  set(SDL_IMPORT_LOCATION "${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY}/libSDL2.${STATIC_LIBRARY_EXTENSION}")
-  if(IOS OR TVOS)
-    set(SDL_IMPORT_LOCATION "${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY}/Release\$(EFFECTIVE_PLATFORM_NAME)/libSDL2.${STATIC_LIBRARY_EXTENSION}")
-  elseif(WINDOWS)
-    set(SDL_IMPORT_LOCATION "${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY}/SDL2.${STATIC_LIBRARY_EXTENSION}")
-  endif()
-
-  message(STATUS "The location of SDL2 library ${SDL_IMPORT_LOCATION}")
-  ADD_LIBRARY(imported_SDL2 STATIC IMPORTED )
-  SET_TARGET_PROPERTIES(imported_SDL2 PROPERTIES IMPORTED_LOCATION "${SDL_IMPORT_LOCATION}")
-  list(APPEND EXTRA_LIBS imported_SDL2)
-  print_target_properties(imported_SDL2)
-
-  if(WINDOWS)
-    set(SDLMAIN_IMPORT_LOCATION "${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY}/SDL2main.${STATIC_LIBRARY_EXTENSION}")
-    message(STATUS "The location of SDL2main library ${SDLMAIN_IMPORT_LOCATION}")
-    ADD_LIBRARY(imported_SDL2main STATIC IMPORTED )
-    SET_TARGET_PROPERTIES(imported_SDL2main PROPERTIES IMPORTED_LOCATION "${SDLMAIN_IMPORT_LOCATION}")
-    list(APPEND EXTRA_LIBS imported_SDL2main)
-    print_target_properties(imported_SDL2main)
-
-    SET(CMAKE_FIND_LIBRARY_SUFFIXES .dll)
-    find_library(SDL2SHARED_LIBRARY
-      NAMES SDL2
-      HINTS "${CMAKE_BINARY_DIR}" "${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY}"
-      )
-    file(COPY "${SDL2SHARED_LIBRARY}" DESTINATION ${PROJECT_BINARY_DIR})
-  endif(WINDOWS)
-
-elseif(NOT ANDROID)
-  find_package(SDL2 REQUIRED)
-  list(APPEND EXTRA_LIBS ${SDL2_LIBRARY})
-  include_directories(${SDL2_INCLUDE_DIR})
-
-  find_package(GLEW REQUIRED)
-  list(APPEND EXTRA_LIBS ${GLEW_LIBRARY})
-  include_directories(${GLEW_INCLUDE_DIR})
-
-endif(IOS OR TVOS OR EMSCRIPTEN OR WINDOWS)
-
 include("${CMAKE_SOURCE_DIR}/cmake/external_libraries.cmake")
-include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/external_libraries.cmake")
+# include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/external_libraries.cmake")
 
 ##### Info output #####
 message(STATUS "")
@@ -1926,6 +1830,7 @@ endif()
 
 # /*	C++ comment style not allowed	*/
 
+MESSAGE( STATUS "CMAKE_GENERATOR:         " ${CMAKE_GENERATOR} )
 
 # if you are building in-source, this is the same as CMAKE_SOURCE_DIR, otherwise
 # this is the top level directory of your build tree
@@ -2069,6 +1974,9 @@ MESSAGE( STATUS "CMAKE_COMPILER_IS_GNUCXX : " ${CMAKE_COMPILER_IS_GNUCXX} )
 # the tools for creating libraries
 MESSAGE( STATUS "CMAKE_AR: " ${CMAKE_AR} )
 MESSAGE( STATUS "CMAKE_RANLIB: " ${CMAKE_RANLIB} )
+
+get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
+MESSAGE(STATUS "INCLUDE_DIRECTORIES='${dirs}'")
 
 #
 #MESSAGE( STATUS ": " ${} )
