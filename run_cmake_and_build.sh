@@ -51,9 +51,9 @@ then
 elif [ "${PLATFORM}" == "oculus_macOS" ]
 then
   cmake .. -DOCULUS=TRUE -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -G "Xcode"
-elif [ "${PLATFORM}" == "gvr_ios" ]
+elif [ "${PLATFORM}" == "vr_ios" ]
 then
-  cmake .. -DGVR=TRUE -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -G "Xcode" -DIOS:BOOL=TRUE
+  cmake .. -DVR=TRUE -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -G "Xcode" -DIOS:BOOL=TRUE
 else
   cmake -E env CFLAGS='-O0 -g' cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
 fi

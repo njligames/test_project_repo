@@ -38,6 +38,10 @@ include(CMakeDependentOption)
 include(FindPkgConfig)
 include(GNUInstallDirs)
 
+if(VR)
+  add_definitions(-DVR)
+endif()
+
 set(CMAKE_MODULE_PATH "${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake")
 
 include(${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake/macros.cmake)
@@ -1479,6 +1483,8 @@ elseif(APPLE)
       list(APPEND EXTRA_LIBS "-framework CoreMotion")
       list(APPEND EXTRA_LIBS "-framework CoreGraphics")
       list(APPEND EXTRA_LIBS "-framework QuartzCore")
+
+      list(APPEND EXTRA_LIBS "-framework Security")
 
     endif(IOS)
     
