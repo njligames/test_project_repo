@@ -218,6 +218,7 @@ endif()
 
 if(USE_GCC OR USE_CLANG)
   set(OPT_DEF_GCC_ATOMICS ON)
+  set(CMAKE_CXX_FLAGS "-std=c++11 -fno-rtti -fno-exceptions")
 endif()
 
 # Default flags, if not set otherwise
@@ -231,7 +232,6 @@ else()
   set(CMAKE_C_FLAGS "$ENV{CFLAGS}")
   list(APPEND EXTRA_CFLAGS "$ENV{CFLAGS}")
 endif()
-set(CMAKE_CXX_FLAGS "-std=c++11 -fno-rtti -fno-exceptions")
 
 if(NOT ("$ENV{CFLAGS}" STREQUAL "")) # Hackish, but does the trick on Win32
   list(APPEND EXTRA_LDFLAGS "$ENV{LDFLAGS}")
