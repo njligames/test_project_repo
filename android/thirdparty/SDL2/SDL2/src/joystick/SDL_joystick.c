@@ -605,6 +605,38 @@ SDL_PrivateJoystickAxis(SDL_Joystick * joystick, Uint8 axis, Sint16 value)
 }
 
 int
+SDL_PrivateJoystickDeviceMotion(SDL_Joystick * joystick,
+                                double m11, double m12, double m13,
+                                double m21, double m22, double m23,
+                                double m31, double m32, double m33)
+{
+    /* Post the event, if desired */
+    int posted = 0;
+#if !SDL_EVENTS_DISABLED
+    if (SDL_GetEventState(SDL_JOYDEVICEMOTION) == SDL_ENABLE) {
+        SDL_Event event;
+        event.type = SDL_JOYDEVICEMOTION;
+
+        event.jmotion.which = joystick->instance_id;
+        event.jmotion.m11 = m11;
+        event.jmotion.m12 = m12;
+        event.jmotion.m13 = m13;
+
+        event.jmotion.m21 = m21;
+        event.jmotion.m22 = m22;
+        event.jmotion.m23 = m23;
+
+        event.jmotion.m31 = m31;
+        event.jmotion.m32 = m32;
+        event.jmotion.m33 = m33;
+
+        posted = SDL_PushEvent(&event) == 1;
+    }
+#endif /* !SDL_EVENTS_DISABLED */
+    return (posted);
+}
+
+int
 SDL_PrivateJoystickHat(SDL_Joystick * joystick, Uint8 hat, Uint8 value)
 {
     int posted;

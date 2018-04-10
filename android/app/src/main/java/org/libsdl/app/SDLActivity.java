@@ -431,6 +431,9 @@ public class SDLActivity extends Activity {
                                             int action, float x,
                                             float y, float p);
     public static native void onNativeAccel(float x, float y, float z);
+    public static native void onNativeRotation(float m11, float m12, float m13,
+                                               float m21, float m22, float m23,
+                                               float m31, float m32, float m33);
     public static native void onNativeSurfaceChanged();
     public static native void onNativeSurfaceDestroyed();
     public static native int nativeAddJoystick(int device_id, String name,
@@ -1043,6 +1046,10 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
     // Sensors
     protected static SensorManager mSensorManager;
+    float[] m_lastMagFields = new float[3];
+    float[] m_lastAccels = new float[3];
+    private float[] m_rotationMatrix = new float[16];
+
     protected static Display mDisplay;
 
     // Keep track of the surface size to normalize touch events
@@ -1073,6 +1080,8 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
     public void handlePause() {
         enableSensor(Sensor.TYPE_ACCELEROMETER, false);
+        enableSensor(Sensor.TYPE_MAGNETIC_FIELD, false);
+        enableSensor(Sensor.TYPE_GYROSCOPE, false);
     }
 
     public void handleResume() {
@@ -1082,6 +1091,8 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         setOnKeyListener(this);
         setOnTouchListener(this);
         enableSensor(Sensor.TYPE_ACCELEROMETER, true);
+        enableSensor(Sensor.TYPE_MAGNETIC_FIELD, true);
+        enableSensor(Sensor.TYPE_GYROSCOPE, true);
     }
 
     public Surface getNativeSurface() {
@@ -1208,6 +1219,8 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
             final Thread sdlThread = new Thread(new SDLMain(), "SDLThread");
             enableSensor(Sensor.TYPE_ACCELEROMETER, true);
+            enableSensor(Sensor.TYPE_MAGNETIC_FIELD, true);
+            enableSensor(Sensor.TYPE_GYROSCOPE, true);
             sdlThread.start();
 
             // Set up a listener thread to catch when the native thread ends
@@ -1394,6 +1407,19 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        switch (event.sensor.getType()) {
+            case Sensor.TYPE_ACCELEROMETER:
+                System.arraycopy(event.values, 0, m_lastAccels, 0, 3);
+                break;
+            case Sensor.TYPE_MAGNETIC_FIELD:
+                System.arraycopy(event.values, 0, m_lastMagFields, 0, 3);
+                break;
+            default:
+                return;
+        }
+
+        computeOrientation();
+
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             float x, y;
             switch (mDisplay.getRotation()) {
@@ -1417,6 +1443,46 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
             SDLActivity.onNativeAccel(-x / SensorManager.GRAVITY_EARTH,
                                       y / SensorManager.GRAVITY_EARTH,
                                       event.values[2] / SensorManager.GRAVITY_EARTH);
+        }
+    }
+
+    private void computeOrientation() {
+        if (SensorManager.getRotationMatrix(m_rotationMatrix, null, m_lastAccels, m_lastMagFields)) {
+            float m11 = m_rotationMatrix[0];
+            float m12 = m_rotationMatrix[1];
+            float m13 = m_rotationMatrix[2];
+            float m14 = m_rotationMatrix[3];
+
+            float m21 = m_rotationMatrix[4];
+            float m22 = m_rotationMatrix[5];
+            float m23 = m_rotationMatrix[6];
+            float m24 = m_rotationMatrix[7];
+
+            float m31 = m_rotationMatrix[8];
+            float m32 = m_rotationMatrix[9];
+            float m33 = m_rotationMatrix[10];
+            float m34 = m_rotationMatrix[11];
+
+            float m41 = m_rotationMatrix[12];
+            float m42 = m_rotationMatrix[13];
+            float m43 = m_rotationMatrix[14];
+            float m44 = m_rotationMatrix[15];
+
+            SDLActivity.onNativeRotation(m11, m12, m13, m21, m22, m23, m31, m32, m33);
+
+//            SensorManager.getOrientation(m_rotationMatrix, m_orientation);
+//
+//            float yaw = (float) (Math.toDegrees(m_orientation[0]) + Declination);
+//            float pitch = (float) Math.toDegrees(m_orientation[1]);
+//            float roll = (float) Math.toDegrees(m_orientation[2]);
+//
+//            Heading = filterYaw.lowPass(yaw);
+//            Pitch = filterPitch.lowPass(pitch);
+//            Roll = filterRoll.lowPass(roll);
+//
+//            if (mListener != null)
+//                mListener.onSensorsStateChangeMagAcc();
+
         }
     }
 }

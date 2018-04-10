@@ -225,7 +225,7 @@ else()
   set(CMAKE_C_FLAGS "$ENV{CFLAGS}")
   list(APPEND EXTRA_CFLAGS "$ENV{CFLAGS}")
 endif()
-set(CMAKE_CXX_FLAGS "-std=c++11")
+set(CMAKE_CXX_FLAGS "-std=c++11 -fno-rtti -fno-exceptions")
 
 if(NOT ("$ENV{CFLAGS}" STREQUAL "")) # Hackish, but does the trick on Win32
   list(APPEND EXTRA_LDFLAGS "$ENV{LDFLAGS}")
@@ -1484,7 +1484,7 @@ elseif(APPLE)
       list(APPEND EXTRA_LIBS "-framework CoreGraphics")
       list(APPEND EXTRA_LIBS "-framework QuartzCore")
 
-      list(APPEND EXTRA_LIBS "-framework Security")
+      list(APPEND EXTRA_LIBS "-framework Metal")
 
     endif(IOS)
     
@@ -2145,22 +2145,19 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
 
     add_library( main SHARED ${SDL_LOCATION}/SDL2/src/main/android/SDL_android_main.c ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES})
 
-    target_link_libraries( main SDL2 )
+    target_link_libraries( main SDL2 ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
 
-    add_custom_command(TARGET main POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_directory
-      "${CMAKE_SOURCE_DIR}/android/app/.externalNativeBuild/cmake/${ANDROID_BUILD_DIR}/${ANDROID_ABI}/cmake.in/platform.in/android/res"
-      "${CMAKE_SOURCE_DIR}/android/app/src/main/res"
-      )
+    foreach(dir hdpi ldpi mdpi xhdpi xxhdpi xxxhdpi)
+      add_custom_command(TARGET main POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/android/app/.externalNativeBuild/cmake/${ANDROID_BUILD_DIR}/${ANDROID_ABI}/cmake.in/platform.in/android/res/mipmap-${dir}"
+        "${CMAKE_SOURCE_DIR}/android/app/src/main/res/mipmap-${dir}"
+        )
+    endforeach(dir)
 
     configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/android/res/values/generated_strings.xml.in"
-      "${CMAKEIN_REPO_DIRECTORY}/platform.in/android/res/values/generated_strings.xml")
+      "${CMAKE_SOURCE_DIR}/android/app/.externalNativeBuild/cmake/${ANDROID_BUILD_DIR}/${ANDROID_ABI}/cmake.in/platform.in/android/res/values")
 
-    add_custom_command(TARGET main POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy
-      "${CMAKEIN_REPO_DIRECTORY}/platform.in/android/res/values/generated_strings.xml"
-      "${CMAKE_SOURCE_DIR}/android/app/src/main/res/values"
-      )
 
   else()
     add_library(${CMAKE_PROJECT_NAME} SHARED ${SOURCE_FILES} ${VERSION_SOURCES} ${INCLUDE_FILES})

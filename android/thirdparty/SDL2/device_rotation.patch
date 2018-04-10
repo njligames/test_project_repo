@@ -1,0 +1,208 @@
+diff --git a/android/thirdparty/SDL2/SDL2/include/SDL_events.h b/android/thirdparty/SDL2/SDL2/include/SDL_events.h
+index edb89ef..f94bb49 100644
+--- a/android/thirdparty/SDL2/SDL2/include/SDL_events.h
++++ b/android/thirdparty/SDL2/SDL2/include/SDL_events.h
+@@ -113,6 +113,8 @@ typedef enum
+     SDL_JOYDEVICEADDED,         /**< A new joystick has been inserted into the system */
+     SDL_JOYDEVICEREMOVED,       /**< An opened joystick has been removed */
+ 
++    SDL_JOYDEVICEMOTION,
++
+     /* Game controller events */
+     SDL_CONTROLLERAXISMOTION  = 0x650, /**< Game controller axis motion */
+     SDL_CONTROLLERBUTTONDOWN,          /**< Game controller button pressed */
+@@ -289,6 +291,16 @@ typedef struct SDL_JoyAxisEvent
+     Uint16 padding4;
+ } SDL_JoyAxisEvent;
+ 
++typedef struct SDL_JoyDeviceMotionEvent
++{
++    Uint32 type;        /**< ::SDL_JOYAXISMOTION */
++    Uint32 timestamp;   /**< In milliseconds, populated using SDL_GetTicks() */
++    SDL_JoystickID which; /**< The joystick instance id */
++    double m11, m12, m13;
++    double m21, m22, m23;
++    double m31, m32, m33;
++} SDL_JoyDeviceMotionEvent;
++
+ /**
+  *  \brief Joystick trackball motion event structure (event.jball.*)
+  */
+@@ -534,6 +546,7 @@ typedef union SDL_Event
+     SDL_MouseButtonEvent button;    /**< Mouse button event data */
+     SDL_MouseWheelEvent wheel;      /**< Mouse wheel event data */
+     SDL_JoyAxisEvent jaxis;         /**< Joystick axis event data */
++    SDL_JoyDeviceMotionEvent jmotion;
+     SDL_JoyBallEvent jball;         /**< Joystick ball event data */
+     SDL_JoyHatEvent jhat;           /**< Joystick hat event data */
+     SDL_JoyButtonEvent jbutton;     /**< Joystick button event data */
+diff --git a/android/thirdparty/SDL2/SDL2/src/core/android/SDL_android.c b/android/thirdparty/SDL2/SDL2/src/core/android/SDL_android.c
+index b93b162..d6506d1 100644
+--- a/android/thirdparty/SDL2/SDL2/src/core/android/SDL_android.c
++++ b/android/thirdparty/SDL2/SDL2/src/core/android/SDL_android.c
+@@ -83,7 +83,9 @@ static jmethodID midPollInputDevices;
+ 
+ /* Accelerometer data storage */
+ static float fLastAccelerometer[3];
++static float fLastRotation[9];
+ static SDL_bool bHasNewData;
++static SDL_bool bHasNewRotationData;
+ 
+ /*******************************************************************************
+                  Functions called by JNI
+@@ -142,6 +144,7 @@ JNIEXPORT void JNICALL SDL_Android_Init(JNIEnv* mEnv, jclass cls)
+                                 "pollInputDevices", "()V");
+ 
+     bHasNewData = SDL_FALSE;
++    bHasNewRotationData = SDL_FALSE;
+ 
+     if (!midGetNativeSurface ||
+        !midAudioOpen || !midAudioWriteShortBuffer || !midAudioWriteByteBuffer || !midAudioClose ||
+@@ -330,6 +333,28 @@ JNIEXPORT void JNICALL Java_org_libsdl_app_SDLActivity_onNativeAccel(
+     bHasNewData = SDL_TRUE;
+ }
+ 
++/* Rotation */
++JNIEXPORT void JNICALL Java_org_libsdl_app_SDLActivity_onNativeRotation(
++                                    JNIEnv* env, jclass jcls,
++                                    jfloat m11, jfloat m12, jfloat m13,
++                                    jfloat m21, jfloat m22, jfloat m23,
++                                    jfloat m31, jfloat m32, jfloat m33)
++{
++    fLastRotation[0] = m11;
++    fLastRotation[1] = m12;
++    fLastRotation[2] = m13;
++
++    fLastRotation[3] = m21;
++    fLastRotation[4] = m22;
++    fLastRotation[5] = m23;
++
++    fLastRotation[6] = m31;
++    fLastRotation[7] = m32;
++    fLastRotation[8] = m33;
++
++    bHasNewRotationData = SDL_TRUE;
++}
++
+ /* Low memory */
+ JNIEXPORT void JNICALL Java_org_libsdl_app_SDLActivity_nativeLowMemory(
+                                     JNIEnv* env, jclass cls)
+@@ -513,6 +538,22 @@ SDL_bool Android_JNI_GetAccelerometerValues(float values[3])
+     return retval;
+ }
+ 
++SDL_bool Android_JNI_GetDeviceRotationValues(float values[9])
++{
++    int i;
++    SDL_bool retval = SDL_FALSE;
++
++    if (bHasNewRotationData) {
++        for (i = 0; i < 9; ++i) {
++            values[i] = fLastRotation[i];
++        }
++        bHasNewRotationData = SDL_FALSE;
++        retval = SDL_TRUE;
++    }
++
++    return retval;
++}
++
+ static void Android_JNI_ThreadDestroyed(void* value)
+ {
+     /* The thread is being destroyed, detach it from the Java VM and set the mThreadKey value to NULL as required */
+diff --git a/android/thirdparty/SDL2/SDL2/src/core/android/SDL_android.h b/android/thirdparty/SDL2/SDL2/src/core/android/SDL_android.h
+index cb7ff07..90dfed3 100644
+--- a/android/thirdparty/SDL2/SDL2/src/core/android/SDL_android.h
++++ b/android/thirdparty/SDL2/SDL2/src/core/android/SDL_android.h
+@@ -35,6 +35,7 @@ extern "C" {
+ /* Interface from the SDL library into the Android Java activity */
+ extern void Android_JNI_SetActivityTitle(const char *title);
+ extern SDL_bool Android_JNI_GetAccelerometerValues(float values[3]);
++extern SDL_bool Android_JNI_GetDeviceRotationValues(float values[9]);
+ extern void Android_JNI_ShowTextInput(SDL_Rect *inputRect);
+ extern void Android_JNI_HideTextInput(void);
+ extern ANativeWindow* Android_JNI_GetNativeWindow(void);
+diff --git a/android/thirdparty/SDL2/SDL2/src/joystick/SDL_joystick.c b/android/thirdparty/SDL2/SDL2/src/joystick/SDL_joystick.c
+index c426a39..28f3988 100644
+--- a/android/thirdparty/SDL2/SDL2/src/joystick/SDL_joystick.c
++++ b/android/thirdparty/SDL2/SDL2/src/joystick/SDL_joystick.c
+@@ -604,6 +604,38 @@ SDL_PrivateJoystickAxis(SDL_Joystick * joystick, Uint8 axis, Sint16 value)
+     return (posted);
+ }
+ 
++int
++SDL_PrivateJoystickDeviceMotion(SDL_Joystick * joystick,
++                                double m11, double m12, double m13,
++                                double m21, double m22, double m23,
++                                double m31, double m32, double m33)
++{
++    /* Post the event, if desired */
++    int posted = 0;
++#if !SDL_EVENTS_DISABLED
++    if (SDL_GetEventState(SDL_JOYDEVICEMOTION) == SDL_ENABLE) {
++        SDL_Event event;
++        event.type = SDL_JOYDEVICEMOTION;
++
++        event.jmotion.which = joystick->instance_id;
++        event.jmotion.m11 = m11;
++        event.jmotion.m12 = m12;
++        event.jmotion.m13 = m13;
++
++        event.jmotion.m21 = m21;
++        event.jmotion.m22 = m22;
++        event.jmotion.m23 = m23;
++
++        event.jmotion.m31 = m31;
++        event.jmotion.m32 = m32;
++        event.jmotion.m33 = m33;
++
++        posted = SDL_PushEvent(&event) == 1;
++    }
++#endif /* !SDL_EVENTS_DISABLED */
++    return (posted);
++}
++
+ int
+ SDL_PrivateJoystickHat(SDL_Joystick * joystick, Uint8 hat, Uint8 value)
+ {
+diff --git a/android/thirdparty/SDL2/SDL2/src/joystick/SDL_joystick_c.h b/android/thirdparty/SDL2/SDL2/src/joystick/SDL_joystick_c.h
+index cb9c925..c1f6e91 100644
+--- a/android/thirdparty/SDL2/SDL2/src/joystick/SDL_joystick_c.h
++++ b/android/thirdparty/SDL2/SDL2/src/joystick/SDL_joystick_c.h
+@@ -37,6 +37,10 @@ extern void SDL_PrivateJoystickAdded(int device_index);
+ extern void SDL_PrivateJoystickRemoved(SDL_JoystickID device_instance);
+ extern int SDL_PrivateJoystickAxis(SDL_Joystick * joystick,
+                                    Uint8 axis, Sint16 value);
++extern int SDL_PrivateJoystickDeviceMotion(SDL_Joystick * joystick,
++                                double m11, double m12, double m13,
++                                double m21, double m22, double m23,
++                                double m31, double m32, double m33);
+ extern int SDL_PrivateJoystickBall(SDL_Joystick * joystick,
+                                    Uint8 ball, Sint16 xrel, Sint16 yrel);
+ extern int SDL_PrivateJoystickHat(SDL_Joystick * joystick,
+diff --git a/android/thirdparty/SDL2/SDL2/src/joystick/android/SDL_sysjoystick.c b/android/thirdparty/SDL2/SDL2/src/joystick/android/SDL_sysjoystick.c
+index a09e9a1..b189c37 100644
+--- a/android/thirdparty/SDL2/SDL2/src/joystick/android/SDL_sysjoystick.c
++++ b/android/thirdparty/SDL2/SDL2/src/joystick/android/SDL_sysjoystick.c
+@@ -478,6 +478,7 @@ SDL_SYS_JoystickUpdate(SDL_Joystick * joystick)
+     int i;
+     Sint16 value;
+     float values[3];
++    float rotvalues[9];
+     SDL_joylist_item *item = SDL_joylist;
+ 
+     while (item) {
+@@ -495,6 +496,13 @@ SDL_SYS_JoystickUpdate(SDL_Joystick * joystick)
+                         SDL_PrivateJoystickAxis(item->joystick, i, value);
+                     }
+                 }
++
++                if (Android_JNI_GetDeviceRotationValues(rotvalues)) {
++                    SDL_PrivateJoystickDeviceMotion(item->joystick,
++                                                    rotvalues[0], rotvalues[1], rotvalues[2],
++                                                    rotvalues[3], rotvalues[4], rotvalues[5],
++                                                    rotvalues[6], rotvalues[7], rotvalues[8]);
++                }
+             }
+             break;
+         }

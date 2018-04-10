@@ -83,7 +83,9 @@ static jmethodID midPollInputDevices;
 
 /* Accelerometer data storage */
 static float fLastAccelerometer[3];
+static float fLastRotation[9];
 static SDL_bool bHasNewData;
+static SDL_bool bHasNewRotationData;
 
 /*******************************************************************************
                  Functions called by JNI
@@ -142,6 +144,7 @@ JNIEXPORT void JNICALL SDL_Android_Init(JNIEnv* mEnv, jclass cls)
                                 "pollInputDevices", "()V");
 
     bHasNewData = SDL_FALSE;
+    bHasNewRotationData = SDL_FALSE;
 
     if (!midGetNativeSurface ||
        !midAudioOpen || !midAudioWriteShortBuffer || !midAudioWriteByteBuffer || !midAudioClose ||
@@ -330,6 +333,28 @@ JNIEXPORT void JNICALL Java_org_libsdl_app_SDLActivity_onNativeAccel(
     bHasNewData = SDL_TRUE;
 }
 
+/* Rotation */
+JNIEXPORT void JNICALL Java_org_libsdl_app_SDLActivity_onNativeRotation(
+                                    JNIEnv* env, jclass jcls,
+                                    jfloat m11, jfloat m12, jfloat m13,
+                                    jfloat m21, jfloat m22, jfloat m23,
+                                    jfloat m31, jfloat m32, jfloat m33)
+{
+    fLastRotation[0] = m11;
+    fLastRotation[1] = m12;
+    fLastRotation[2] = m13;
+
+    fLastRotation[3] = m21;
+    fLastRotation[4] = m22;
+    fLastRotation[5] = m23;
+
+    fLastRotation[6] = m31;
+    fLastRotation[7] = m32;
+    fLastRotation[8] = m33;
+
+    bHasNewRotationData = SDL_TRUE;
+}
+
 /* Low memory */
 JNIEXPORT void JNICALL Java_org_libsdl_app_SDLActivity_nativeLowMemory(
                                     JNIEnv* env, jclass cls)
@@ -507,6 +532,22 @@ SDL_bool Android_JNI_GetAccelerometerValues(float values[3])
             values[i] = fLastAccelerometer[i];
         }
         bHasNewData = SDL_FALSE;
+        retval = SDL_TRUE;
+    }
+
+    return retval;
+}
+
+SDL_bool Android_JNI_GetDeviceRotationValues(float values[9])
+{
+    int i;
+    SDL_bool retval = SDL_FALSE;
+
+    if (bHasNewRotationData) {
+        for (i = 0; i < 9; ++i) {
+            values[i] = fLastRotation[i];
+        }
+        bHasNewRotationData = SDL_FALSE;
         retval = SDL_TRUE;
     }
 

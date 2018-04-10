@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion '26.0.2'
+    buildToolsVersion '27.0.3'
 
     sourceSets {
       main {
@@ -21,8 +21,8 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
-                cppFlags "-std=c++11 -frtti -fexceptions"
-                arguments "-DANDROID=TRUE"
+                //cppFlags "-std=c++11 -frtti -fexceptions"
+                arguments "-DANDROID=TRUE", "-DVR=TRUE"
             }
         }
 	ndk {

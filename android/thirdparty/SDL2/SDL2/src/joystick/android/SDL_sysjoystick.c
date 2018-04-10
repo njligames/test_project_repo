@@ -478,6 +478,7 @@ SDL_SYS_JoystickUpdate(SDL_Joystick * joystick)
     int i;
     Sint16 value;
     float values[3];
+    float rotvalues[9];
     SDL_joylist_item *item = SDL_joylist;
 
     while (item) {
@@ -494,6 +495,13 @@ SDL_SYS_JoystickUpdate(SDL_Joystick * joystick)
                         value = (Sint16)(values[i] * 32767.0f);
                         SDL_PrivateJoystickAxis(item->joystick, i, value);
                     }
+                }
+
+                if (Android_JNI_GetDeviceRotationValues(rotvalues)) {
+                    SDL_PrivateJoystickDeviceMotion(item->joystick,
+                                                    rotvalues[0], rotvalues[1], rotvalues[2],
+                                                    rotvalues[3], rotvalues[4], rotvalues[5],
+                                                    rotvalues[6], rotvalues[7], rotvalues[8]);
                 }
             }
             break;
