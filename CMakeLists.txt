@@ -2,6 +2,10 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
   message(FATAL_ERROR "Prevented in-tree built. Please create a build directory outside of the SDL source code and call cmake from there")
 endif()
 
+if(IOS AND TVOS)
+  message(FATAL_ERROR "Cannot have both IOS and TVOS enabled.")
+endif()
+
 cmake_minimum_required( VERSION 3.5.1 )
 
 project(NJLIC C CXX)
@@ -50,9 +54,11 @@ include(${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake/download-extract.cmake)
 include(${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake/print-targets.cmake)
 
 set(EXECUTABLE_NAME "PLACEHOLDER" CACHE STRING "The name of the executable")
+set(EXECUTABLE_GITHUB_REPOSITORY "test_engine_repo" CACHE STRING "The repository to use from the ")
+set(EXECUTABLE_GITHUB_ACCOUNT "njligames" CACHE STRING "The repository to use from the ")
 
-set(${CMAKE_PROJECT_NAME}_REPO_URL "https://github.com/njligames/test_engine_repo/archive/master.tar.gz")
-set(${CMAKE_PROJECT_NAME}_REPO_DIR "test_engine_repo")
+set(${CMAKE_PROJECT_NAME}_REPO_URL "https://github.com/${EXECUTABLE_GITHUB_ACCOUNT}/${EXECUTABLE_GITHUB_REPOSITORY}/archive/master.tar.gz")
+set(${CMAKE_PROJECT_NAME}_REPO_DIR "${EXECUTABLE_GITHUB_REPOSITORY}")
 RETRIEVE_TAR(
 	"${${CMAKE_PROJECT_NAME}_REPO_URL}"
   "${${CMAKE_PROJECT_NAME}_REPO_DIR}"
@@ -277,8 +283,6 @@ if(CYGWIN)
 endif()
 
 #add_definitions(-DUSING_GENERATED_CONFIG_H)
-# General includes
-include_directories(${${CMAKE_PROJECT_NAME}_BINARY_DIR}/include ${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/include)
 if(USE_GCC OR USE_CLANG)
   # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -idirafter ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/src/video/khronos")
 else()
