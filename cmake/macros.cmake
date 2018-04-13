@@ -72,3 +72,19 @@ macro(CHECK_OBJC_SOURCE_COMPILES SOURCE VAR)
 endmacro()
 
 
+MACRO(SUBDIRLIST result curdir dirs)
+  FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
+  SET(dirlist "")
+  FOREACH(child ${children})
+    IF(IS_DIRECTORY ${curdir}/${child})
+      LIST(APPEND dirlist ${child})
+    ENDIF()
+  ENDFOREACH()
+  SET(${result} ${dirlist})
+
+  FOREACH(subdir ${dirlist})
+    LIST (APPEND ${dirs} "${curdir}/${subdir}")
+    SUBDIRLIST(result "${curdir}/${subdir}" ${dirs})
+  ENDFOREACH()
+ENDMACRO()
+
