@@ -218,7 +218,7 @@ endif()
 
 if(USE_GCC OR USE_CLANG)
   set(OPT_DEF_GCC_ATOMICS ON)
-  set(CMAKE_CXX_FLAGS "-std=c++11 -fno-rtti -fno-exceptions")
+  set(CMAKE_CXX_FLAGS "-std=c++11 -fno-exceptions")
 endif()
 
 # Default flags, if not set otherwise
