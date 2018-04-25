@@ -10,3 +10,5 @@ android/app/.externalNativeBuild/
 android/distribution/
 android/.gradle/
 android/.idea/
+
+bot_*
