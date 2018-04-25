@@ -2011,7 +2011,7 @@ MESSAGE( STATUS "CMAKE_RANLIB: " ${CMAKE_RANLIB} )
 # Ensure that the extra cflags are used at compile time
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS}")
 
-include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/source_groups.cmake")
+# include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/source_groups.cmake")
 
 if(${CMAKE_PROJECT_NAME}_SHARED)
   if(ANDROID)
@@ -2110,6 +2110,8 @@ if(${CMAKE_PROJECT_NAME}_STATIC)
 endif(${CMAKE_PROJECT_NAME}_STATIC)
 
 include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/targets.cmake")
+
+SOURCE_GROUP_BY_FOLDER(${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY})
 
 if(${CMAKE_PROJECT_NAME}_EXE)
   add_executable(${CMAKE_PROJECT_NAME}-exe MACOSX_BUNDLE ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES} ${INCLUDE_FILES})

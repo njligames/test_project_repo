@@ -13,6 +13,7 @@ then
   BUILD_DIR=.build_$PLATFORM
   # BUILD_DIR=bot_$PLATFORM
   rm -rf $BUILD_DIR
+  # rm $BUILD_DIR/CMakeCache.txt
   mkdir -p $BUILD_DIR
   cd $BUILD_DIR
 fi
