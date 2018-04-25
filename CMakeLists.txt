@@ -6,8 +6,8 @@ if(IOS AND TVOS)
   message(FATAL_ERROR "Cannot have both IOS and TVOS enabled.")
 endif()
 
+# cmake_minimum_required( VERSION 3.11 )
 cmake_minimum_required( VERSION 3.5.1 )
-
 project(NJLIC C CXX)
 
 # include(ExternalProject)
@@ -236,6 +236,7 @@ else()
   set(CMAKE_C_FLAGS "$ENV{CFLAGS}")
   list(APPEND EXTRA_CFLAGS "$ENV{CFLAGS}")
 endif()
+list(APPEND EXTRA_CFLAGS "-pedantic")
 
 if(NOT ("$ENV{CFLAGS}" STREQUAL "")) # Hackish, but does the trick on Win32
   list(APPEND EXTRA_LDFLAGS "$ENV{LDFLAGS}")
@@ -452,6 +453,15 @@ set(${CMAKE_PROJECT_NAME}_EXE ${${CMAKE_PROJECT_NAME}_EXE_ENABLED_BY_DEFAULT} CA
 dep_option(${CMAKE_PROJECT_NAME}_STATIC_PIC      "Static version of the library should be built with Position Independent Code" OFF "${CMAKE_PROJECT_NAME}_STATIC" OFF)
 
 include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/sources.cmake")
+
+foreach(_SOURCE_FILE ${SOURCE_FILES})
+  MESSAGE(STATUS "_SOURCE_FILE ${_SOURCE_FILE}")
+endforeach()
+
+get_property(_INCLUDE_DIRECTORIES DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
+foreach(_INCLUDE_DIRECTORY ${_INCLUDE_DIRECTORIES})
+  MESSAGE(STATUS "_INCLUDE_DIRECTORY ${_INCLUDE_DIRECTORY}")
+endforeach()
 
 if(ASSERTIONS STREQUAL "auto")
   # Do nada - use optimization settings to determine the assertion level
@@ -1990,8 +2000,8 @@ MESSAGE( STATUS "CMAKE_COMPILER_IS_GNUCXX : " ${CMAKE_COMPILER_IS_GNUCXX} )
 MESSAGE( STATUS "CMAKE_AR: " ${CMAKE_AR} )
 MESSAGE( STATUS "CMAKE_RANLIB: " ${CMAKE_RANLIB} )
 
-get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
-MESSAGE(STATUS "INCLUDE_DIRECTORIES='${dirs}'")
+# get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
+# MESSAGE(STATUS "INCLUDE_DIRECTORIES='${dirs}'")
 
 #
 #MESSAGE( STATUS ": " ${} )
@@ -2002,6 +2012,104 @@ MESSAGE(STATUS "INCLUDE_DIRECTORIES='${dirs}'")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS}")
 
 include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/source_groups.cmake")
+
+if(${CMAKE_PROJECT_NAME}_SHARED)
+  if(ANDROID)
+
+    string(TOLOWER ${CMAKE_BUILD_TYPE} ANDROID_BUILD_DIR)
+    set(DISTRIBUTION_DIR ${CMAKE_SOURCE_DIR}/android/distribution/android/SDL2/intermediates/ndkBuild)
+    set(SDL_LOCATION ${CMAKE_SOURCE_DIR}/android/thirdparty/SDL2)
+
+    add_library( SDL2 SHARED IMPORTED )
+    set_target_properties(SDL2 PROPERTIES IMPORTED_LOCATION ${DISTRIBUTION_DIR}/${ANDROID_BUILD_DIR}/obj/local/${ANDROID_ABI}/libSDL2.so)
+
+    include_directories(${SDL_LOCATION}/SDL2/include)
+
+    add_library( main SHARED ${SDL_LOCATION}/SDL2/src/main/android/SDL_android_main.c ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES})
+
+    target_link_libraries( main SDL2 ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
+
+    foreach(dir hdpi ldpi mdpi xhdpi xxhdpi xxxhdpi)
+      add_custom_command(TARGET main POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/android/app/.externalNativeBuild/cmake/${ANDROID_BUILD_DIR}/${ANDROID_ABI}/cmake.in/platform.in/android/res/mipmap-${dir}"
+        "${CMAKE_SOURCE_DIR}/android/app/src/main/res/mipmap-${dir}"
+        )
+    endforeach(dir)
+
+    configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/android/res/values/generated_strings.xml.in"
+      "${CMAKE_SOURCE_DIR}/android/app/.externalNativeBuild/cmake/${ANDROID_BUILD_DIR}/${ANDROID_ABI}/cmake.in/platform.in/android/res/values")
+
+
+  else()
+    LIST(REMOVE_ITEM SOURCE_FILES ${MAIN_FILES})
+
+    add_library(${CMAKE_PROJECT_NAME} SHARED ${SOURCE_FILES} ${VERSION_SOURCES} ${INCLUDE_FILES})
+    if(APPLE)
+      set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES MACOSX_RPATH 1)
+      if(IOS OR TVOS)
+        SET_TARGET_PROPERTIES (
+          ${CMAKE_PROJECT_NAME} PROPERTIES
+          XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
+          )
+      endif(IOS OR TVOS)
+    elseif(UNIX AND NOT ANDROID)
+      set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
+        VERSION ${LT_VERSION}
+        SOVERSION ${LT_REVISION}
+        OUTPUT_NAME "${CMAKE_PROJECT_NAME}-${LT_RELEASE}")
+    else()
+      set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
+        VERSION ${${CMAKE_PROJECT_NAME}_VERSION}
+        SOVERSION ${LT_REVISION}
+        OUTPUT_NAME "${CMAKE_PROJECT_NAME}")
+    endif()
+    if(MSVC AND NOT LIBC)
+      # Don't try to link with the default set of libraries.
+      # set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
+      # set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
+      # set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
+    endif()
+    set(_INSTALL_LIBS "${CMAKE_PROJECT_NAME}" ${_INSTALL_LIBS})
+    target_link_libraries(${CMAKE_PROJECT_NAME} ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
+    target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:include>)
+  endif()
+endif(${CMAKE_PROJECT_NAME}_SHARED)
+
+if(${CMAKE_PROJECT_NAME}_STATIC)
+  LIST(REMOVE_ITEM SOURCE_FILES ${MAIN_FILES})
+  set (BUILD_SHARED_LIBS FALSE)
+  add_library(${CMAKE_PROJECT_NAME}-static STATIC ${SOURCE_FILES} ${INCLUDE_FILES})
+  if(APPLE)
+    if(IOS OR TVOS)
+      SET_TARGET_PROPERTIES (
+        ${CMAKE_PROJECT_NAME}-static PROPERTIES
+        XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
+        )
+    endif(IOS OR TVOS)
+  endif(APPLE)
+
+  if (NOT ${CMAKE_PROJECT_NAME}_SHARED OR NOT WIN32)
+    set_target_properties(${CMAKE_PROJECT_NAME}-static PROPERTIES OUTPUT_NAME "${CMAKE_PROJECT_NAME}")
+    # Note: Apparently, OUTPUT_NAME must really be unique; even when
+    # CMAKE_IMPORT_LIBRARY_SUFFIX or the like are given. Otherwise
+    # the static build may race with the import lib and one will get
+    # clobbered, when the suffix is realized via subsequent rename.
+  endif()
+  set_target_properties(${CMAKE_PROJECT_NAME}-static PROPERTIES POSITION_INDEPENDENT_CODE ${${CMAKE_PROJECT_NAME}_STATIC_PIC})
+  if(MSVC AND NOT LIBC)
+    set_target_properties(${CMAKE_PROJECT_NAME}-static PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
+    set_target_properties(${CMAKE_PROJECT_NAME}-static PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
+    set_target_properties(${CMAKE_PROJECT_NAME}-static PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
+  endif()
+  # TODO: Win32 platforms keep the same suffix .lib for import and static
+  # libraries - do we need to consider this?
+  set(_INSTALL_LIBS "${CMAKE_PROJECT_NAME}-static" ${_INSTALL_LIBS})
+  target_link_libraries(${CMAKE_PROJECT_NAME}-static ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
+  target_include_directories(${CMAKE_PROJECT_NAME}-static PUBLIC $<INSTALL_INTERFACE:include>)
+endif(${CMAKE_PROJECT_NAME}_STATIC)
+
+include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/targets.cmake")
 
 if(${CMAKE_PROJECT_NAME}_EXE)
   add_executable(${CMAKE_PROJECT_NAME}-exe MACOSX_BUNDLE ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES} ${INCLUDE_FILES})
@@ -2138,99 +2246,6 @@ if(${CMAKE_PROJECT_NAME}_EXE)
   target_link_libraries(${CMAKE_PROJECT_NAME}-exe ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
   # target_include_directories(${CMAKE_PROJECT_NAME}-exe PUBLIC $<INSTALL_INTERFACE:include>)
 endif(${CMAKE_PROJECT_NAME}_EXE)
-
-if(${CMAKE_PROJECT_NAME}_SHARED)
-  if(ANDROID)
-
-    string(TOLOWER ${CMAKE_BUILD_TYPE} ANDROID_BUILD_DIR)
-    set(DISTRIBUTION_DIR ${CMAKE_SOURCE_DIR}/android/distribution/android/SDL2/intermediates/ndkBuild)
-    set(SDL_LOCATION ${CMAKE_SOURCE_DIR}/android/thirdparty/SDL2)
-
-    add_library( SDL2 SHARED IMPORTED )
-    set_target_properties(SDL2 PROPERTIES IMPORTED_LOCATION ${DISTRIBUTION_DIR}/${ANDROID_BUILD_DIR}/obj/local/${ANDROID_ABI}/libSDL2.so)
-
-    include_directories(${SDL_LOCATION}/SDL2/include)
-
-    add_library( main SHARED ${SDL_LOCATION}/SDL2/src/main/android/SDL_android_main.c ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES})
-
-    target_link_libraries( main SDL2 ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
-
-    foreach(dir hdpi ldpi mdpi xhdpi xxhdpi xxxhdpi)
-      add_custom_command(TARGET main POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${CMAKE_SOURCE_DIR}/android/app/.externalNativeBuild/cmake/${ANDROID_BUILD_DIR}/${ANDROID_ABI}/cmake.in/platform.in/android/res/mipmap-${dir}"
-        "${CMAKE_SOURCE_DIR}/android/app/src/main/res/mipmap-${dir}"
-        )
-    endforeach(dir)
-
-    configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/android/res/values/generated_strings.xml.in"
-      "${CMAKE_SOURCE_DIR}/android/app/.externalNativeBuild/cmake/${ANDROID_BUILD_DIR}/${ANDROID_ABI}/cmake.in/platform.in/android/res/values")
-
-
-  else()
-    add_library(${CMAKE_PROJECT_NAME} SHARED ${SOURCE_FILES} ${VERSION_SOURCES} ${INCLUDE_FILES})
-    if(APPLE)
-      set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES MACOSX_RPATH 1)
-      if(IOS OR TVOS)
-        SET_TARGET_PROPERTIES (
-          ${CMAKE_PROJECT_NAME} PROPERTIES
-          XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
-          )
-      endif(IOS OR TVOS)
-    elseif(UNIX AND NOT ANDROID)
-      set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
-        VERSION ${LT_VERSION}
-        SOVERSION ${LT_REVISION}
-        OUTPUT_NAME "${CMAKE_PROJECT_NAME}-${LT_RELEASE}")
-    else()
-      set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
-        VERSION ${${CMAKE_PROJECT_NAME}_VERSION}
-        SOVERSION ${LT_REVISION}
-        OUTPUT_NAME "${CMAKE_PROJECT_NAME}")
-    endif()
-    if(MSVC AND NOT LIBC)
-      # Don't try to link with the default set of libraries.
-      # set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
-      # set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
-      # set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
-    endif()
-    set(_INSTALL_LIBS "${CMAKE_PROJECT_NAME}" ${_INSTALL_LIBS})
-    target_link_libraries(${CMAKE_PROJECT_NAME} ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
-    target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:include>)
-  endif()
-endif(${CMAKE_PROJECT_NAME}_SHARED)
-
-if(${CMAKE_PROJECT_NAME}_STATIC)
-  set (BUILD_SHARED_LIBS FALSE)
-  add_library(${CMAKE_PROJECT_NAME}-static STATIC ${SOURCE_FILES} ${INCLUDE_FILES})
-  if(APPLE)
-    if(IOS OR TVOS)
-      SET_TARGET_PROPERTIES (
-        ${CMAKE_PROJECT_NAME}-static PROPERTIES
-        XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
-        )
-    endif(IOS OR TVOS)
-  endif(APPLE)
-
-  if (NOT ${CMAKE_PROJECT_NAME}_SHARED OR NOT WIN32)
-    set_target_properties(${CMAKE_PROJECT_NAME}-static PROPERTIES OUTPUT_NAME "${CMAKE_PROJECT_NAME}")
-    # Note: Apparently, OUTPUT_NAME must really be unique; even when
-    # CMAKE_IMPORT_LIBRARY_SUFFIX or the like are given. Otherwise
-    # the static build may race with the import lib and one will get
-    # clobbered, when the suffix is realized via subsequent rename.
-  endif()
-  set_target_properties(${CMAKE_PROJECT_NAME}-static PROPERTIES POSITION_INDEPENDENT_CODE ${${CMAKE_PROJECT_NAME}_STATIC_PIC})
-  if(MSVC AND NOT LIBC)
-    set_target_properties(${CMAKE_PROJECT_NAME}-static PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
-    set_target_properties(${CMAKE_PROJECT_NAME}-static PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
-    set_target_properties(${CMAKE_PROJECT_NAME}-static PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
-  endif()
-  # TODO: Win32 platforms keep the same suffix .lib for import and static
-  # libraries - do we need to consider this?
-  set(_INSTALL_LIBS "${CMAKE_PROJECT_NAME}-static" ${_INSTALL_LIBS})
-  target_link_libraries(${CMAKE_PROJECT_NAME}-static ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
-  target_include_directories(${CMAKE_PROJECT_NAME}-static PUBLIC $<INSTALL_INTERFACE:include>)
-endif(${CMAKE_PROJECT_NAME}_STATIC)
 
 ##### Installation targets #####
 install(TARGETS ${_INSTALL_LIBS} EXPORT ${CMAKE_PROJECT_NAME}Targets
