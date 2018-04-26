@@ -2246,7 +2246,7 @@ if(${CMAKE_PROJECT_NAME}_EXE)
     # set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
   endif()
   target_link_libraries(${CMAKE_PROJECT_NAME}-exe ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
-  # target_include_directories(${CMAKE_PROJECT_NAME}-exe PUBLIC $<INSTALL_INTERFACE:include>)
+  target_include_directories(${CMAKE_PROJECT_NAME}-exe PUBLIC $<INSTALL_INTERFACE:include>)
 endif(${CMAKE_PROJECT_NAME}_EXE)
 
 ##### Installation targets #####
