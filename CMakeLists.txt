@@ -43,7 +43,7 @@ include(FindPkgConfig)
 include(GNUInstallDirs)
 
 if(VR)
-  add_definitions(-DVR)
+  list(APPEND ${CMAKE_PROJECT_NAME}_DEFINITIONS VR)
 endif()
 
 set(CMAKE_MODULE_PATH "${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake")
@@ -90,9 +90,9 @@ set(${CMAKE_PROJECT_NAME}_INTERFACE_AGE 0)
 set(${CMAKE_PROJECT_NAME}_BINARY_AGE 0)
 set(${CMAKE_PROJECT_NAME}_VERSION "${${CMAKE_PROJECT_NAME}_MAJOR_VERSION}.${${CMAKE_PROJECT_NAME}_MINOR_VERSION}.${${CMAKE_PROJECT_NAME}_MICRO_VERSION}")
 
-ADD_DEFINITIONS(-D${CMAKE_PROJECT_NAME}_MAJOR_VERSION=\"${${CMAKE_PROJECT_NAME}_MAJOR_VERSION}\")
-ADD_DEFINITIONS(-D${CMAKE_PROJECT_NAME}_MINOR_VERSION=\"${${CMAKE_PROJECT_NAME}_MINOR_VERSION}\")
-ADD_DEFINITIONS(-D${CMAKE_PROJECT_NAME}_MICRO_VERSION=\"${${CMAKE_PROJECT_NAME}_MICRO_VERSION}\")
+list(APPEND ${CMAKE_PROJECT_NAME}_DEFINITIONS ${CMAKE_PROJECT_NAME}_MAJOR_VERSION=\"${${CMAKE_PROJECT_NAME}_MAJOR_VERSION}\")
+list(APPEND ${CMAKE_PROJECT_NAME}_DEFINITIONS ${CMAKE_PROJECT_NAME}_MINOR_VERSION=\"${${CMAKE_PROJECT_NAME}_MINOR_VERSION}\")
+list(APPEND ${CMAKE_PROJECT_NAME}_DEFINITIONS ${CMAKE_PROJECT_NAME}_MICRO_VERSION=\"${${CMAKE_PROJECT_NAME}_MICRO_VERSION}\")
 
 if(NOT ANDROID)
   # Set defaults preventing destination file conflicts
@@ -287,7 +287,7 @@ if(CYGWIN)
   set(${CMAKE_PROJECT_NAME}_CFLAGS "${${CMAKE_PROJECT_NAME}_CFLAGS} -I/usr/include/mingw")
 endif()
 
-#add_definitions(-DUSING_GENERATED_CONFIG_H)
+# list(APPEND ${CMAKE_PROJECT_NAME}_DEFINITIONS -DUSING_GENERATED_CONFIG_H)
 if(USE_GCC OR USE_CLANG)
   # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -idirafter ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/src/video/khronos")
 else()
@@ -750,7 +750,7 @@ if(LIBC)
       set(HAVE_ALLOCA 1)
     endif()
     set(HAVE_M_PI 1)
-    add_definitions(-D_USE_MATH_DEFINES) # needed for M_PI
+    list(APPEND ${CMAKE_PROJECT_NAME}_DEFINITIONS _USE_MATH_DEFINES) # needed for M_PI
     set(STDC_HEADERS 1)
   else()
     set(HAVE_LIBC TRUE)
@@ -953,7 +953,7 @@ if(ANDROID)
     find_library(ANDROID_LOG_LIBRARY log)
     find_library(ANDROID_LIBRARY_LIBRARY android)
     list(APPEND EXTRA_LIBS ${ANDROID_DL_LIBRARY} ${ANDROID_LOG_LIBRARY} ${ANDROID_LIBRARY_LIBRARY})
-    add_definitions(-DGL_GLEXT_PROTOTYPES)
+    list(APPEND ${CMAKE_PROJECT_NAME}_DEFINITIONS GL_GLEXT_PROTOTYPES)
 
     #enable gles
     if(VIDEO_OPENGLES)
@@ -992,7 +992,8 @@ if(EMSCRIPTEN)
 
   # Hide noisy warnings that intend to aid mostly during initial stages of porting a new
   # project. Uncomment at will for verbose cross-compiling -I/../ path info.
-  add_definitions(-Wno-warn-absolute-paths)
+  # add_definitions(-Wno-warn-absolute-paths)
+  list(APPEND ${CMAKE_PROJECT_NAME}_DEFINITIONS -Wno-warn-absolute-paths)
   if(SDL_AUDIO)
     set(SDL_AUDIO_DRIVER_EMSCRIPTEN 1)
     # file(GLOB EM_AUDIO_SOURCES ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/src/audio/emscripten/*.c)
@@ -1091,7 +1092,7 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID)
 
   if(LINUX)
     if(OCULUS)
-      add_definitions(-DOVR_OS_LINUX)
+      list(APPEND ${CMAKE_PROJECT_NAME}_DEFINITIONS OVR_OS_LINUX)
     endif()
 
     list(APPEND EXTRA_LDFLAGS "-ldl")
@@ -1237,7 +1238,7 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID)
 
 elseif(WINDOWS)
   if(OCULUS)
-    add_definitions(-DOVR_OS_WIN32)
+    list(APPEND ${CMAKE_PROJECT_NAME}_DEFINITIONS OVR_OS_WIN32)
   endif()
 
   configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/windows/resource.rc.in"
@@ -1470,7 +1471,7 @@ elseif(WINDOWS)
   endif()
 elseif(APPLE)
   if(OCULUS)
-    add_definitions(-DOVR_OS_MAC)
+    list(APPEND ${CMAKE_PROJECT_NAME}_DEFINITIONS OVR_OS_MAC)
   endif()
 
   # TODO: rework this all for proper MacOS X, iOS and Darwin support
@@ -2026,7 +2027,6 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
     include_directories(${SDL_LOCATION}/SDL2/include)
 
     add_library( main SHARED ${SDL_LOCATION}/SDL2/src/main/android/SDL_android_main.c ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES})
-
     target_link_libraries( main SDL2 ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
 
     foreach(dir hdpi ldpi mdpi xhdpi xxhdpi xxxhdpi)
@@ -2045,6 +2045,8 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
     LIST(REMOVE_ITEM SOURCE_FILES ${MAIN_FILES})
 
     add_library(${CMAKE_PROJECT_NAME} SHARED ${SOURCE_FILES} ${VERSION_SOURCES} ${INCLUDE_FILES})
+    target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC ${${CMAKE_PROJECT_NAME}_DEFINITIONS})
+
     if(APPLE)
       set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES MACOSX_RPATH 1)
       if(IOS OR TVOS)
@@ -2080,6 +2082,7 @@ if(${CMAKE_PROJECT_NAME}_STATIC)
   LIST(REMOVE_ITEM SOURCE_FILES ${MAIN_FILES})
   set (BUILD_SHARED_LIBS FALSE)
   add_library(${CMAKE_PROJECT_NAME}-static STATIC ${SOURCE_FILES} ${INCLUDE_FILES})
+  target_compile_definitions(${CMAKE_PROJECT_NAME}-static PUBLIC ${${CMAKE_PROJECT_NAME}_DEFINITIONS})
   if(APPLE)
     if(IOS OR TVOS)
       SET_TARGET_PROPERTIES (
@@ -2122,7 +2125,9 @@ if(${CMAKE_PROJECT_NAME}_EXE)
   else()
     set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES OUTPUT_NAME "${EXECUTABLE_NAME}")
   endif()
-  add_definitions(-DEXECUTABLE_NAME="\\"${EXECUTABLE_NAME}\\"")
+  list(APPEND ${CMAKE_PROJECT_NAME}_DEFINITIONS EXECUTABLE_NAME="\\"${EXECUTABLE_NAME}\\"")
+
+  target_compile_definitions(${CMAKE_PROJECT_NAME}-exe PUBLIC ${${CMAKE_PROJECT_NAME}_DEFINITIONS})
 
   if(APPLE)
 

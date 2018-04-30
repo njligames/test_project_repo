@@ -11,9 +11,9 @@ EXECUTABLE_GITHUB_ACCOUNT=njligames
 if [ "${PLATFORM}" != "android" ]
 then
   BUILD_DIR=.build_$PLATFORM
-  # BUILD_DIR=bot_$PLATFORM
+  BUILD_DIR=bot_$PLATFORM
   # rm -rf $BUILD_DIR
-  # rm $BUILD_DIR/CMakeCache.txt
+  rm $BUILD_DIR/CMakeCache.txt
   mkdir -p $BUILD_DIR
   cd $BUILD_DIR
 fi
@@ -63,7 +63,7 @@ else
   cmake -E env CFLAGS='-O0 -g' cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
 fi
 
-# cmake --build . --config Release --target install
+cmake --build . --config Release --target install
 
 if [ "${PLATFORM}" == "emscripten" ]
 then
