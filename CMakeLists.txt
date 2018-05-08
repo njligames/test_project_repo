@@ -2073,8 +2073,12 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
       # set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
     endif()
     set(_INSTALL_LIBS "${CMAKE_PROJECT_NAME}" ${_INSTALL_LIBS})
+    target_include_directories(${CMAKE_PROJECT_NAME}
+      PUBLIC $<INSTALL_INTERFACE:include>
+      PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRECTORES}>
+      PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_PROJECT_INCLUDE_DIRECTORES}>
+      )
     target_link_libraries(${CMAKE_PROJECT_NAME} ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
-    target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:include>)
   endif()
 endif(${CMAKE_PROJECT_NAME}_SHARED)
 
@@ -2108,8 +2112,12 @@ if(${CMAKE_PROJECT_NAME}_STATIC)
   # TODO: Win32 platforms keep the same suffix .lib for import and static
   # libraries - do we need to consider this?
   set(_INSTALL_LIBS "${CMAKE_PROJECT_NAME}-static" ${_INSTALL_LIBS})
+  target_include_directories(${CMAKE_PROJECT_NAME}-static 
+    PUBLIC $<INSTALL_INTERFACE:include>
+    PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRECTORES}>
+    PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_PROJECT_INCLUDE_DIRECTORES}>
+    )
   target_link_libraries(${CMAKE_PROJECT_NAME}-static ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
-  target_include_directories(${CMAKE_PROJECT_NAME}-static PUBLIC $<INSTALL_INTERFACE:include>)
 endif(${CMAKE_PROJECT_NAME}_STATIC)
 
 include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/targets.cmake")
@@ -2250,8 +2258,11 @@ if(${CMAKE_PROJECT_NAME}_EXE)
     # set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
     # set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
   endif()
+  target_include_directories(${CMAKE_PROJECT_NAME}-exe
+    PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRECTORES}>
+    PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_PROJECT_INCLUDE_DIRECTORES}>
+    )
   target_link_libraries(${CMAKE_PROJECT_NAME}-exe ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
-  target_include_directories(${CMAKE_PROJECT_NAME}-exe PUBLIC $<INSTALL_INTERFACE:include>)
 endif(${CMAKE_PROJECT_NAME}_EXE)
 
 ##### Installation targets #####

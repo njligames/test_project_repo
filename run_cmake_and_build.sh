@@ -11,9 +11,11 @@ EXECUTABLE_GITHUB_ACCOUNT=njligames
 if [ "${PLATFORM}" != "android" ]
 then
   BUILD_DIR=.build_$PLATFORM
-  BUILD_DIR=bot_$PLATFORM
-  # rm -rf $BUILD_DIR
-  rm $BUILD_DIR/CMakeCache.txt
+  # BUILD_DIR=bot_$PLATFORM
+
+  rm -rf $BUILD_DIR
+  # rm $BUILD_DIR/CMakeCache.txt
+  # rm -rf $BUILD_DIR/CMakeScripts/
   mkdir -p $BUILD_DIR
   cd $BUILD_DIR
 fi
