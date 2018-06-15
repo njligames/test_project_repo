@@ -1,6 +1,7 @@
 #!/bin/bash
 
 PLATFORM=$1
+BOT=$1
 PRE=""
 INSTALL_PREFIX=install
 
@@ -11,18 +12,29 @@ EXECUTABLE_GITHUB_ACCOUNT=njligames
 if [ "${PLATFORM}" != "android" ]
 then
   BUILD_DIR=.build_$PLATFORM
-  # BUILD_DIR=bot_$PLATFORM
+  if [ -z "$BOT" ]
+  then
+    rm -rf $BUILD_DIR
+  else
+    BUILD_DIR=bot_$PLATFORM
+    rm $BUILD_DIR/CMakeCache.txt
+    rm -rf $BUILD_DIR/CMakeScripts/
+  fi
 
-  rm -rf $BUILD_DIR
-  # rm $BUILD_DIR/CMakeCache.txt
-  # rm -rf $BUILD_DIR/CMakeScripts/
   mkdir -p $BUILD_DIR
   cd $BUILD_DIR
 fi
 
 if [ "${PLATFORM}" == "emscripten" ]
 then
+  export EMSCRIPTEN_VERSION=1.37.9
+  export EMSCRIPTEN_LOCATION=/Users/jamesfolk/Work/tools/emsdk/emscripten/${EMSCRIPTEN_VERSION}
+  export EMSCRIPTEN_INCLUDE_LOCATION=${EMSCRIPTEN_LOCATION}/system/include
+
+
   export EMCC_DEBUG=1 # Verbose building...
+  export VERBOSE=1
+
   emcmake cmake .. -DEXECUTABLE_NAME:STRING=${EXECUTABLE_NAME} \
   -DEXECUTABLE_GITHUB_REPOSITORY:STRING=${EXECUTABLE_GITHUB_REPOSITORY} \
   -DEXECUTABLE_GITHUB_ACCOUNT:STRING=${EXECUTABLE_GITHUB_ACCOUNT} \

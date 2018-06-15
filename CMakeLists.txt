@@ -8,7 +8,7 @@ endif()
 
 # cmake_minimum_required( VERSION 3.11 )
 cmake_minimum_required( VERSION 3.5.1 )
-project(NJLIC C CXX)
+project(NJLIC)
 
 # include(ExternalProject)
 # set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
@@ -27,6 +27,15 @@ project(NJLIC C CXX)
 # !!! FIXME:  remove it and this comment entirely once the problem is
 # !!! FIXME:  properly resolved.
 #cmake_policy(SET CMP0042 OLD)
+
+SET(CMAKE_INCLUDES_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}_OUTPUT)
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}_OUTPUT)
+SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}_OUTPUT)
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}_OUTPUT)
+SET(CMAKE_BUNDLE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}_OUTPUT)
+SET(CMAKE_PRIVATE_HEADER_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}_OUTPUT)
+SET(CMAKE_PUBLIC_HEADER_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}_OUTPUT)
+SET(CMAKE_RESOURCE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}_OUTPUT)
 
 include(CheckFunctionExists)
 include(CheckLibraryExists)
@@ -464,14 +473,14 @@ dep_option(${CMAKE_PROJECT_NAME}_STATIC_PIC      "Static version of the library 
 
 include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/sources.cmake")
 
-foreach(_SOURCE_FILE ${SOURCE_FILES})
-  MESSAGE(STATUS "_SOURCE_FILE ${_SOURCE_FILE}")
-endforeach()
+# foreach(_SOURCE_FILE ${SOURCE_FILES})
+#   MESSAGE(STATUS "_SOURCE_FILE ${_SOURCE_FILE}")
+# endforeach()
 
-get_property(_INCLUDE_DIRECTORIES DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
-foreach(_INCLUDE_DIRECTORY ${_INCLUDE_DIRECTORIES})
-  MESSAGE(STATUS "_INCLUDE_DIRECTORY ${_INCLUDE_DIRECTORY}")
-endforeach()
+# get_property(_INCLUDE_DIRECTORIES DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
+# foreach(_INCLUDE_DIRECTORY ${_INCLUDE_DIRECTORIES})
+#   MESSAGE(STATUS "_INCLUDE_DIRECTORY ${_INCLUDE_DIRECTORY}")
+# endforeach()
 
 if(ASSERTIONS STREQUAL "auto")
   # Do nada - use optimization settings to determine the assertion level
@@ -2014,6 +2023,8 @@ MESSAGE( STATUS "CMAKE_COMPILER_IS_GNUCXX : " ${CMAKE_COMPILER_IS_GNUCXX} )
 MESSAGE( STATUS "CMAKE_AR: " ${CMAKE_AR} )
 MESSAGE( STATUS "CMAKE_RANLIB: " ${CMAKE_RANLIB} )
 
+MESSAGE( STATUS "CMAKE_EXE_LINKER_FLAGS: " ${CMAKE_EXE_LINKER_FLAGS} )
+
 # get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
 # MESSAGE(STATUS "INCLUDE_DIRECTORIES='${dirs}'")
 
@@ -2068,7 +2079,7 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
       if(IOS OR TVOS)
         SET_TARGET_PROPERTIES (
           ${CMAKE_PROJECT_NAME} PROPERTIES
-          XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
+          XCODE_ATTRIBUTE_ENABLE_BITCODE "YES"
           )
       endif(IOS OR TVOS)
     elseif(UNIX AND NOT ANDROID)
@@ -2110,7 +2121,7 @@ if(${CMAKE_PROJECT_NAME}_STATIC)
     if(IOS OR TVOS)
       SET_TARGET_PROPERTIES (
         ${CMAKE_PROJECT_NAME}-static PROPERTIES
-        XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
+        XCODE_ATTRIBUTE_ENABLE_BITCODE "YES"
         )
     endif(IOS OR TVOS)
   endif(APPLE)
@@ -2220,7 +2231,7 @@ if(${CMAKE_PROJECT_NAME}_EXE)
         XCODE_ATTRIBUTE_INSTALL_PATH "${CMAKE_BINARY_DIR}/ProductRelease"
         XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"
         XCODE_ATTRIBUTE_PRODUCT_NAME "${CMAKE_PROJECT_NAME}GameEngine"
-        XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
+        XCODE_ATTRIBUTE_ENABLE_BITCODE "YES"
         XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
         )
     endif(NOT IOS AND NOT TVOS)
@@ -2295,101 +2306,101 @@ if(${CMAKE_PROJECT_NAME}_EXE)
   
 endif(${CMAKE_PROJECT_NAME}_EXE)
 
-#    ##### Installation targets #####
-#    install(TARGETS ${_INSTALL_LIBS} EXPORT ${CMAKE_PROJECT_NAME}Targets
-#      LIBRARY DESTINATION "lib${LIB_SUFFIX}"
-#      ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
-#      RUNTIME DESTINATION bin)
-#    
-#    ##### Export files #####
-#    if (APPLE)
-#      set(PKG_PREFIX "${CMAKE_PROJECT_NAME}.framework/Resources")
-#    elseif (WINDOWS)
-#      set(PKG_PREFIX "cmake")
-#    else ()
-#      set(PKG_PREFIX "lib/cmake/${CMAKE_PROJECT_NAME}")
-#    endif ()
-#    
-#    if(NOT ANDROID)
-#      include(CMakePackageConfigHelpers)
-#      write_basic_package_version_file("${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake"
-#        VERSION ${${CMAKE_PROJECT_NAME}_VERSION}
-#        COMPATIBILITY AnyNewerVersion
-#      )
-#    
-#      install(EXPORT ${CMAKE_PROJECT_NAME}Targets
-#        FILE ${CMAKE_PROJECT_NAME}Targets.cmake
-#        NAMESPACE ${CMAKE_PROJECT_NAME}::
-#        DESTINATION ${PKG_PREFIX}
-#      )
-#      install(
-#        FILES
-#        ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_PROJECT_NAME}Config.cmake
-#        ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
-#        DESTINATION ${PKG_PREFIX}
-#        COMPONENT Devel
-#      )
-#    
-#      file(GLOB INCLUDE_FILES ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/include/*.h)
-#      file(GLOB BIN_INCLUDE_FILES ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/include/*.h)
-#      foreach(_FNAME ${BIN_INCLUDE_FILES})
-#        get_filename_component(_INCNAME ${_FNAME} NAME)
-#        list(REMOVE_ITEM INCLUDE_FILES ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/include/${_INCNAME})
-#      endforeach()
-#      list(APPEND INCLUDE_FILES ${BIN_INCLUDE_FILES})
-#      install(FILES ${INCLUDE_FILES} DESTINATION include/${CMAKE_PROJECT_NAME})
-#    
-#      if(NOT (WINDOWS OR CYGWIN))
-#        if(${CMAKE_PROJECT_NAME}_SHARED)
-#          if (APPLE)
-#              set(SOEXT "dylib")
-#          else()
-#              set(SOEXT "so")
-#          endif()
-#          install(CODE "
-#            execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-#              \"lib${CMAKE_PROJECT_NAME}-1.0.${SOEXT}\" \"lib${CMAKE_PROJECT_NAME}.${SOEXT}\")")
-#          install(FILES ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/lib${CMAKE_PROJECT_NAME}.${SOEXT} DESTINATION "lib${LIB_SUFFIX}")
-#        endif()
-#        if(FREEBSD)
-#          # FreeBSD uses ${PREFIX}/libdata/pkgconfig
-#          install(FILES ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/njlic.pc DESTINATION "libdata/pkgconfig")
-#        else()
-#          install(FILES ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/njlic.pc
-#            DESTINATION "lib${LIB_SUFFIX}/pkgconfig")
-#        endif()
-#        install(PROGRAMS ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/njlic-config DESTINATION bin)
-#    
-#        if(EMSCRIPTEN)
-#          # file(GLOB_RECURSE EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exe.*)
-#          file(GLOB_RECURSE EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/index.*)
-#          list(REMOVE_DUPLICATES EMSCRIPTEN_BINARY_FILES)
-#          # list(REMOVE_ITEM EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exe.html)
-#          list(REMOVE_ITEM EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/index.html)
-#          install(FILES ${EMSCRIPTEN_BINARY_FILES} DESTINATION bin)
-#          install(FILES "${CMAKEIN_REPO_DIRECTORY}/platform.in/emscripten/executable/favicon-32x32.ico" DESTINATION bin)
-#        endif()
-#    
-#        if (NOT APPLE)
-#          INSTALL(TARGETS ${CMAKE_PROJECT_NAME}-exe 
-#            RUNTIME DESTINATION bin 
-#            BUNDLE DESTINATION bin
-#            )
-#        endif()
-#    
-#        # TODO: what about the .spec file? Is it only needed for RPM creation?
-#        install(FILES "${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/njlic.m4" DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/aclocal")
-#      endif()
-#    endif(NOT ANDROID)
-#    
-#    ##### Uninstall target #####
-#    
-#    if(NOT TARGET uninstall)
-#      configure_file(
-#          "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-#          "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-#          IMMEDIATE @ONLY)
-#    
-#      add_custom_target(uninstall
-#          COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
-#    endif()
+#                    ##### Installation targets #####
+#                    install(TARGETS ${_INSTALL_LIBS} EXPORT ${CMAKE_PROJECT_NAME}Targets
+#                      LIBRARY DESTINATION "lib${LIB_SUFFIX}"
+#                      ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
+#                      RUNTIME DESTINATION bin)
+#                    
+#                    ##### Export files #####
+#                    if (APPLE)
+#                      set(PKG_PREFIX "${CMAKE_PROJECT_NAME}.framework/Resources")
+#                    elseif (WINDOWS)
+#                      set(PKG_PREFIX "cmake")
+#                    else ()
+#                      set(PKG_PREFIX "lib/cmake/${CMAKE_PROJECT_NAME}")
+#                    endif ()
+#                    
+#                    if(NOT ANDROID)
+#                      include(CMakePackageConfigHelpers)
+#                      write_basic_package_version_file("${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake"
+#                        VERSION ${${CMAKE_PROJECT_NAME}_VERSION}
+#                        COMPATIBILITY AnyNewerVersion
+#                      )
+#                    
+#                      install(EXPORT ${CMAKE_PROJECT_NAME}Targets
+#                        FILE ${CMAKE_PROJECT_NAME}Targets.cmake
+#                        NAMESPACE ${CMAKE_PROJECT_NAME}::
+#                        DESTINATION ${PKG_PREFIX}
+#                      )
+#                      install(
+#                        FILES
+#                        ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_PROJECT_NAME}Config.cmake
+#                        ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
+#                        DESTINATION ${PKG_PREFIX}
+#                        COMPONENT Devel
+#                      )
+#                    
+#                      file(GLOB INCLUDE_FILES ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/include/*.h)
+#                      file(GLOB BIN_INCLUDE_FILES ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/include/*.h)
+#                      foreach(_FNAME ${BIN_INCLUDE_FILES})
+#                        get_filename_component(_INCNAME ${_FNAME} NAME)
+#                        list(REMOVE_ITEM INCLUDE_FILES ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/include/${_INCNAME})
+#                      endforeach()
+#                      list(APPEND INCLUDE_FILES ${BIN_INCLUDE_FILES})
+#                      install(FILES ${INCLUDE_FILES} DESTINATION include/${CMAKE_PROJECT_NAME})
+#                    
+#                      if(NOT (WINDOWS OR CYGWIN))
+#                        if(${CMAKE_PROJECT_NAME}_SHARED)
+#                          if (APPLE)
+#                              set(SOEXT "dylib")
+#                          else()
+#                              set(SOEXT "so")
+#                          endif()
+#                          install(CODE "
+#                            execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+#                              \"lib${CMAKE_PROJECT_NAME}-1.0.${SOEXT}\" \"lib${CMAKE_PROJECT_NAME}.${SOEXT}\")")
+#                          install(FILES ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/lib${CMAKE_PROJECT_NAME}.${SOEXT} DESTINATION "lib${LIB_SUFFIX}")
+#                        endif()
+#                        if(FREEBSD)
+#                          # FreeBSD uses ${PREFIX}/libdata/pkgconfig
+#                          install(FILES ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/njlic.pc DESTINATION "libdata/pkgconfig")
+#                        else()
+#                          install(FILES ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/njlic.pc
+#                            DESTINATION "lib${LIB_SUFFIX}/pkgconfig")
+#                        endif()
+#                        install(PROGRAMS ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/njlic-config DESTINATION bin)
+#                    
+#                        if(EMSCRIPTEN)
+#                          # file(GLOB_RECURSE EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exe.*)
+#                          file(GLOB_RECURSE EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/index.*)
+#                          list(REMOVE_DUPLICATES EMSCRIPTEN_BINARY_FILES)
+#                          # list(REMOVE_ITEM EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exe.html)
+#                          list(REMOVE_ITEM EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/index.html)
+#                          install(FILES ${EMSCRIPTEN_BINARY_FILES} DESTINATION bin)
+#                          install(FILES "${CMAKEIN_REPO_DIRECTORY}/platform.in/emscripten/executable/favicon-32x32.ico" DESTINATION bin)
+#                        endif()
+#                    
+#                        if (NOT APPLE)
+#                          INSTALL(TARGETS ${CMAKE_PROJECT_NAME}-exe 
+#                            RUNTIME DESTINATION bin 
+#                            BUNDLE DESTINATION bin
+#                            )
+#                        endif()
+#                    
+#                        # TODO: what about the .spec file? Is it only needed for RPM creation?
+#                        install(FILES "${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/njlic.m4" DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/aclocal")
+#                      endif()
+#                    endif(NOT ANDROID)
+#                    
+#                    ##### Uninstall target #####
+#                    
+#                    if(NOT TARGET uninstall)
+#                      configure_file(
+#                          "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+#                          "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+#                          IMMEDIATE @ONLY)
+#                    
+#                      add_custom_target(uninstall
+#                          COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+#                    endif()
