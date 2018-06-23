@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PLATFORM=$1
-BOT=$1
+BOT=$2
 PRE=""
 INSTALL_PREFIX=install
 
