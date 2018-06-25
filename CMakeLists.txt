@@ -1557,7 +1557,7 @@ elseif(APPLE)
 
       # Set iPhoneSimulator architectures
       set(CMAKE_XCODE_ATTRIBUTE_ARCHS[sdk=appletvsimulator*] "${IOS_IPHONESIMULATOR_ARCHS}")
-      set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS[sdk=appletvsimulator*] "${IOS_IPHONESIMULATOR_ARCHS}"
+      set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS[sdk=appletvsimulator*] "${IOS_IPHONESIMULATOR_ARCHS}")
 
       list(APPEND EXTRA_LIBS "-framework OpenGLES")
       list(APPEND EXTRA_LIBS "-framework UIKit")

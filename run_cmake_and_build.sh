@@ -86,7 +86,7 @@ else
   cmake -E env CFLAGS='-O0 -g' cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
 fi
 
-cmake --build . --config Release # --target install
+# cmake --build . --config Release # --target install
 
 if [ "${PLATFORM}" == "emscripten" ]
 then
@@ -95,7 +95,7 @@ then
   -DEXECUTABLE_GITHUB_ACCOUNT:STRING=${EXECUTABLE_GITHUB_ACCOUNT} \
   -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -G "Ninja"
 
-  cmake --build . --config Release # --target install
+  # cmake --build . --config Release # --target install
 elif [ "${PLATFORM}" == "facebook" ]
 then
   emcmake cmake .. -DEXECUTABLE_NAME:STRING=${EXECUTABLE_NAME} \

@@ -22,7 +22,11 @@ android {
         externalNativeBuild {
             cmake {
                 //cppFlags "-std=c++11 -frtti -fexceptions"
-                arguments "-DANDROID=TRUE", "-DVR=TRUE"
+                arguments "-DANDROID=TRUE",
+                        "-DVR=TRUE",
+                        "-DEXECUTABLE_NAME:STRING=PLACEHOLDER",
+                        "-DEXECUTABLE_GITHUB_REPOSITORY:STRING=njligames-njlic_engine",
+                        "-DEXECUTABLE_GITHUB_ACCOUNT:STRING=njligames"
             }
         }
 	ndk {
