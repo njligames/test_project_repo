@@ -243,7 +243,7 @@ endif()
 
 if(USE_GCC OR USE_CLANG)
   set(OPT_DEF_GCC_ATOMICS ON)
-  set(CMAKE_CXX_FLAGS "-std=gnu++11 -fno-exceptions")
+  set(CMAKE_CXX_FLAGS "-std=gnu++11 -fno-exceptions -stdlib=libc++ -x c++")
 endif()
 
 # Default flags, if not set otherwise
@@ -746,6 +746,8 @@ if(ASSEMBLY)
 #  endif()
 endif()
 
+CHECK_INCLUDE_FILE("stdint.h"    CMAKE_HAVE_STDINT_H)
+
 # TODO: Can't deactivate on FreeBSD? w/o LIBC, SDL_stdinc.h can't define
 # anything.
 if(LIBC)
@@ -774,6 +776,7 @@ if(LIBC)
     add_definitions(-D_USE_MATH_DEFINES)
     set(STDC_HEADERS 1)
   else()
+
     set(HAVE_LIBC TRUE)
     check_include_file(sys/types.h HAVE_SYS_TYPES_H)
     foreach(_HEADER
@@ -975,6 +978,16 @@ if(ANDROID)
     find_library(ANDROID_LIBRARY_LIBRARY android)
     list(APPEND EXTRA_LIBS ${ANDROID_DL_LIBRARY} ${ANDROID_LOG_LIBRARY} ${ANDROID_LIBRARY_LIBRARY})
     add_definitions(-DGL_GLEXT_PROTOTYPES)
+
+    # FIND_LIBRARY(log-lib log)
+    # FIND_LIBRARY(dl-lib dl)
+    # FIND_LIBRARY(GLESv2-lib GLESv2)
+    FIND_LIBRARY(ANDROID_M_LIBRARY m)
+    FIND_LIBRARY(ANDROID_C_LIBRARY c)
+    FIND_LIBRARY(ANDROID_STDCPP_LIBRARY stdc++)
+    # FIND_LIBRARY(android-lib android)
+    FIND_LIBRARY(ANDROID_OPENSLES_LIBRARY OpenSLES)
+    list(APPEND EXTRA_LIBS ${ANDROID_M_LIBRARY} ${ANDROID_C_LIBRARY} ${ANDROID_STDCPP_LIBRARY} ${ANDROID_OPENSLES_LIBRARY})
 
     #enable gles
     if(VIDEO_OPENGLES)
@@ -2084,6 +2097,11 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
     include_directories(${SDL_LOCATION}/SDL2/include)
 
     add_library( main SHARED ${SDL_LOCATION}/SDL2/src/main/android/SDL_android_main.c ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES})
+    target_include_directories(main
+      PUBLIC $<INSTALL_INTERFACE:include>
+      PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRECTORES}>
+      PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_PROJECT_INCLUDE_DIRECTORES}>
+      )
     target_link_libraries( main SDL2 ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
     foreach(EXTRA_DEBUG_LIB ${EXTRA_DEBUG_LIBS})
       target_link_libraries( main debug ${EXTRA_DEBUG_LIB})

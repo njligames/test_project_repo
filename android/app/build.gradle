@@ -25,8 +25,9 @@ android {
                 arguments "-DANDROID=TRUE",
                         "-DVR=TRUE",
                         "-DEXECUTABLE_NAME:STRING=PLACEHOLDER",
-                        "-DEXECUTABLE_GITHUB_REPOSITORY:STRING=njligames-njlic_engine",
-                        "-DEXECUTABLE_GITHUB_ACCOUNT:STRING=njligames"
+                        "-DEXECUTABLE_GITHUB_REPOSITORY=njligames-njlic_engine",
+                        "-DEXECUTABLE_GITHUB_ACCOUNT=njligames",
+                        "-DCMAKE_VERBOSE_MAKEFILE=ON"
             }
         }
 	ndk {
