@@ -10,7 +10,7 @@ endif()
 cmake_minimum_required( VERSION 3.5.1 )
 project(NJLIC)
 
-set(CMAKE_PREFIX_PATH "build" CACHE STRING "The build directory")
+# set(CMAKE_PREFIX_PATH "build" CACHE STRING "The build directory")
 
 # include(ExternalProject)
 # set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
@@ -57,7 +57,7 @@ if(VR)
   add_definitions(-DVR)
 endif()
 
-set(CMAKE_MODULE_PATH "${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake")
 
 include(${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake/macros.cmake)
 include(${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake/sdlchecks.cmake)
@@ -67,8 +67,9 @@ include(${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake/print-targets.cmake)
 set(EXECUTABLE_NAME "PLACEHOLDER" CACHE STRING "The name of the executable")
 set(EXECUTABLE_GITHUB_REPOSITORY "test_engine_repo" CACHE STRING "The repository to use from the ")
 set(EXECUTABLE_GITHUB_ACCOUNT "njligames" CACHE STRING "The repository to use from the ")
+SET(EXECUTABLE_GITHUB_BRANCH "master" CACHE STRING "The repository to use")
 
-set(${CMAKE_PROJECT_NAME}_REPO_URL "https://github.com/${EXECUTABLE_GITHUB_ACCOUNT}/${EXECUTABLE_GITHUB_REPOSITORY}/archive/master.tar.gz")
+set(${CMAKE_PROJECT_NAME}_REPO_URL "https://github.com/${EXECUTABLE_GITHUB_ACCOUNT}/${EXECUTABLE_GITHUB_REPOSITORY}/archive/${EXECUTABLE_GITHUB_BRANCH}.tar.gz")
 set(${CMAKE_PROJECT_NAME}_REPO_DIR "${EXECUTABLE_GITHUB_REPOSITORY}")
 RETRIEVE_TAR(
 	"${${CMAKE_PROJECT_NAME}_REPO_URL}"
@@ -76,6 +77,9 @@ RETRIEVE_TAR(
 	"SKIP"
 )
 set(${CMAKE_PROJECT_NAME}_REPO_DIRECTORY "${CMAKE_BINARY_DIR}/${${CMAKE_PROJECT_NAME}_REPO_DIR}")
+
+set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH} ${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake")
 
 set(CMAKEIN_REPO_URL "https://github.com/njligames/cmake.in/archive/master.tar.gz")
 set(CMAKEIN_REPO_DIR "cmake.in")
@@ -267,19 +271,23 @@ if(MSVC)
   option(FORCE_STATIC_VCRT "Force /MT for static VC runtimes" OFF)
   if(FORCE_STATIC_VCRT)
     foreach(flag_var
-        CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
-        CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO)
+        CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
+        CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO
+        )
       if(${flag_var} MATCHES "/MD")
         string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
       endif()
+      MESSAGE(STATUS "flag_var ${flag_var} ${${flag_var}}")
     endforeach()
   endif()
 
   # Make sure /RTC1 is disabled, otherwise it will use functions from the CRT
   foreach(flag_var
-      CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
-      CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO)
+      CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
+      CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO
+      )
     string(REGEX REPLACE "/RTC(su|[1su])" "" ${flag_var} "${${flag_var}}")
+    MESSAGE(STATUS "flag_var ${flag_var} ${${flag_var}}")
   endforeach(flag_var)
 endif()
 
@@ -296,7 +304,7 @@ set(ORIG_CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS})
 
 if(CYGWIN)
   # We build ${CMAKE_PROJECT_NAME} on cygwin without the UNIX emulation layer
-  include_directories("-I/usr/include/mingw")
+  list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS /usr/include/mingw)
   set(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} -mno-cygwin")
   check_c_source_compiles("int main(int argc, char **argv) {}"
     HAVE_GCC_NO_CYGWIN)
@@ -1175,14 +1183,14 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID)
       pkg_search_module(DBUS dbus-1 dbus)
       if(DBUS_FOUND)
         set(HAVE_DBUS_DBUS_H TRUE)
-        include_directories(${DBUS_INCLUDE_DIRS})
+        list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${DBUS_INCLUDE_DIRS})
         list(APPEND EXTRA_LIBS ${DBUS_LIBRARIES})
       endif()
 
       pkg_search_module(IBUS ibus-1.0 ibus)
       if(IBUS_FOUND)
         set(HAVE_IBUS_IBUS_H TRUE)
-        include_directories(${IBUS_INCLUDE_DIRS})
+        list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${IBUS_INCLUDE_DIRS})
         list(APPEND EXTRA_LIBS ${IBUS_LIBRARIES})
       endif()
     endif()
@@ -1345,7 +1353,7 @@ elseif(WINDOWS)
       if(NOT CMAKE_COMPILER_IS_MINGW AND NOT USE_WINSDK_DIRECTX)
       # TODO: change $ENV{DXSDL_DIR} to get the path from the include checks
         link_directories($ENV{DXSDK_DIR}\\lib\\${PROCESSOR_ARCH})
-        include_directories($ENV{DXSDK_DIR}\\Include)
+        list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS $ENV{DXSDK_DIR}\\Include)
       endif()
     endif()
     set(CMAKE_REQUIRED_FLAGS ${ORIG_CMAKE_REQUIRED_FLAGS})
@@ -1808,7 +1816,8 @@ configure_file("${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/SDL_config.h.cmake"
 include("${CMAKE_SOURCE_DIR}/cmake/external_libraries.cmake")
 include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/external_libraries.cmake")
 
-list(REMOVE_DUPLICATES ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRECTORES)
+list(REMOVE_DUPLICATES ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS)
+MESSAGE(STATUS "${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS}")
 
 # Prepare the flags and remove duplicates
 if(EXTRA_LDFLAGS)
@@ -2094,18 +2103,16 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
     add_library( SDL2 SHARED IMPORTED )
     set_target_properties(SDL2 PROPERTIES IMPORTED_LOCATION ${DISTRIBUTION_DIR}/${ANDROID_BUILD_DIR}/obj/local/${ANDROID_ABI}/libSDL2.so)
 
-    include_directories(${SDL_LOCATION}/SDL2/include)
+    list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${SDL_LOCATION}/SDL2/include)
 
     add_library( main SHARED ${SDL_LOCATION}/SDL2/src/main/android/SDL_android_main.c ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES})
     target_include_directories(main
-      PUBLIC $<INSTALL_INTERFACE:include>
-      PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRECTORES}>
+      PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS}>
       PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_PROJECT_INCLUDE_DIRECTORES}>
       )
-    target_link_libraries( main SDL2 ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
-    foreach(EXTRA_DEBUG_LIB ${EXTRA_DEBUG_LIBS})
-      target_link_libraries( main debug ${EXTRA_DEBUG_LIB})
-    endforeach()
+
+    list(APPEND EXTRA_LIBS SDL2)
+    target_link_libraries(main ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
 
     foreach(dir hdpi ldpi mdpi xhdpi xxhdpi xxxhdpi)
       add_custom_command(TARGET main POST_BUILD
@@ -2152,14 +2159,12 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
     endif()
     set(_INSTALL_LIBS "${CMAKE_PROJECT_NAME}" ${_INSTALL_LIBS})
     target_include_directories(${CMAKE_PROJECT_NAME}
-      PUBLIC $<INSTALL_INTERFACE:include>
-      PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRECTORES}>
+      PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS}>
       PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_PROJECT_INCLUDE_DIRECTORES}>
       )
+
     target_link_libraries(${CMAKE_PROJECT_NAME} ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
-    foreach(EXTRA_DEBUG_LIB ${EXTRA_DEBUG_LIBS})
-      target_link_libraries( ${CMAKE_PROJECT_NAME} debug ${EXTRA_DEBUG_LIB})
-    endforeach()
+
   endif()
 endif(${CMAKE_PROJECT_NAME}_SHARED)
 
@@ -2194,14 +2199,12 @@ if(${CMAKE_PROJECT_NAME}_STATIC)
   # libraries - do we need to consider this?
   set(_INSTALL_LIBS "${CMAKE_PROJECT_NAME}-static" ${_INSTALL_LIBS})
   target_include_directories(${CMAKE_PROJECT_NAME}-static 
-    PUBLIC $<INSTALL_INTERFACE:include>
-    PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRECTORES}>
+    PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS}>
     PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_PROJECT_INCLUDE_DIRECTORES}>
     )
+
   target_link_libraries(${CMAKE_PROJECT_NAME}-static ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
-  foreach(EXTRA_DEBUG_LIB ${EXTRA_DEBUG_LIBS})
-    target_link_libraries( ${CMAKE_PROJECT_NAME}-static debug ${EXTRA_DEBUG_LIB})
-  endforeach()
+
 endif(${CMAKE_PROJECT_NAME}_STATIC)
 
 include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/targets.cmake")
@@ -2333,7 +2336,8 @@ if(${CMAKE_PROJECT_NAME}_EXE)
     add_custom_command(TARGET ${CMAKE_PROJECT_NAME}-exe POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy
       ${SDL_DYNAMIC_IMPORT_LOCATION}
-      $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}-exe>)
+      $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}-exe>
+      )
 
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exe.Cpp.user.props" [=[
 <?xml version="1.0" encoding="utf-8"?>
@@ -2355,13 +2359,11 @@ if(${CMAKE_PROJECT_NAME}_EXE)
     # set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
   endif()
   target_include_directories(${CMAKE_PROJECT_NAME}-exe
-    PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRECTORES}>
+    PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS}>
     PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_PROJECT_INCLUDE_DIRECTORES}>
     )
+
   target_link_libraries(${CMAKE_PROJECT_NAME}-exe ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
-  foreach(EXTRA_DEBUG_LIB ${EXTRA_DEBUG_LIBS})
-    target_link_libraries( ${CMAKE_PROJECT_NAME}-exe debug ${EXTRA_DEBUG_LIB})
-  endforeach()
   
 endif(${CMAKE_PROJECT_NAME}_EXE)
 
