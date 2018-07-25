@@ -481,6 +481,8 @@ set(${CMAKE_PROJECT_NAME}_EXE ${${CMAKE_PROJECT_NAME}_EXE_ENABLED_BY_DEFAULT} CA
 
 dep_option(${CMAKE_PROJECT_NAME}_STATIC_PIC      "Static version of the library should be built with Position Independent Code" OFF "${CMAKE_PROJECT_NAME}_STATIC" OFF)
 
+include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/macros.cmake")
+include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/external_libraries.cmake")
 include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/sources.cmake")
 
 # foreach(_SOURCE_FILE ${SOURCE_FILES})
@@ -1814,7 +1816,6 @@ configure_file("${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/SDL_config.h.cmake"
 
 # set( EXTRA_DEBUG_LIBS "" )
 include("${CMAKE_SOURCE_DIR}/cmake/external_libraries.cmake")
-include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/external_libraries.cmake")
 
 list(REMOVE_DUPLICATES ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS)
 MESSAGE(STATUS "${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS}")
