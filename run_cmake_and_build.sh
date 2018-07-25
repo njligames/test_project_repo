@@ -90,6 +90,19 @@ then
     -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
     -G "Xcode"
 
+elif [ "${PLATFORM}" == "linux" ]
+then
+  export CC=/usr/bin/cc
+  export CXX=/usr/bin/c++
+
+  cmake .. \
+    -DEXECUTABLE_NAME:STRING=${EXECUTABLE_NAME} \
+    -DEXECUTABLE_GITHUB_REPOSITORY:STRING=${EXECUTABLE_GITHUB_REPOSITORY} \
+    -DEXECUTABLE_GITHUB_BRANCH:STRING=${EXECUTABLE_GITHUB_BRANCH} \
+    -DEXECUTABLE_GITHUB_ACCOUNT:STRING=${EXECUTABLE_GITHUB_ACCOUNT} \
+    -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
+    -G "Unix Makefiles"
+
 elif [ "${PLATFORM}" == "ios" ]
 then
 
@@ -175,7 +188,7 @@ else
   cmake -E env CFLAGS='-O0 -g' cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
 fi
 
-# cmake --build . --config Release # --target install
+cmake --build . --config Release # --target install
 
 if [ "${PLATFORM}" == "emscripten" ]
 then
