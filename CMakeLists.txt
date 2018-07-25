@@ -247,7 +247,7 @@ endif()
 
 if(USE_GCC OR USE_CLANG)
   set(OPT_DEF_GCC_ATOMICS ON)
-  set(CMAKE_CXX_FLAGS "-std=gnu++11 -fno-exceptions -stdlib=libc++ -x c++")
+  set(CMAKE_CXX_FLAGS "-std=c++11 -fno-exceptions")
 endif()
 
 # Default flags, if not set otherwise
@@ -2128,7 +2128,7 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
       "${CMAKE_SOURCE_DIR}/android/app/.externalNativeBuild/cmake/${ANDROID_BUILD_DIR}/${ANDROID_ABI}/cmake.in/platform.in/android/res/values")
 
 
-  else()
+  elseif(NOT LINUX)
     LIST(REMOVE_ITEM SOURCE_FILES ${MAIN_FILES})
 
     add_library(${CMAKE_PROJECT_NAME} SHARED ${SOURCE_FILES} ${VERSION_SOURCES} ${INCLUDE_FILES})
