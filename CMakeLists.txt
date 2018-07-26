@@ -2331,6 +2331,14 @@ if(${CMAKE_PROJECT_NAME}_EXE)
   elseif(UNIX AND NOT ANDROID)
   else()
   endif()
+
+  if(LINUX)
+    add_custom_command(TARGET ${CMAKE_PROJECT_NAME}-exe POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_directory
+      ${RESOURCE_FILES} $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}-exe>/assets
+      )
+  endif()
+
   if(MSVC AND NOT LIBC)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${CMAKE_PROJECT_NAME}-exe)
 
