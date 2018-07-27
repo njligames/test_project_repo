@@ -32,8 +32,8 @@ then
   export CC=/usr/bin/cc
   export CXX=/usr/bin/c++
 
-  # export EMSCRIPTEN_VERSION=1.37.9
-  export EMSCRIPTEN_VERSION=1.38.10
+  export EMSCRIPTEN_VERSION=1.37.9
+  # export EMSCRIPTEN_VERSION=1.38.10
   export EMSCRIPTEN_LOCATION=/Users/jamesfolk/Work/tools/emsdk/emscripten/${EMSCRIPTEN_VERSION}
   export EMSCRIPTEN_INCLUDE_LOCATION=${EMSCRIPTEN_LOCATION}/system/include
 
