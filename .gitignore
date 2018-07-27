@@ -10,3 +10,7 @@ android/app/.externalNativeBuild/
 android/distribution/
 android/.gradle/
 android/.idea/
+bot_appletv/
+bot_emscripten/
+bot_ios/
+bot_macOS/
