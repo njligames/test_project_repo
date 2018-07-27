@@ -1,3 +1,15 @@
+OPTION(THIRDPARTY_SDL2_ENABLED "Use SDL2 library" ON)
+mark_as_advanced(${THIRDPARTY_SDL2_ENABLED})
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+
+# IF(THIRDPARTY_SDL2_ENABLED)
+#   add_definitions(-DUSE_SDL2_LIBRARY)
+#   include("${CMAKE_SOURCE_DIR}/cmake/DownloadSDL2.cmake")
+#   find_package(SDL2_NJLIC REQUIRED)
+#   list(APPEND EXTRA_LIBS ${SDL2_TARGETS})
+# endif()
+
 if(EMSCRIPTEN)
   include("cmake/emscripten_external_libraries.cmake")
   add_definitions(-D__EMSCRIPTEN__)
@@ -52,5 +64,4 @@ elseif(ANDROID)
   include("cmake/android_external_libraries.cmake")
   add_definitions(-D__ANDROID__)
 endif()
-
 

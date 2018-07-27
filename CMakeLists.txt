@@ -6,9 +6,11 @@ if(IOS AND TVOS)
   message(FATAL_ERROR "Cannot have both IOS and TVOS enabled.")
 endif()
 
+# cmake_minimum_required( VERSION 3.11 )
 cmake_minimum_required( VERSION 3.5.1 )
+project(NJLIC)
 
-project(NJLIC C CXX)
+# set(CMAKE_PREFIX_PATH "build" CACHE STRING "The build directory")
 
 # include(ExternalProject)
 # set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
@@ -28,6 +30,15 @@ project(NJLIC C CXX)
 # !!! FIXME:  properly resolved.
 #cmake_policy(SET CMP0042 OLD)
 
+# SET(CMAKE_INCLUDES_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}_OUTPUT)
+# SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}_OUTPUT)
+# SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}_OUTPUT)
+# SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}_OUTPUT)
+# SET(CMAKE_BUNDLE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}_OUTPUT)
+# SET(CMAKE_PRIVATE_HEADER_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}_OUTPUT)
+# SET(CMAKE_PUBLIC_HEADER_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}_OUTPUT)
+# SET(CMAKE_RESOURCE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}_OUTPUT)
+
 include(CheckFunctionExists)
 include(CheckLibraryExists)
 include(CheckIncludeFiles)
@@ -46,7 +57,7 @@ if(VR)
   add_definitions(-DVR)
 endif()
 
-set(CMAKE_MODULE_PATH "${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake")
 
 include(${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake/macros.cmake)
 include(${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake/sdlchecks.cmake)
@@ -56,8 +67,9 @@ include(${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake/print-targets.cmake)
 set(EXECUTABLE_NAME "PLACEHOLDER" CACHE STRING "The name of the executable")
 set(EXECUTABLE_GITHUB_REPOSITORY "test_engine_repo" CACHE STRING "The repository to use from the ")
 set(EXECUTABLE_GITHUB_ACCOUNT "njligames" CACHE STRING "The repository to use from the ")
+SET(EXECUTABLE_GITHUB_BRANCH "master" CACHE STRING "The repository to use")
 
-set(${CMAKE_PROJECT_NAME}_REPO_URL "https://github.com/${EXECUTABLE_GITHUB_ACCOUNT}/${EXECUTABLE_GITHUB_REPOSITORY}/archive/master.tar.gz")
+set(${CMAKE_PROJECT_NAME}_REPO_URL "https://github.com/${EXECUTABLE_GITHUB_ACCOUNT}/${EXECUTABLE_GITHUB_REPOSITORY}/archive/${EXECUTABLE_GITHUB_BRANCH}.tar.gz")
 set(${CMAKE_PROJECT_NAME}_REPO_DIR "${EXECUTABLE_GITHUB_REPOSITORY}")
 RETRIEVE_TAR(
 	"${${CMAKE_PROJECT_NAME}_REPO_URL}"
@@ -65,6 +77,9 @@ RETRIEVE_TAR(
 	"SKIP"
 )
 set(${CMAKE_PROJECT_NAME}_REPO_DIRECTORY "${CMAKE_BINARY_DIR}/${${CMAKE_PROJECT_NAME}_REPO_DIR}")
+
+set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH} ${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake")
 
 set(CMAKEIN_REPO_URL "https://github.com/njligames/cmake.in/archive/master.tar.gz")
 set(CMAKEIN_REPO_DIR "cmake.in")
@@ -74,6 +89,16 @@ RETRIEVE_TAR(
 	"SKIP"
 )
 set(CMAKEIN_REPO_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKEIN_REPO_DIR}")
+
+
+set(GAMEPROJECT_REPO_URL "https://github.com/njligames/gameproject/archive/master.tar.gz")
+set(GAMEPROJECT_REPO_DIR "gameproject")
+RETRIEVE_TAR(
+	"${GAMEPROJECT_REPO_URL}"
+	"${GAMEPROJECT_REPO_DIR}"
+	"SKIP"
+)
+set(GAMEPROJECT_REPO_DIRECTORY "${CMAKE_BINARY_DIR}/${GAMEPROJECT_REPO_DIR}")
 
 # General settings
 # Edit include/SDL_version.h and change the version, then:
@@ -89,6 +114,10 @@ set(${CMAKE_PROJECT_NAME}_MICRO_VERSION 1)
 set(${CMAKE_PROJECT_NAME}_INTERFACE_AGE 0)
 set(${CMAKE_PROJECT_NAME}_BINARY_AGE 0)
 set(${CMAKE_PROJECT_NAME}_VERSION "${${CMAKE_PROJECT_NAME}_MAJOR_VERSION}.${${CMAKE_PROJECT_NAME}_MINOR_VERSION}.${${CMAKE_PROJECT_NAME}_MICRO_VERSION}")
+
+add_definitions(-D${CMAKE_PROJECT_NAME}_MAJOR_VERSION=\"${${CMAKE_PROJECT_NAME}_MAJOR_VERSION}\")
+add_definitions(-D${CMAKE_PROJECT_NAME}_MINOR_VERSION=\"${${CMAKE_PROJECT_NAME}_MINOR_VERSION}\")
+add_definitions(-D${CMAKE_PROJECT_NAME}_MICRO_VERSION=\"${${CMAKE_PROJECT_NAME}_MICRO_VERSION}\")
 
 if(NOT ANDROID)
   # Set defaults preventing destination file conflicts
@@ -218,7 +247,7 @@ endif()
 
 if(USE_GCC OR USE_CLANG)
   set(OPT_DEF_GCC_ATOMICS ON)
-  set(CMAKE_CXX_FLAGS "-std=c++11 -fno-rtti -fno-exceptions")
+  set(CMAKE_CXX_FLAGS "-std=c++11 -fno-exceptions")
 endif()
 
 # Default flags, if not set otherwise
@@ -232,28 +261,33 @@ else()
   set(CMAKE_C_FLAGS "$ENV{CFLAGS}")
   list(APPEND EXTRA_CFLAGS "$ENV{CFLAGS}")
 endif()
+# list(APPEND EXTRA_CFLAGS "-pedantic")
 
 if(NOT ("$ENV{CFLAGS}" STREQUAL "")) # Hackish, but does the trick on Win32
   list(APPEND EXTRA_LDFLAGS "$ENV{LDFLAGS}")
 endif()
 
 if(MSVC)
-  option(FORCE_STATIC_VCRT "Force /MT for static VC runtimes" OFF)
+  option(FORCE_STATIC_VCRT "Force /MT for static VC runtimes" ON)
   if(FORCE_STATIC_VCRT)
     foreach(flag_var
-        CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
-        CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO)
+        CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
+        CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO
+        )
       if(${flag_var} MATCHES "/MD")
         string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
       endif()
+      MESSAGE(STATUS "flag_var ${flag_var} ${${flag_var}}")
     endforeach()
   endif()
 
   # Make sure /RTC1 is disabled, otherwise it will use functions from the CRT
   foreach(flag_var
-      CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
-      CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO)
+      CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
+      CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO
+      )
     string(REGEX REPLACE "/RTC(su|[1su])" "" ${flag_var} "${${flag_var}}")
+    MESSAGE(STATUS "flag_var ${flag_var} ${${flag_var}}")
   endforeach(flag_var)
 endif()
 
@@ -270,7 +304,7 @@ set(ORIG_CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS})
 
 if(CYGWIN)
   # We build ${CMAKE_PROJECT_NAME} on cygwin without the UNIX emulation layer
-  include_directories("-I/usr/include/mingw")
+  list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS /usr/include/mingw)
   set(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} -mno-cygwin")
   check_c_source_compiles("int main(int argc, char **argv) {}"
     HAVE_GCC_NO_CYGWIN)
@@ -282,7 +316,7 @@ if(CYGWIN)
   set(${CMAKE_PROJECT_NAME}_CFLAGS "${${CMAKE_PROJECT_NAME}_CFLAGS} -I/usr/include/mingw")
 endif()
 
-#add_definitions(-DUSING_GENERATED_CONFIG_H)
+# add_definitions(-DUSING_GENERATED_CONFIG_H)
 if(USE_GCC OR USE_CLANG)
   # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -idirafter ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/src/video/khronos")
 else()
@@ -447,7 +481,18 @@ set(${CMAKE_PROJECT_NAME}_EXE ${${CMAKE_PROJECT_NAME}_EXE_ENABLED_BY_DEFAULT} CA
 
 dep_option(${CMAKE_PROJECT_NAME}_STATIC_PIC      "Static version of the library should be built with Position Independent Code" OFF "${CMAKE_PROJECT_NAME}_STATIC" OFF)
 
+include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/macros.cmake")
+include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/external_libraries.cmake")
 include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/sources.cmake")
+
+# foreach(_SOURCE_FILE ${SOURCE_FILES})
+#   MESSAGE(STATUS "_SOURCE_FILE ${_SOURCE_FILE}")
+# endforeach()
+
+# get_property(_INCLUDE_DIRECTORIES DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
+# foreach(_INCLUDE_DIRECTORY ${_INCLUDE_DIRECTORIES})
+#   MESSAGE(STATUS "_INCLUDE_DIRECTORY ${_INCLUDE_DIRECTORY}")
+# endforeach()
 
 if(ASSERTIONS STREQUAL "auto")
   # Do nada - use optimization settings to determine the assertion level
@@ -531,7 +576,7 @@ if(USE_GCC OR USE_CLANG)
   endif()
 
   if(APPLE)
-    list(APPEND EXTRA_LDFLAGS "-Wl,-undefined,error")
+    set (CMAKE_PLATFORM_HAS_INSTALLNAME 1)
   else()
     set(CMAKE_REQUIRED_FLAGS "-Wl,--no-undefined")
     check_c_compiler_flag("" HAVE_NO_UNDEFINED)
@@ -711,6 +756,8 @@ if(ASSEMBLY)
 #  endif()
 endif()
 
+CHECK_INCLUDE_FILE("stdint.h"    CMAKE_HAVE_STDINT_H)
+
 # TODO: Can't deactivate on FreeBSD? w/o LIBC, SDL_stdinc.h can't define
 # anything.
 if(LIBC)
@@ -736,9 +783,10 @@ if(LIBC)
       set(HAVE_ALLOCA 1)
     endif()
     set(HAVE_M_PI 1)
-    add_definitions(-D_USE_MATH_DEFINES) # needed for M_PI
+    add_definitions(-D_USE_MATH_DEFINES)
     set(STDC_HEADERS 1)
   else()
+
     set(HAVE_LIBC TRUE)
     check_include_file(sys/types.h HAVE_SYS_TYPES_H)
     foreach(_HEADER
@@ -941,6 +989,16 @@ if(ANDROID)
     list(APPEND EXTRA_LIBS ${ANDROID_DL_LIBRARY} ${ANDROID_LOG_LIBRARY} ${ANDROID_LIBRARY_LIBRARY})
     add_definitions(-DGL_GLEXT_PROTOTYPES)
 
+    # FIND_LIBRARY(log-lib log)
+    # FIND_LIBRARY(dl-lib dl)
+    # FIND_LIBRARY(GLESv2-lib GLESv2)
+    FIND_LIBRARY(ANDROID_M_LIBRARY m)
+    FIND_LIBRARY(ANDROID_C_LIBRARY c)
+    FIND_LIBRARY(ANDROID_STDCPP_LIBRARY stdc++)
+    # FIND_LIBRARY(android-lib android)
+    FIND_LIBRARY(ANDROID_OPENSLES_LIBRARY OpenSLES)
+    list(APPEND EXTRA_LIBS ${ANDROID_M_LIBRARY} ${ANDROID_C_LIBRARY} ${ANDROID_STDCPP_LIBRARY} ${ANDROID_OPENSLES_LIBRARY})
+
     #enable gles
     if(VIDEO_OPENGLES)
       set(SDL_VIDEO_OPENGL_EGL 1)
@@ -971,6 +1029,8 @@ if(ANDROID)
   CheckPTHREAD()
 
 endif()
+
+include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/resources.cmake")
 
 # Platform-specific options and settings
 if(EMSCRIPTEN)
@@ -1125,14 +1185,14 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID)
       pkg_search_module(DBUS dbus-1 dbus)
       if(DBUS_FOUND)
         set(HAVE_DBUS_DBUS_H TRUE)
-        include_directories(${DBUS_INCLUDE_DIRS})
+        list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${DBUS_INCLUDE_DIRS})
         list(APPEND EXTRA_LIBS ${DBUS_LIBRARIES})
       endif()
 
       pkg_search_module(IBUS ibus-1.0 ibus)
       if(IBUS_FOUND)
         set(HAVE_IBUS_IBUS_H TRUE)
-        include_directories(${IBUS_INCLUDE_DIRS})
+        list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${IBUS_INCLUDE_DIRS})
         list(APPEND EXTRA_LIBS ${IBUS_LIBRARIES})
       endif()
     endif()
@@ -1230,7 +1290,7 @@ elseif(WINDOWS)
     "${CMAKEIN_REPO_DIRECTORY}/platform.in/windows/resource.rc")
 
   set( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/windows/resource.rc" )
-  set(RESOURCE_FILES ${RESOURCE_FILES} ${ASSET_CATALOGUE})
+  list(APPEND RESOURCE_FILES ${ASSET_CATALOGUE})
 
   find_program(WINDRES windres)
 
@@ -1295,7 +1355,7 @@ elseif(WINDOWS)
       if(NOT CMAKE_COMPILER_IS_MINGW AND NOT USE_WINSDK_DIRECTX)
       # TODO: change $ENV{DXSDL_DIR} to get the path from the include checks
         link_directories($ENV{DXSDK_DIR}\\lib\\${PROCESSOR_ARCH})
-        include_directories($ENV{DXSDK_DIR}\\Include)
+        list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS $ENV{DXSDK_DIR}\\Include)
       endif()
     endif()
     set(CMAKE_REQUIRED_FLAGS ${ORIG_CMAKE_REQUIRED_FLAGS})
@@ -1467,17 +1527,30 @@ elseif(APPLE)
   # !!! FIXME:  how to dump those.
   if(NOT (IOS OR TVOS))
     SET( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/macOS/Assets.xcassets" )
-    set(RESOURCE_FILES ${RESOURCE_FILES} ${ASSET_CATALOGUE})
+    list(APPEND RESOURCE_FILES ${ASSET_CATALOGUE})
     set(SDL_FRAMEWORK_COCOA 1)
     set(SDL_FRAMEWORK_CARBON 1)
   else()
     if(IOS)
       SET( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/ios/Assets.xcassets" )
-      set(RESOURCE_FILES ${RESOURCE_FILES} ${ASSET_CATALOGUE})
+      list(APPEND RESOURCE_FILES ${ASSET_CATALOGUE})
 
       SET( CMAKE_OSX_SYSROOT "iphoneos" )
       SET( CMAKE_XCODE_EFFECTIVE_PLATFORMS "-iphoneos;-iphonesimulator" )
-      SET ( CMAKE_OSX_ARCHITECTURES $(ARCHS_UNIVERSAL_IPHONE_OS) CACHE string "Build architecture for iOS" )
+
+      set(CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "10.0" CACHE STRING "Minimum supported iOS version")
+
+      # https://svn.scolring.org/trunk/dependencies/CMake/toolchain/IOS.toolchain.cmake
+      set(IOS_IPHONEOS_ARCHS "armv7 armv7s arm64" CACHE STRING "Target iPhone architectures")
+      set(IOS_IPHONESIMULATOR_ARCHS "i386 x86_64"  CACHE STRING "Target iPhone simulator architectures")
+      # Set iPhoneOS architectures
+      set(CMAKE_XCODE_ATTRIBUTE_ARCHS[sdk=iphoneos*] "${IOS_IPHONEOS_ARCHS}")
+      set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS[sdk=iphoneos*] "${IOS_IPHONEOS_ARCHS}")
+
+      # Set iPhoneSimulator architectures
+      set(CMAKE_XCODE_ATTRIBUTE_ARCHS[sdk=iphonesimulator*] "${IOS_IPHONESIMULATOR_ARCHS}")
+      set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS[sdk=iphonesimulator*] "${IOS_IPHONESIMULATOR_ARCHS}")
+
 
       list(APPEND EXTRA_LIBS "-framework OpenGLES")
       list(APPEND EXTRA_LIBS "-framework UIKit")
@@ -1494,10 +1567,20 @@ elseif(APPLE)
     
     if(TVOS)
       SET( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/appletv/Assets.xcassets" )
-      set(RESOURCE_FILES ${RESOURCE_FILES} ${ASSET_CATALOGUE})
+      list(APPEND RESOURCE_FILES ${ASSET_CATALOGUE})
       SET( CMAKE_OSX_SYSROOT "appletvos" )
       SET( CMAKE_XCODE_EFFECTIVE_PLATFORMS "-appletvos;-appletvsimulator" )
-      SET ( CMAKE_OSX_ARCHITECTURES $(ARCHS_UNIVERSAL_APPLETV_OS) CACHE string "Build architecture for appletv" )
+
+      # https://svn.scolring.org/trunk/dependencies/CMake/toolchain/IOS.toolchain.cmake
+      set(IOS_IPHONEOS_ARCHS "arm64" CACHE STRING "Target AppleTV architectures")
+      set(IOS_IPHONESIMULATOR_ARCHS "i386 x86_64"  CACHE STRING "Target AppleTV simulator architectures")
+      # Set iPhoneOS architectures
+      set(CMAKE_XCODE_ATTRIBUTE_ARCHS[sdk=appletvos*] "${IOS_IPHONEOS_ARCHS}")
+      set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS[sdk=appletvos*] "${IOS_IPHONEOS_ARCHS}")
+
+      # Set iPhoneSimulator architectures
+      set(CMAKE_XCODE_ATTRIBUTE_ARCHS[sdk=appletvsimulator*] "${IOS_IPHONESIMULATOR_ARCHS}")
+      set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS[sdk=appletvsimulator*] "${IOS_IPHONESIMULATOR_ARCHS}")
 
       list(APPEND EXTRA_LIBS "-framework OpenGLES")
       list(APPEND EXTRA_LIBS "-framework UIKit")
@@ -1731,6 +1814,12 @@ endif()
 configure_file("${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/SDL_config.h.cmake"
   "${${CMAKE_PROJECT_NAME}_BINARY_DIR}/SDL_config.h")
 
+# set( EXTRA_DEBUG_LIBS "" )
+include("${CMAKE_SOURCE_DIR}/cmake/external_libraries.cmake")
+
+list(REMOVE_DUPLICATES ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS)
+MESSAGE(STATUS "${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS}")
+
 # Prepare the flags and remove duplicates
 if(EXTRA_LDFLAGS)
   list(REMOVE_DUPLICATES EXTRA_LDFLAGS)
@@ -1788,8 +1877,6 @@ if(NOT WINDOWS OR CYGWIN)
     "${${CMAKE_PROJECT_NAME}_BINARY_DIR}/${CMAKE_PROJECT_NAME}.spec" @ONLY)
 endif()
 
-include("${CMAKE_SOURCE_DIR}/cmake/external_libraries.cmake")
-include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/external_libraries.cmake")
 
 ##### Info output #####
 message(STATUS "")
@@ -1798,6 +1885,7 @@ message(STATUS "")
 message(STATUS "Platform: ${CMAKE_SYSTEM}")
 message(STATUS "64-bit:   ${ARCH_64}")
 message(STATUS "Compiler: ${CMAKE_C_COMPILER}")
+message(STATUS "Compiler: ${CMAKE_CXX_COMPILER}")
 message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "")
 message(STATUS "Subsystems:")
@@ -1986,8 +2074,17 @@ MESSAGE( STATUS "CMAKE_COMPILER_IS_GNUCXX : " ${CMAKE_COMPILER_IS_GNUCXX} )
 MESSAGE( STATUS "CMAKE_AR: " ${CMAKE_AR} )
 MESSAGE( STATUS "CMAKE_RANLIB: " ${CMAKE_RANLIB} )
 
-get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
-MESSAGE(STATUS "INCLUDE_DIRECTORIES='${dirs}'")
+MESSAGE( STATUS "CMAKE_EXE_LINKER_FLAGS: " ${CMAKE_EXE_LINKER_FLAGS} )
+MESSAGE( STATUS "CMAKE_SHARED_LINKER_FLAGS: " ${CMAKE_SHARED_LINKER_FLAGS} )
+MESSAGE( STATUS "CMAKE_STATIC_LINKER_FLAGS: " ${CMAKE_STATIC_LINKER_FLAGS} )
+
+
+MESSAGE( STATUS "CMAKE_OSX_SYSROOT: " ${CMAKE_OSX_SYSROOT} )
+MESSAGE( STATUS "CMAKE_XCODE_EFFECTIVE_PLATFORMS: " ${CMAKE_XCODE_EFFECTIVE_PLATFORMS} )
+MESSAGE( STATUS "CMAKE_OSX_ARCHITECTURES: " ${CMAKE_OSX_ARCHITECTURES} )
+
+# get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
+# MESSAGE(STATUS "INCLUDE_DIRECTORIES='${dirs}'")
 
 #
 #MESSAGE( STATUS ": " ${} )
@@ -1997,18 +2094,147 @@ MESSAGE(STATUS "INCLUDE_DIRECTORIES='${dirs}'")
 # Ensure that the extra cflags are used at compile time
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS}")
 
-include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/source_groups.cmake")
+# include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/source_groups.cmake")
+
+if(${CMAKE_PROJECT_NAME}_SHARED)
+  if(ANDROID)
+
+    string(TOLOWER ${CMAKE_BUILD_TYPE} ANDROID_BUILD_DIR)
+    set(DISTRIBUTION_DIR ${CMAKE_SOURCE_DIR}/android/distribution/android/SDL2/intermediates/ndkBuild)
+    set(SDL_LOCATION ${CMAKE_SOURCE_DIR}/android/thirdparty/SDL2)
+
+    add_library( SDL2 SHARED IMPORTED )
+    set_target_properties(SDL2 PROPERTIES IMPORTED_LOCATION ${DISTRIBUTION_DIR}/${ANDROID_BUILD_DIR}/obj/local/${ANDROID_ABI}/libSDL2.so)
+
+    list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${SDL_LOCATION}/SDL2/include)
+
+    add_library( main SHARED ${SDL_LOCATION}/SDL2/src/main/android/SDL_android_main.c ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES})
+    target_include_directories(main
+      PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS}>
+      PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_PROJECT_INCLUDE_DIRECTORES}>
+      )
+
+    list(APPEND EXTRA_LIBS SDL2)
+    target_link_libraries(main ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
+
+    foreach(dir hdpi ldpi mdpi xhdpi xxhdpi xxxhdpi)
+      add_custom_command(TARGET main POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/android/app/.externalNativeBuild/cmake/${ANDROID_BUILD_DIR}/${ANDROID_ABI}/cmake.in/platform.in/android/res/mipmap-${dir}"
+        "${CMAKE_SOURCE_DIR}/android/app/src/main/res/mipmap-${dir}"
+        )
+    endforeach(dir)
+
+    configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/android/res/values/generated_strings.xml.in"
+      "${CMAKE_SOURCE_DIR}/android/app/.externalNativeBuild/cmake/${ANDROID_BUILD_DIR}/${ANDROID_ABI}/cmake.in/platform.in/android/res/values")
+
+
+  elseif(NOT LINUX)
+    LIST(REMOVE_ITEM SOURCE_FILES ${MAIN_FILES})
+
+    add_library(${CMAKE_PROJECT_NAME} SHARED ${SOURCE_FILES} ${VERSION_SOURCES} ${INCLUDE_FILES})
+    # target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC ${${CMAKE_PROJECT_NAME}_DEFINITIONS})
+
+    if(APPLE)
+      set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES MACOSX_RPATH 1)
+      if(IOS OR TVOS)
+        SET_TARGET_PROPERTIES (
+          ${CMAKE_PROJECT_NAME} PROPERTIES
+          XCODE_ATTRIBUTE_ENABLE_BITCODE YES
+          )
+      endif(IOS OR TVOS)
+    elseif(UNIX AND NOT ANDROID)
+      set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
+        VERSION ${LT_VERSION}
+        SOVERSION ${LT_REVISION}
+        OUTPUT_NAME "${CMAKE_PROJECT_NAME}-${LT_RELEASE}")
+    else()
+      set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
+        VERSION ${${CMAKE_PROJECT_NAME}_VERSION}
+        SOVERSION ${LT_REVISION}
+        OUTPUT_NAME "${CMAKE_PROJECT_NAME}")
+    endif()
+    if(MSVC AND NOT LIBC)
+      # Don't try to link with the default set of libraries.
+      # set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
+      # set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
+      # set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
+    endif()
+    set(_INSTALL_LIBS "${CMAKE_PROJECT_NAME}" ${_INSTALL_LIBS})
+    target_include_directories(${CMAKE_PROJECT_NAME}
+      PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS}>
+      PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_PROJECT_INCLUDE_DIRECTORES}>
+      )
+
+    target_link_libraries(${CMAKE_PROJECT_NAME} ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
+
+  endif()
+endif(${CMAKE_PROJECT_NAME}_SHARED)
+
+if(${CMAKE_PROJECT_NAME}_STATIC)
+  LIST(REMOVE_ITEM SOURCE_FILES ${MAIN_FILES})
+  set (BUILD_SHARED_LIBS FALSE)
+  add_library(${CMAKE_PROJECT_NAME}-static STATIC ${SOURCE_FILES} ${INCLUDE_FILES})
+  # target_compile_definitions(${CMAKE_PROJECT_NAME}-static PUBLIC ${${CMAKE_PROJECT_NAME}_DEFINITIONS})
+  if(APPLE)
+    if(IOS OR TVOS)
+      SET_TARGET_PROPERTIES (
+        ${CMAKE_PROJECT_NAME}-static PROPERTIES
+        XCODE_ATTRIBUTE_ENABLE_BITCODE YES
+        )
+    endif(IOS OR TVOS)
+  endif(APPLE)
+
+  if (NOT ${CMAKE_PROJECT_NAME}_SHARED OR NOT WIN32)
+    set_target_properties(${CMAKE_PROJECT_NAME}-static PROPERTIES OUTPUT_NAME "${CMAKE_PROJECT_NAME}")
+    # Note: Apparently, OUTPUT_NAME must really be unique; even when
+    # CMAKE_IMPORT_LIBRARY_SUFFIX or the like are given. Otherwise
+    # the static build may race with the import lib and one will get
+    # clobbered, when the suffix is realized via subsequent rename.
+  endif()
+  set_target_properties(${CMAKE_PROJECT_NAME}-static PROPERTIES POSITION_INDEPENDENT_CODE ${${CMAKE_PROJECT_NAME}_STATIC_PIC})
+  if(MSVC AND NOT LIBC)
+    set_target_properties(${CMAKE_PROJECT_NAME}-static PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
+    set_target_properties(${CMAKE_PROJECT_NAME}-static PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
+    set_target_properties(${CMAKE_PROJECT_NAME}-static PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
+  endif()
+  # TODO: Win32 platforms keep the same suffix .lib for import and static
+  # libraries - do we need to consider this?
+  set(_INSTALL_LIBS "${CMAKE_PROJECT_NAME}-static" ${_INSTALL_LIBS})
+  target_include_directories(${CMAKE_PROJECT_NAME}-static 
+    PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS}>
+    PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_PROJECT_INCLUDE_DIRECTORES}>
+    )
+
+  target_link_libraries(${CMAKE_PROJECT_NAME}-static ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
+
+endif(${CMAKE_PROJECT_NAME}_STATIC)
+
+include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/targets.cmake")
+
+SOURCE_GROUP_BY_FOLDER(${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY})
 
 if(${CMAKE_PROJECT_NAME}_EXE)
-  add_executable(${CMAKE_PROJECT_NAME}-exe MACOSX_BUNDLE ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES} ${INCLUDE_FILES})
+  add_executable( ${CMAKE_PROJECT_NAME}-exe 
+    MACOSX_BUNDLE 
+    ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES} ${INCLUDE_FILES}
+    )
   # add_dependencies(${CMAKE_PROJECT_NAME}-exe engine_code)
+  SET_TARGET_PROPERTIES(
+      ${CMAKE_PROJECT_NAME}-exe PROPERTIES
+      RESOURCE "${RESOURCE_FILES}"
+    )
+
 
   if(EMSCRIPTEN)
     set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES OUTPUT_NAME "index")
   else()
     set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES OUTPUT_NAME "${EXECUTABLE_NAME}")
   endif()
+  # list(APPEND ${CMAKE_PROJECT_NAME}_DEFINITIONS EXECUTABLE_NAME="\\"${EXECUTABLE_NAME}\\"")
   add_definitions(-DEXECUTABLE_NAME="\\"${EXECUTABLE_NAME}\\"")
+
+  # target_compile_definitions(${CMAKE_PROJECT_NAME}-exe PUBLIC ${${CMAKE_PROJECT_NAME}_DEFINITIONS})
 
   if(APPLE)
 
@@ -2029,18 +2255,10 @@ if(${CMAKE_PROJECT_NAME}_EXE)
     # macro (set_xcode_property TARGET XCODE_PROPERTY XCODE_VALUE)
     #     set_property (TARGET ${TARGET} PROPERTY XCODE_ATTRIBUTE_${XCODE_PROPERTY} ${XCODE_VALUE})
     # endmacro (set_xcode_property)
-
-    SET_SOURCE_FILES_PROPERTIES(
-      ${NJLI_RESOURCES}
-      PROPERTIES
-      MACOSX_PACKAGE_LOCATION ${CMAKE_PROJECT_NAME}-exe/Contents/Resources/
-      )
-
     
     # macOS and iOS and tvOS
     SET_TARGET_PROPERTIES(
       ${CMAKE_PROJECT_NAME}-exe PROPERTIES
-      RESOURCE "${ASSET_CATALOGUE}"
       MACOSX_BUNDLE TRUE
       XCODE_ATTRIBUTE_INSTALL_PATH "/Applications"
       XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "SRBQ5SCF5X"
@@ -2049,6 +2267,12 @@ if(${CMAKE_PROJECT_NAME}_EXE)
     if(NOT IOS AND NOT TVOS)
       configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/macOS/Info.plist.in"
         "${CMAKE_BINARY_DIR}/Info.plist")
+
+      SET_SOURCE_FILES_PROPERTIES(
+        ${RESOURCE_FILES}
+        PROPERTIES
+        MACOSX_PACKAGE_LOCATION ${CMAKE_PROJECT_NAME}-exe/Contents/Resources/
+      )
 
       # macOS
       SET_TARGET_PROPERTIES (
@@ -2059,6 +2283,11 @@ if(${CMAKE_PROJECT_NAME}_EXE)
         XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "Mac Developer"
         )
     else()
+      SET_SOURCE_FILES_PROPERTIES(
+        ${RESOURCE_FILES}
+        PROPERTIES
+        MACOSX_PACKAGE_LOCATION Resources
+      )
       # iOS and tvOS
       SET_TARGET_PROPERTIES(
         ${CMAKE_PROJECT_NAME}-exe PROPERTIES
@@ -2067,7 +2296,7 @@ if(${CMAKE_PROJECT_NAME}_EXE)
         XCODE_ATTRIBUTE_INSTALL_PATH "${CMAKE_BINARY_DIR}/ProductRelease"
         XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"
         XCODE_ATTRIBUTE_PRODUCT_NAME "${CMAKE_PROJECT_NAME}GameEngine"
-        XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
+        XCODE_ATTRIBUTE_ENABLE_BITCODE YES
         XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
         )
     endif(NOT IOS AND NOT TVOS)
@@ -2102,6 +2331,14 @@ if(${CMAKE_PROJECT_NAME}_EXE)
   elseif(UNIX AND NOT ANDROID)
   else()
   endif()
+
+  if(LINUX)
+    add_custom_command(TARGET ${CMAKE_PROJECT_NAME}-exe POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_directory
+      ${RESOURCE_FILES} $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}-exe>/assets
+      )
+  endif()
+
   if(MSVC AND NOT LIBC)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${CMAKE_PROJECT_NAME}-exe)
 
@@ -2110,7 +2347,8 @@ if(${CMAKE_PROJECT_NAME}_EXE)
     add_custom_command(TARGET ${CMAKE_PROJECT_NAME}-exe POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy
       ${SDL_DYNAMIC_IMPORT_LOCATION}
-      $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}-exe>)
+      $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}-exe>
+      )
 
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exe.Cpp.user.props" [=[
 <?xml version="1.0" encoding="utf-8"?>
@@ -2131,198 +2369,110 @@ if(${CMAKE_PROJECT_NAME}_EXE)
     # set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
     # set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
   endif()
+  target_include_directories(${CMAKE_PROJECT_NAME}-exe
+    PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS}>
+    PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_PROJECT_INCLUDE_DIRECTORES}>
+    )
+
   target_link_libraries(${CMAKE_PROJECT_NAME}-exe ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
-  # target_include_directories(${CMAKE_PROJECT_NAME}-exe PUBLIC $<INSTALL_INTERFACE:include>)
+  
 endif(${CMAKE_PROJECT_NAME}_EXE)
 
-if(${CMAKE_PROJECT_NAME}_SHARED)
-  if(ANDROID)
-
-    string(TOLOWER ${CMAKE_BUILD_TYPE} ANDROID_BUILD_DIR)
-    set(DISTRIBUTION_DIR ${CMAKE_SOURCE_DIR}/android/distribution/android/SDL2/intermediates/ndkBuild)
-    set(SDL_LOCATION ${CMAKE_SOURCE_DIR}/android/thirdparty/SDL2)
-
-    add_library( SDL2 SHARED IMPORTED )
-    set_target_properties(SDL2 PROPERTIES IMPORTED_LOCATION ${DISTRIBUTION_DIR}/${ANDROID_BUILD_DIR}/obj/local/${ANDROID_ABI}/libSDL2.so)
-
-    include_directories(${SDL_LOCATION}/SDL2/include)
-
-    add_library( main SHARED ${SDL_LOCATION}/SDL2/src/main/android/SDL_android_main.c ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES})
-
-    target_link_libraries( main SDL2 ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
-
-    foreach(dir hdpi ldpi mdpi xhdpi xxhdpi xxxhdpi)
-      add_custom_command(TARGET main POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${CMAKE_SOURCE_DIR}/android/app/.externalNativeBuild/cmake/${ANDROID_BUILD_DIR}/${ANDROID_ABI}/cmake.in/platform.in/android/res/mipmap-${dir}"
-        "${CMAKE_SOURCE_DIR}/android/app/src/main/res/mipmap-${dir}"
-        )
-    endforeach(dir)
-
-    configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/android/res/values/generated_strings.xml.in"
-      "${CMAKE_SOURCE_DIR}/android/app/.externalNativeBuild/cmake/${ANDROID_BUILD_DIR}/${ANDROID_ABI}/cmake.in/platform.in/android/res/values")
-
-
-  else()
-    add_library(${CMAKE_PROJECT_NAME} SHARED ${SOURCE_FILES} ${VERSION_SOURCES} ${INCLUDE_FILES})
-    if(APPLE)
-      set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES MACOSX_RPATH 1)
-      if(IOS OR TVOS)
-        SET_TARGET_PROPERTIES (
-          ${CMAKE_PROJECT_NAME} PROPERTIES
-          XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
-          )
-      endif(IOS OR TVOS)
-    elseif(UNIX AND NOT ANDROID)
-      set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
-        VERSION ${LT_VERSION}
-        SOVERSION ${LT_REVISION}
-        OUTPUT_NAME "${CMAKE_PROJECT_NAME}-${LT_RELEASE}")
-    else()
-      set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
-        VERSION ${${CMAKE_PROJECT_NAME}_VERSION}
-        SOVERSION ${LT_REVISION}
-        OUTPUT_NAME "${CMAKE_PROJECT_NAME}")
-    endif()
-    if(MSVC AND NOT LIBC)
-      # Don't try to link with the default set of libraries.
-      # set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
-      # set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
-      # set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
-    endif()
-    set(_INSTALL_LIBS "${CMAKE_PROJECT_NAME}" ${_INSTALL_LIBS})
-    target_link_libraries(${CMAKE_PROJECT_NAME} ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
-    target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:include>)
-  endif()
-endif(${CMAKE_PROJECT_NAME}_SHARED)
-
-if(${CMAKE_PROJECT_NAME}_STATIC)
-  set (BUILD_SHARED_LIBS FALSE)
-  add_library(${CMAKE_PROJECT_NAME}-static STATIC ${SOURCE_FILES} ${INCLUDE_FILES})
-  if(APPLE)
-    if(IOS OR TVOS)
-      SET_TARGET_PROPERTIES (
-        ${CMAKE_PROJECT_NAME}-static PROPERTIES
-        XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
-        )
-    endif(IOS OR TVOS)
-  endif(APPLE)
-
-  if (NOT ${CMAKE_PROJECT_NAME}_SHARED OR NOT WIN32)
-    set_target_properties(${CMAKE_PROJECT_NAME}-static PROPERTIES OUTPUT_NAME "${CMAKE_PROJECT_NAME}")
-    # Note: Apparently, OUTPUT_NAME must really be unique; even when
-    # CMAKE_IMPORT_LIBRARY_SUFFIX or the like are given. Otherwise
-    # the static build may race with the import lib and one will get
-    # clobbered, when the suffix is realized via subsequent rename.
-  endif()
-  set_target_properties(${CMAKE_PROJECT_NAME}-static PROPERTIES POSITION_INDEPENDENT_CODE ${${CMAKE_PROJECT_NAME}_STATIC_PIC})
-  if(MSVC AND NOT LIBC)
-    set_target_properties(${CMAKE_PROJECT_NAME}-static PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
-    set_target_properties(${CMAKE_PROJECT_NAME}-static PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
-    set_target_properties(${CMAKE_PROJECT_NAME}-static PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
-  endif()
-  # TODO: Win32 platforms keep the same suffix .lib for import and static
-  # libraries - do we need to consider this?
-  set(_INSTALL_LIBS "${CMAKE_PROJECT_NAME}-static" ${_INSTALL_LIBS})
-  target_link_libraries(${CMAKE_PROJECT_NAME}-static ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
-  target_include_directories(${CMAKE_PROJECT_NAME}-static PUBLIC $<INSTALL_INTERFACE:include>)
-endif(${CMAKE_PROJECT_NAME}_STATIC)
-
-##### Installation targets #####
-install(TARGETS ${_INSTALL_LIBS} EXPORT ${CMAKE_PROJECT_NAME}Targets
-  LIBRARY DESTINATION "lib${LIB_SUFFIX}"
-  ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
-  RUNTIME DESTINATION bin)
-
-##### Export files #####
-if (APPLE)
-  set(PKG_PREFIX "${CMAKE_PROJECT_NAME}.framework/Resources")
-elseif (WINDOWS)
-  set(PKG_PREFIX "cmake")
-else ()
-  set(PKG_PREFIX "lib/cmake/${CMAKE_PROJECT_NAME}")
-endif ()
-
-if(NOT ANDROID)
-  include(CMakePackageConfigHelpers)
-  write_basic_package_version_file("${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake"
-    VERSION ${${CMAKE_PROJECT_NAME}_VERSION}
-    COMPATIBILITY AnyNewerVersion
-  )
-
-  install(EXPORT ${CMAKE_PROJECT_NAME}Targets
-    FILE ${CMAKE_PROJECT_NAME}Targets.cmake
-    NAMESPACE ${CMAKE_PROJECT_NAME}::
-    DESTINATION ${PKG_PREFIX}
-  )
-  install(
-    FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_PROJECT_NAME}Config.cmake
-    ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
-    DESTINATION ${PKG_PREFIX}
-    COMPONENT Devel
-  )
-
-  file(GLOB INCLUDE_FILES ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/include/*.h)
-  file(GLOB BIN_INCLUDE_FILES ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/include/*.h)
-  foreach(_FNAME ${BIN_INCLUDE_FILES})
-    get_filename_component(_INCNAME ${_FNAME} NAME)
-    list(REMOVE_ITEM INCLUDE_FILES ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/include/${_INCNAME})
-  endforeach()
-  list(APPEND INCLUDE_FILES ${BIN_INCLUDE_FILES})
-  install(FILES ${INCLUDE_FILES} DESTINATION include/${CMAKE_PROJECT_NAME})
-
-  if(NOT (WINDOWS OR CYGWIN))
-    if(${CMAKE_PROJECT_NAME}_SHARED)
-      if (APPLE)
-          set(SOEXT "dylib")
-      else()
-          set(SOEXT "so")
-      endif()
-      install(CODE "
-        execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-          \"lib${CMAKE_PROJECT_NAME}-1.0.${SOEXT}\" \"lib${CMAKE_PROJECT_NAME}.${SOEXT}\")")
-      install(FILES ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/lib${CMAKE_PROJECT_NAME}.${SOEXT} DESTINATION "lib${LIB_SUFFIX}")
-    endif()
-    if(FREEBSD)
-      # FreeBSD uses ${PREFIX}/libdata/pkgconfig
-      install(FILES ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/njlic.pc DESTINATION "libdata/pkgconfig")
-    else()
-      install(FILES ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/njlic.pc
-        DESTINATION "lib${LIB_SUFFIX}/pkgconfig")
-    endif()
-    install(PROGRAMS ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/njlic-config DESTINATION bin)
-
-    if(EMSCRIPTEN)
-      # file(GLOB_RECURSE EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exe.*)
-      file(GLOB_RECURSE EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/index.*)
-      list(REMOVE_DUPLICATES EMSCRIPTEN_BINARY_FILES)
-      # list(REMOVE_ITEM EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exe.html)
-      list(REMOVE_ITEM EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/index.html)
-      install(FILES ${EMSCRIPTEN_BINARY_FILES} DESTINATION bin)
-      install(FILES "${CMAKEIN_REPO_DIRECTORY}/platform.in/emscripten/executable/favicon-32x32.ico" DESTINATION bin)
-    endif()
-
-    if (NOT APPLE)
-      INSTALL(TARGETS ${CMAKE_PROJECT_NAME}-exe 
-        RUNTIME DESTINATION bin 
-        BUNDLE DESTINATION bin
-        )
-    endif()
-
-    # TODO: what about the .spec file? Is it only needed for RPM creation?
-    install(FILES "${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/njlic.m4" DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/aclocal")
-  endif()
-endif(NOT ANDROID)
-
-##### Uninstall target #####
-
-if(NOT TARGET uninstall)
-  configure_file(
-      "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-      "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-      IMMEDIATE @ONLY)
-
-  add_custom_target(uninstall
-      COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
-endif()
+#                    ##### Installation targets #####
+#                    install(TARGETS ${_INSTALL_LIBS} EXPORT ${CMAKE_PROJECT_NAME}Targets
+#                      LIBRARY DESTINATION "lib${LIB_SUFFIX}"
+#                      ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
+#                      RUNTIME DESTINATION bin)
+#                    
+#                    ##### Export files #####
+#                    if (APPLE)
+#                      set(PKG_PREFIX "${CMAKE_PROJECT_NAME}.framework/Resources")
+#                    elseif (WINDOWS)
+#                      set(PKG_PREFIX "cmake")
+#                    else ()
+#                      set(PKG_PREFIX "lib/cmake/${CMAKE_PROJECT_NAME}")
+#                    endif ()
+#                    
+#                    if(NOT ANDROID)
+#                      include(CMakePackageConfigHelpers)
+#                      write_basic_package_version_file("${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake"
+#                        VERSION ${${CMAKE_PROJECT_NAME}_VERSION}
+#                        COMPATIBILITY AnyNewerVersion
+#                      )
+#                    
+#                      install(EXPORT ${CMAKE_PROJECT_NAME}Targets
+#                        FILE ${CMAKE_PROJECT_NAME}Targets.cmake
+#                        NAMESPACE ${CMAKE_PROJECT_NAME}::
+#                        DESTINATION ${PKG_PREFIX}
+#                      )
+#                      install(
+#                        FILES
+#                        ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_PROJECT_NAME}Config.cmake
+#                        ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
+#                        DESTINATION ${PKG_PREFIX}
+#                        COMPONENT Devel
+#                      )
+#                    
+#                      file(GLOB INCLUDE_FILES ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/include/*.h)
+#                      file(GLOB BIN_INCLUDE_FILES ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/include/*.h)
+#                      foreach(_FNAME ${BIN_INCLUDE_FILES})
+#                        get_filename_component(_INCNAME ${_FNAME} NAME)
+#                        list(REMOVE_ITEM INCLUDE_FILES ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/include/${_INCNAME})
+#                      endforeach()
+#                      list(APPEND INCLUDE_FILES ${BIN_INCLUDE_FILES})
+#                      install(FILES ${INCLUDE_FILES} DESTINATION include/${CMAKE_PROJECT_NAME})
+#                    
+#                      if(NOT (WINDOWS OR CYGWIN))
+#                        if(${CMAKE_PROJECT_NAME}_SHARED)
+#                          if (APPLE)
+#                              set(SOEXT "dylib")
+#                          else()
+#                              set(SOEXT "so")
+#                          endif()
+#                          install(CODE "
+#                            execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+#                              \"lib${CMAKE_PROJECT_NAME}-1.0.${SOEXT}\" \"lib${CMAKE_PROJECT_NAME}.${SOEXT}\")")
+#                          install(FILES ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/lib${CMAKE_PROJECT_NAME}.${SOEXT} DESTINATION "lib${LIB_SUFFIX}")
+#                        endif()
+#                        if(FREEBSD)
+#                          # FreeBSD uses ${PREFIX}/libdata/pkgconfig
+#                          install(FILES ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/njlic.pc DESTINATION "libdata/pkgconfig")
+#                        else()
+#                          install(FILES ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/njlic.pc
+#                            DESTINATION "lib${LIB_SUFFIX}/pkgconfig")
+#                        endif()
+#                        install(PROGRAMS ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/njlic-config DESTINATION bin)
+#                    
+#                        if(EMSCRIPTEN)
+#                          # file(GLOB_RECURSE EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exe.*)
+#                          file(GLOB_RECURSE EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/index.*)
+#                          list(REMOVE_DUPLICATES EMSCRIPTEN_BINARY_FILES)
+#                          # list(REMOVE_ITEM EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exe.html)
+#                          list(REMOVE_ITEM EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/index.html)
+#                          install(FILES ${EMSCRIPTEN_BINARY_FILES} DESTINATION bin)
+#                          install(FILES "${CMAKEIN_REPO_DIRECTORY}/platform.in/emscripten/executable/favicon-32x32.ico" DESTINATION bin)
+#                        endif()
+#                    
+#                        if (NOT APPLE)
+#                          INSTALL(TARGETS ${CMAKE_PROJECT_NAME}-exe 
+#                            RUNTIME DESTINATION bin 
+#                            BUNDLE DESTINATION bin
+#                            )
+#                        endif()
+#                    
+#                        # TODO: what about the .spec file? Is it only needed for RPM creation?
+#                        install(FILES "${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/njlic.m4" DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/aclocal")
+#                      endif()
+#                    endif(NOT ANDROID)
+#                    
+#                    ##### Uninstall target #####
+#                    
+#                    if(NOT TARGET uninstall)
+#                      configure_file(
+#                          "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+#                          "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+#                          IMMEDIATE @ONLY)
+#                    
+#                      add_custom_target(uninstall
+#                          COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+#                    endif()
