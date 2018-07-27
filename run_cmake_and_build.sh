@@ -29,8 +29,8 @@ fi
 
 if [ "${PLATFORM}" == "emscripten" ]
 then
-  export CC=/usr/bin/cc
-  export CXX=/usr/bin/c++
+  # export CC=/usr/bin/cc
+  # export CXX=/usr/bin/c++
 
   export EMSCRIPTEN_VERSION=1.37.9
   # export EMSCRIPTEN_VERSION=1.38.10
@@ -38,8 +38,8 @@ then
   export EMSCRIPTEN_INCLUDE_LOCATION=${EMSCRIPTEN_LOCATION}/system/include
 
 
-  export EMCC_DEBUG=1 # Verbose building...
-  export VERBOSE=1
+  # export EMCC_DEBUG=1 # Verbose building...
+  # export VERBOSE=1
 
   emcmake cmake .. -DEXECUTABLE_NAME:STRING=${EXECUTABLE_NAME} \
   -DEXECUTABLE_GITHUB_REPOSITORY:STRING=${EXECUTABLE_GITHUB_REPOSITORY} \
@@ -192,30 +192,31 @@ else
   cmake -E env CFLAGS='-O0 -g' cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
 fi
 
-cmake --build . --config Release # --target install
+# cmake --build . --config Release # --target install
+cmake --build . --config Debug # --target install
 
-if [ "${PLATFORM}" == "emscripten" ]
-then
-
-  emcmake cmake .. -DEXECUTABLE_NAME:STRING=${EXECUTABLE_NAME} \
-  -DEXECUTABLE_GITHUB_REPOSITORY:STRING=${EXECUTABLE_GITHUB_REPOSITORY} \
-  -DEXECUTABLE_GITHUB_BRANCH:STRING=${EXECUTABLE_GITHUB_BRANCH} \
-  -DEXECUTABLE_GITHUB_ACCOUNT:STRING=${EXECUTABLE_GITHUB_ACCOUNT} \
-  -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
-  -G "Ninja"
-
-  # cmake --build . --config Release # --target install
-elif [ "${PLATFORM}" == "facebook" ]
-then
-
-  emcmake cmake .. -DEXECUTABLE_NAME:STRING=${EXECUTABLE_NAME} \
-  -DEXECUTABLE_GITHUB_REPOSITORY:STRING=${EXECUTABLE_GITHUB_REPOSITORY} \
-  -DEXECUTABLE_GITHUB_BRANCH:STRING=${EXECUTABLE_GITHUB_BRANCH} \
-  -DEXECUTABLE_GITHUB_ACCOUNT:STRING=${EXECUTABLE_GITHUB_ACCOUNT} \
-  -DFACEBOOK-APP-ID="344740292600474" -DFACEBOOK-API-VERSION="v2.12" \
-  -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DFACEBOOK:BOOL=TRUE -G "Ninja"
-  
-  cmake --build . --config Release # --target install
-fi
+# if [ "${PLATFORM}" == "emscripten" ]
+# then
+# 
+#   emcmake cmake .. -DEXECUTABLE_NAME:STRING=${EXECUTABLE_NAME} \
+#   -DEXECUTABLE_GITHUB_REPOSITORY:STRING=${EXECUTABLE_GITHUB_REPOSITORY} \
+#   -DEXECUTABLE_GITHUB_BRANCH:STRING=${EXECUTABLE_GITHUB_BRANCH} \
+#   -DEXECUTABLE_GITHUB_ACCOUNT:STRING=${EXECUTABLE_GITHUB_ACCOUNT} \
+#   -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
+#   -G "Ninja"
+# 
+#   # cmake --build . --config Release # --target install
+# elif [ "${PLATFORM}" == "facebook" ]
+# then
+# 
+#   emcmake cmake .. -DEXECUTABLE_NAME:STRING=${EXECUTABLE_NAME} \
+#   -DEXECUTABLE_GITHUB_REPOSITORY:STRING=${EXECUTABLE_GITHUB_REPOSITORY} \
+#   -DEXECUTABLE_GITHUB_BRANCH:STRING=${EXECUTABLE_GITHUB_BRANCH} \
+#   -DEXECUTABLE_GITHUB_ACCOUNT:STRING=${EXECUTABLE_GITHUB_ACCOUNT} \
+#   -DFACEBOOK-APP-ID="344740292600474" -DFACEBOOK-API-VERSION="v2.12" \
+#   -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DFACEBOOK:BOOL=TRUE -G "Ninja"
+#   
+#   cmake --build . --config Release # --target install
+# fi
 
 cd ..
