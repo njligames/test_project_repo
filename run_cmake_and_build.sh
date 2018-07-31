@@ -7,7 +7,7 @@ INSTALL_PREFIX=install
 
 EXECUTABLE_NAME=PLACEHOLDER
 EXECUTABLE_GITHUB_REPOSITORY=njligames-njlic_engine
-EXECUTABLE_GITHUB_BRANCH=feature/windows32
+EXECUTABLE_GITHUB_BRANCH=feature/android
 EXECUTABLE_GITHUB_ACCOUNT=njligames
 
 if [ "${PLATFORM}" != "android" ]
@@ -133,11 +133,11 @@ then
 
 elif [ "${PLATFORM}" == "android" ]
 then
-  # /Users/jamesfolk/Documents/NJLI/TESTBED/test_project_repo/android/app/.externalNativeBuild/cmake/release/arm64-v8a/cmake.in/platform.in/android/res
-  # /Users/jamesfolk/Documents/NJLI/TESTBED/test_project_repo/android/app/src/main/res
 
+  rm -rf android/app/.externalNativeBuild
   cd android
   ./gradlew assembleDebug
+  # ./gradlew assembleRelease
 
 elif [ "${PLATFORM}" == "oculus_windows64" ]
 then
@@ -192,31 +192,7 @@ else
   cmake -E env CFLAGS='-O0 -g' cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
 fi
 
-# cmake --build . --config Release # --target install
-cmake --build . --config Debug # --target install
-
-# if [ "${PLATFORM}" == "emscripten" ]
-# then
-# 
-#   emcmake cmake .. -DEXECUTABLE_NAME:STRING=${EXECUTABLE_NAME} \
-#   -DEXECUTABLE_GITHUB_REPOSITORY:STRING=${EXECUTABLE_GITHUB_REPOSITORY} \
-#   -DEXECUTABLE_GITHUB_BRANCH:STRING=${EXECUTABLE_GITHUB_BRANCH} \
-#   -DEXECUTABLE_GITHUB_ACCOUNT:STRING=${EXECUTABLE_GITHUB_ACCOUNT} \
-#   -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
-#   -G "Ninja"
-# 
-#   # cmake --build . --config Release # --target install
-# elif [ "${PLATFORM}" == "facebook" ]
-# then
-# 
-#   emcmake cmake .. -DEXECUTABLE_NAME:STRING=${EXECUTABLE_NAME} \
-#   -DEXECUTABLE_GITHUB_REPOSITORY:STRING=${EXECUTABLE_GITHUB_REPOSITORY} \
-#   -DEXECUTABLE_GITHUB_BRANCH:STRING=${EXECUTABLE_GITHUB_BRANCH} \
-#   -DEXECUTABLE_GITHUB_ACCOUNT:STRING=${EXECUTABLE_GITHUB_ACCOUNT} \
-#   -DFACEBOOK-APP-ID="344740292600474" -DFACEBOOK-API-VERSION="v2.12" \
-#   -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DFACEBOOK:BOOL=TRUE -G "Ninja"
-#   
-#   cmake --build . --config Release # --target install
-# fi
+cmake --build . --config Release # --target install
+# cmake --build . --config Debug # --target install
 
 cd ..

@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 27
     buildToolsVersion '27.0.3'
 
     sourceSets {
@@ -15,7 +15,7 @@ android {
     defaultConfig {
         applicationId "com.njlicgames.engine.android.source"
         minSdkVersion 21
-        targetSdkVersion 25
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -23,11 +23,10 @@ android {
             cmake {
                 //cppFlags "-std=c++11 -frtti -fexceptions"
                 arguments "-DANDROID=TRUE",
-                        "-DVR=TRUE",
                         "-DEXECUTABLE_NAME:STRING=PLACEHOLDER",
                         "-DEXECUTABLE_GITHUB_REPOSITORY=njligames-njlic_engine",
-                        "-DEXECUTABLE_GITHUB_ACCOUNT=njligames",
-                        "-DCMAKE_VERBOSE_MAKEFILE=ON"
+                        "-DEXECUTABLE_GITHUB_BRANCH:STRING=feature/android",
+                        "-DEXECUTABLE_GITHUB_ACCOUNT=njligames"
             }
         }
 	ndk {

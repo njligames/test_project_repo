@@ -70,7 +70,11 @@ set(EXECUTABLE_GITHUB_ACCOUNT "njligames" CACHE STRING "The repository to use fr
 SET(EXECUTABLE_GITHUB_BRANCH "master" CACHE STRING "The repository to use")
 
 set(${CMAKE_PROJECT_NAME}_REPO_URL "https://github.com/${EXECUTABLE_GITHUB_ACCOUNT}/${EXECUTABLE_GITHUB_REPOSITORY}/archive/${EXECUTABLE_GITHUB_BRANCH}.tar.gz")
-set(${CMAKE_PROJECT_NAME}_REPO_DIR "${EXECUTABLE_GITHUB_REPOSITORY}")
+if(ANDROID)
+  set(${CMAKE_PROJECT_NAME}_REPO_DIR "../../../../../${EXECUTABLE_GITHUB_REPOSITORY}")
+else()
+  set(${CMAKE_PROJECT_NAME}_REPO_DIR "${EXECUTABLE_GITHUB_REPOSITORY}")
+endif()
 RETRIEVE_TAR(
 	"${${CMAKE_PROJECT_NAME}_REPO_URL}"
   "${${CMAKE_PROJECT_NAME}_REPO_DIR}"
@@ -82,7 +86,11 @@ set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH} ${${CMAKE_PROJECT_NAME}_REPO_DIRECTO
 list(APPEND CMAKE_MODULE_PATH "${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake")
 
 set(CMAKEIN_REPO_URL "https://github.com/njligames/cmake.in/archive/master.tar.gz")
-set(CMAKEIN_REPO_DIR "cmake.in")
+if(ANDROID)
+  set(CMAKEIN_REPO_DIR "../../../../../cmake.in")
+else()
+  set(CMAKEIN_REPO_DIR "cmake.in")
+endif()
 RETRIEVE_TAR(
 	"${CMAKEIN_REPO_URL}"
 	"${CMAKEIN_REPO_DIR}"
@@ -92,7 +100,11 @@ set(CMAKEIN_REPO_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKEIN_REPO_DIR}")
 
 
 set(GAMEPROJECT_REPO_URL "https://github.com/njligames/gameproject/archive/master.tar.gz")
-set(GAMEPROJECT_REPO_DIR "gameproject")
+if(ANDROID)
+  set(GAMEPROJECT_REPO_DIR "../../../../../gameproject")
+else()
+  set(GAMEPROJECT_REPO_DIR "gameproject")
+endif()
 RETRIEVE_TAR(
 	"${GAMEPROJECT_REPO_URL}"
 	"${GAMEPROJECT_REPO_DIR}"
@@ -2107,6 +2119,14 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
     set_target_properties(SDL2 PROPERTIES IMPORTED_LOCATION ${DISTRIBUTION_DIR}/${ANDROID_BUILD_DIR}/obj/local/${ANDROID_ABI}/libSDL2.so)
 
     list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${SDL_LOCATION}/SDL2/include)
+    if(${ANDROID_ABI} STREQUAL "armeabi-v7a")
+      list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${ANDROID_SYSROOT}/usr/include/arm-linux-androideabi)
+    elseif(${ANDROID_ABI} STREQUAL "arm64-v8a")
+      list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${ANDROID_SYSROOT}/usr/include/aarch64-linux-android)
+    else()
+      list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${ANDROID_SYSROOT}/usr/include/arm-linux-androideabi)
+    endif()
+    # list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${ANDROID_SYSROOT}/usr/include/arm-linux-androideabi)
 
     add_library( main SHARED ${SDL_LOCATION}/SDL2/src/main/android/SDL_android_main.c ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES})
     target_include_directories(main
@@ -2116,6 +2136,8 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
 
     list(APPEND EXTRA_LIBS SDL2)
     target_link_libraries(main ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
+
+    add_dependencies(main SDL2)
 
     foreach(dir hdpi ldpi mdpi xhdpi xxhdpi xxxhdpi)
       add_custom_command(TARGET main POST_BUILD
@@ -2137,6 +2159,12 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
 
     if(APPLE)
       set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES MACOSX_RPATH 1)
+      if(NOT "$ENV{XCODE_DEVELOPMENT_TEAM}" STREQUAL "")
+        set_target_properties( ${CMAKE_PROJECT_NAME} PROPERTIES
+          XCODE_ATTRIBUTE_DEVELOPMENT_TEAM $ENV{XCODE_DEVELOPMENT_TEAM}
+        )
+      endif()
+
       if(IOS OR TVOS)
         SET_TARGET_PROPERTIES (
           ${CMAKE_PROJECT_NAME} PROPERTIES

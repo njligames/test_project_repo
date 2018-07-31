@@ -12,3 +12,8 @@ android/.gradle/
 android/.idea/
 
 bot_*
+
+android/cmake.in/
+android/gameproject/
+android/njligames-njlic_engine/
+android/thirdparty/
