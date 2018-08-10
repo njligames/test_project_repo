@@ -2,6 +2,8 @@
 
 PLATFORM=$1
 BOT=$2
+# CONFIGURATION=Debug
+CONFIGURATION=Release
 PRE=""
 INSTALL_PREFIX=install
 
@@ -135,9 +137,10 @@ elif [ "${PLATFORM}" == "android" ]
 then
 
   rm -rf android/app/.externalNativeBuild
+
   cd android
-  ./gradlew assembleDebug
-  # ./gradlew assembleRelease
+  ./gradlew clean
+  ./gradlew assemble${CONFIGURATION}
 
 elif [ "${PLATFORM}" == "oculus_windows64" ]
 then
@@ -192,7 +195,7 @@ else
   cmake -E env CFLAGS='-O0 -g' cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
 fi
 
-cmake --build . --config Release # --target install
-# cmake --build . --config Debug # --target install
+cmake --build . --target clean
+cmake --build . --config ${CONFIGURATION} # --target install
 
 cd ..
