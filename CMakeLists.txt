@@ -952,6 +952,19 @@ if(SDL_VIDEO)
 endif()
 
 if(ANDROID)
+
+  if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+    set(SEP "\\")
+  else ()
+    set(SEP "/")
+  endif()
+
+  set(ANDROID_SDK "${ANDROID_NDK}${SEP}..")
+
+
+  configure_file("${${CMAKE_PROJECT_NAME}_REPO_DIR}/../local.properties.in"
+    "${${CMAKE_PROJECT_NAME}_REPO_DIR}/../local.properties.in")
+
   # file(GLOB ANDROID_CORE_SOURCES ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/src/core/android/*.c)
   # set(SOURCE_FILES ${SOURCE_FILES} ${ANDROID_CORE_SOURCES})
 
