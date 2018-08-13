@@ -2206,10 +2206,11 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
         OUTPUT_NAME "${CMAKE_PROJECT_NAME}")
     endif()
     if(MSVC AND NOT LIBC)
+      list(APPEND EXTRA_LIBS "msvcrt.lib")
       # Don't try to link with the default set of libraries.
-      # set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
-      # set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
-      # set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
+      set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB:LIBCMT")
+      set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB:LIBCMT")
+      target_link_libraries(${CMAKE_PROJECT_NAME} ${EXTRA_LDFLAGS} debug "msvcrtd.lib")
     endif()
     set(_INSTALL_LIBS "${CMAKE_PROJECT_NAME}" ${_INSTALL_LIBS})
     target_include_directories(${CMAKE_PROJECT_NAME}
@@ -2217,7 +2218,7 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
       PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_PROJECT_INCLUDE_DIRECTORES}>
       )
 
-    target_link_libraries(${CMAKE_PROJECT_NAME} ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
+    target_link_libraries(${CMAKE_PROJECT_NAME} ${EXTRA_LDFLAGS} optimized ${EXTRA_LIBS})
 
   endif()
 endif(${CMAKE_PROJECT_NAME}_SHARED)
@@ -2417,9 +2418,8 @@ if(${CMAKE_PROJECT_NAME}_EXE)
 
     list(APPEND EXTRA_LIBS "msvcrt.lib")
     # Don't try to link with the default set of libraries.
-    # set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
-    # set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
-    # set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
+    set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB:LIBCMT")
+    set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB:LIBCMT")
     target_link_libraries(${CMAKE_PROJECT_NAME}-exe ${EXTRA_LDFLAGS} debug "msvcrtd.lib")
   endif()
   target_include_directories(${CMAKE_PROJECT_NAME}-exe
