@@ -283,11 +283,21 @@ if(MSVC)
   option(FORCE_STATIC_VCRT "Force /MT for static VC runtimes" ON)
   if(FORCE_STATIC_VCRT)
     foreach(flag_var
-        CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
-        CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO
+        CMAKE_C_FLAGS_RELEASE
+        CMAKE_CXX_FLAGS_RELEASE
         )
       if(${flag_var} MATCHES "/MD")
         string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+      endif()
+      MESSAGE(STATUS "flag_var ${flag_var} ${${flag_var}}")
+    endforeach()
+
+    foreach(flag_var
+        CMAKE_C_FLAGS_DEBUG
+        CMAKE_CXX_FLAGS_DEBUG
+        )
+      if(${flag_var} MATCHES "/MDd")
+        string(REGEX REPLACE "/MDd" "/MTd" ${flag_var} "${${flag_var}}")
       endif()
       MESSAGE(STATUS "flag_var ${flag_var} ${${flag_var}}")
     endforeach()
@@ -301,6 +311,17 @@ if(MSVC)
     string(REGEX REPLACE "/RTC(su|[1su])" "" ${flag_var} "${${flag_var}}")
     MESSAGE(STATUS "flag_var ${flag_var} ${${flag_var}}")
   endforeach(flag_var)
+
+  foreach(flag_var
+      CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
+      CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO
+  )
+
+    if(${flag_var} MATCHES "/EHsc")
+      string(REGEX REPLACE "/EHsc" "/EHs-c-" ${flag_var} "${${flag_var}}")
+    endif()
+  endforeach(flag_var)
+
 endif()
 
 # Those are used for pkg-config and friends, so that the ${CMAKE_PROJECT_NAME}.pc, njlic-config,
@@ -2057,12 +2078,13 @@ MESSAGE( STATUS "CMAKE_SUPPRESS_REGENERATION: " ${CMAKE_SUPPRESS_REGENERATION} )
 # A simple way to get switches to the compiler is to use ADD_DEFINITIONS().
 # But there are also two variables exactly for this purpose:
 
-# the compiler flags for compiling C sources
-MESSAGE( STATUS "CMAKE_C_FLAGS: " ${CMAKE_C_FLAGS} )
-
-# the compiler flags for compiling C++ sources
-MESSAGE( STATUS "CMAKE_CXX_FLAGS: " ${CMAKE_CXX_FLAGS} )
-
+# the compiler flags for compiling C/CXX sources
+foreach(flag_var
+    CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
+    CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO
+    )
+  MESSAGE( STATUS "${flag_var}: " ${${flag_var}} )
+endforeach()
 
 # Choose the type of build.  Example: SET(CMAKE_BUILD_TYPE Debug)
 MESSAGE( STATUS "CMAKE_BUILD_TYPE: " ${CMAKE_BUILD_TYPE} )
@@ -2393,17 +2415,19 @@ if(${CMAKE_PROJECT_NAME}_EXE)
 
     set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES VS_USER_PROPS "${CMAKE_PROJECT_NAME}-exe.Cpp.user.props")
 
+    list(APPEND EXTRA_LIBS "msvcrt.lib")
     # Don't try to link with the default set of libraries.
     # set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB")
     # set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB")
     # set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
+    target_link_libraries(${CMAKE_PROJECT_NAME}-exe ${EXTRA_LDFLAGS} debug "msvcrtd.lib")
   endif()
   target_include_directories(${CMAKE_PROJECT_NAME}-exe
     PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS}>
     PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_PROJECT_INCLUDE_DIRECTORES}>
     )
 
-  target_link_libraries(${CMAKE_PROJECT_NAME}-exe ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
+  target_link_libraries(${CMAKE_PROJECT_NAME}-exe ${EXTRA_LDFLAGS} optimized ${EXTRA_LIBS})
   
 endif(${CMAKE_PROJECT_NAME}_EXE)
 

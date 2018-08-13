@@ -2,14 +2,14 @@
 
 PLATFORM=$1
 BOT=$2
-# CONFIGURATION=Debug
-CONFIGURATION=Release
+CONFIGURATION=Debug
+# CONFIGURATION=Release
 PRE=""
 INSTALL_PREFIX=install
 
 EXECUTABLE_NAME=PLACEHOLDER
 EXECUTABLE_GITHUB_REPOSITORY=njligames-njlic_engine
-EXECUTABLE_GITHUB_BRANCH=feature/android
+EXECUTABLE_GITHUB_BRANCH=feature/windows32-final
 EXECUTABLE_GITHUB_ACCOUNT=njligames
 
 if [ "${PLATFORM}" != "android" ]
@@ -196,6 +196,6 @@ else
 fi
 
 cmake --build . --target clean
-cmake --build . --config ${CONFIGURATION} # --target install
+# cmake --build . --config ${CONFIGURATION} # --target install
 
 cd ..
