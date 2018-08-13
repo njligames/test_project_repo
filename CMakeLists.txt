@@ -2407,19 +2407,19 @@ if(${CMAKE_PROJECT_NAME}_EXE)
       $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}-exe>
       )
 
-    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exe.Cpp.user.props" [=[
-<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-<LocalDebuggerEnvironment>PATH=]=] ${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY} [=[ ;$(PATH)</LocalDebuggerEnvironment>
-</PropertyGroup>
-<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-<LocalDebuggerEnvironment>PATH=]=] ${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY} [=[ ;$(PATH)</LocalDebuggerEnvironment>
-</PropertyGroup>
-</Project>
-]=])
+#     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exe.Cpp.user.props" [=[
+# <?xml version="1.0" encoding="utf-8"?>
+# <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+# <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+# <LocalDebuggerEnvironment>PATH=]=] ${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY} [=[ ;$(PATH)</LocalDebuggerEnvironment>
+# </PropertyGroup>
+# <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+# <LocalDebuggerEnvironment>PATH=]=] ${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY} [=[ ;$(PATH)</LocalDebuggerEnvironment>
+# </PropertyGroup>
+# </Project>
+# ]=])
 
-    set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES VS_USER_PROPS "${CMAKE_PROJECT_NAME}-exe.Cpp.user.props")
+    #set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES VS_USER_PROPS "${CMAKE_PROJECT_NAME}-exe.Cpp.user.props")
 
     list(APPEND EXTRA_LIBS "msvcrt.lib")
     # Don't try to link with the default set of libraries.
