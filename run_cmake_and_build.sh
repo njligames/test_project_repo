@@ -11,7 +11,7 @@ INSTALL_PREFIX=install
 
 EXECUTABLE_NAME=PLACEHOLDER
 EXECUTABLE_GITHUB_REPOSITORY=njligames-njlic_engine
-EXECUTABLE_GITHUB_BRANCH=feature/windows32-final
+EXECUTABLE_GITHUB_BRANCH=master
 EXECUTABLE_GITHUB_ACCOUNT=njligames
 
 if [ "${PLATFORM}" != "android" ]
@@ -21,10 +21,16 @@ then
   then
     rm -rf $BUILD_DIR
   else
-    BUILD_DIR=bot_$PLATFORM
+    # BUILD_DIR=bot_$PLATFORM
+    # rm $BUILD_DIR/CMakeCache.txt
+    # rm -rf $BUILD_DIR/CMakeScripts/
+    # rm -rf $BUILD_DIR/NJLIC*
+
+    BUILD_DIR=NJLIC_${PLATFORM}_Robot
     rm $BUILD_DIR/CMakeCache.txt
     rm -rf $BUILD_DIR/CMakeScripts/
     rm -rf $BUILD_DIR/NJLIC*
+    
   fi
 
   mkdir -p $BUILD_DIR
