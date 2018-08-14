@@ -5,9 +5,5 @@
 # For customization when using a Version Control System, please read the
 # header note.
 #Sun Jun 24 23:18:25 EDT 2018
-# ndk.dir=/Users/jamesfolk/Library/Android/sdk/ndk-bundle
-# sdk.dir=/Users/jamesfolk/Library/Android/sdk
 ndk.dir=@ANDROID_NDK@
 sdk.dir=@ANDROID_SDK@
-# ndk.dir=/Users/jamesfolk/Library/Android/sdk/ndk-bundle
-# sdk.dir=/Users/jamesfolk/Library/Android/sdk

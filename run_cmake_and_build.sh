@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# To build android make sure that ANDROID_HOME environment variable is set.
+
 PLATFORM=$1
 BOT=$2
 CONFIGURATION=Debug
@@ -35,9 +37,9 @@ then
   # export CXX=/usr/bin/c++
 
   # export EMSCRIPTEN_VERSION=1.37.9
-  export EMSCRIPTEN_VERSION=1.38.10
-  export EMSCRIPTEN_LOCATION=/Users/jamesfolk/Work/tools/emsdk/emscripten/${EMSCRIPTEN_VERSION}
-  export EMSCRIPTEN_INCLUDE_LOCATION=${EMSCRIPTEN_LOCATION}/system/include
+  # export EMSCRIPTEN_VERSION=1.38.10
+  # export EMSCRIPTEN_LOCATION=/Users/jamesfolk/Work/tools/emsdk/emscripten/${EMSCRIPTEN_VERSION}
+  # export EMSCRIPTEN_INCLUDE_LOCATION=${EMSCRIPTEN_LOCATION}/system/include
 
 
   # export EMCC_DEBUG=1 # Verbose building...
@@ -136,7 +138,7 @@ then
 elif [ "${PLATFORM}" == "android" ]
 then
 
-  rm -rf android/app/.externalNativeBuild
+  # rm -rf android/app/.externalNativeBuild
 
   cd android
   ./gradlew clean
@@ -196,6 +198,6 @@ else
 fi
 
 cmake --build . --target clean
-# cmake --build . --config ${CONFIGURATION} # --target install
+cmake --build . --config ${CONFIGURATION} # --target install
 
 cd ..

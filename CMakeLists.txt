@@ -67,7 +67,7 @@ include(${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake/print-targets.cmake)
 set(EXECUTABLE_NAME "PLACEHOLDER" CACHE STRING "The name of the executable")
 set(EXECUTABLE_GITHUB_REPOSITORY "test_engine_repo" CACHE STRING "The repository to use from the ")
 set(EXECUTABLE_GITHUB_ACCOUNT "njligames" CACHE STRING "The repository to use from the ")
-SET(EXECUTABLE_GITHUB_BRANCH "master" CACHE STRING "The repository to use")
+SET(EXECUTABLE_GITHUB_BRANCH "feature/windows32-final" CACHE STRING "The repository to use")
 
 set(${CMAKE_PROJECT_NAME}_REPO_URL "https://github.com/${EXECUTABLE_GITHUB_ACCOUNT}/${EXECUTABLE_GITHUB_REPOSITORY}/archive/${EXECUTABLE_GITHUB_BRANCH}.tar.gz")
 if(ANDROID)
@@ -953,17 +953,16 @@ endif()
 
 if(ANDROID)
 
-  if (CMAKE_SYSTEM_NAME MATCHES "Windows")
-    set(SEP "\\")
-  else ()
-    set(SEP "/")
-  endif()
+  # if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+  #   set(SEP "\\")
+  # else ()
+  #   set(SEP "/")
+  # endif()
 
-  set(ANDROID_SDK "${ANDROID_NDK}${SEP}..")
+  set(ANDROID_SDK "$ENV{ANDROID_HOME}")
 
-
-  configure_file("${${CMAKE_PROJECT_NAME}_REPO_DIR}/../local.properties.in"
-    "${${CMAKE_PROJECT_NAME}_REPO_DIR}/../local.properties.in")
+  configure_file("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/../local.properties.in"
+    "${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/../local.properties")
 
   # file(GLOB ANDROID_CORE_SOURCES ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/src/core/android/*.c)
   # set(SOURCE_FILES ${SOURCE_FILES} ${ANDROID_CORE_SOURCES})
