@@ -18,3 +18,6 @@ android/gameproject/
 android/njligames-njlic_engine/
 android/thirdparty/
 android/local.properties
+
+android/res/*
+

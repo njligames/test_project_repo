@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 
 import android.app.*;
 import android.content.*;
+import android.content.res.AssetManager;
 import android.text.InputType;
 import android.view.*;
 import android.view.inputmethod.BaseInputConnection;
@@ -140,6 +141,9 @@ public class SDLActivity extends Activity {
             mBrokenLibraries = true;
             errorMsgBrokenLib = e.getMessage();
         }
+
+        AssetManager assetManager = getAssets();
+        SDLActivity.initAssetManager(assetManager);
 
         if (mBrokenLibraries)
         {
@@ -441,6 +445,8 @@ public class SDLActivity extends Activity {
                                                int naxes, int nhats, int nballs);
     public static native int nativeRemoveJoystick(int device_id);
     public static native String nativeGetHint(String name);
+
+    public static native void initAssetManager(AssetManager assetManager);
 
     /**
      * This method is called by SDL using JNI.

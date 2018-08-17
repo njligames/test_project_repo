@@ -21,15 +21,15 @@ then
   then
     rm -rf $BUILD_DIR
   else
-    # BUILD_DIR=bot_$PLATFORM
-    # rm $BUILD_DIR/CMakeCache.txt
-    # rm -rf $BUILD_DIR/CMakeScripts/
-    # rm -rf $BUILD_DIR/NJLIC*
-
-    BUILD_DIR=NJLIC_${PLATFORM}_Robot
+    BUILD_DIR=bot_$PLATFORM
     rm $BUILD_DIR/CMakeCache.txt
     rm -rf $BUILD_DIR/CMakeScripts/
     rm -rf $BUILD_DIR/NJLIC*
+
+    # BUILD_DIR=NJLIC_${PLATFORM}_Robot
+    # rm $BUILD_DIR/CMakeCache.txt
+    # rm -rf $BUILD_DIR/CMakeScripts/
+    # rm -rf $BUILD_DIR/NJLIC*
     
   fi
 
@@ -144,11 +144,12 @@ then
 elif [ "${PLATFORM}" == "android" ]
 then
 
-  # rm -rf android/app/.externalNativeBuild
+  rm -rf android/app/.externalNativeBuild
 
   cd android
   ./gradlew clean
   ./gradlew assemble${CONFIGURATION}
+  ./gradlew install${CONFIGURATION}
 
 elif [ "${PLATFORM}" == "oculus_windows64" ]
 then
@@ -204,6 +205,6 @@ else
 fi
 
 cmake --build . --target clean
-cmake --build . --config ${CONFIGURATION} # --target install
+# cmake --build . --config ${CONFIGURATION} # --target install
 
 cd ..

@@ -2180,7 +2180,25 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
         "${CMAKE_SOURCE_DIR}/android/app/.externalNativeBuild/cmake/${ANDROID_BUILD_DIR}/${ANDROID_ABI}/cmake.in/platform.in/android/res/mipmap-${dir}"
         "${CMAKE_SOURCE_DIR}/android/app/src/main/res/mipmap-${dir}"
         )
-    endforeach(dir)
+    endforeach()
+
+    foreach(abi arm64-v8a armeabi-v7a x86 x86_64)
+      foreach(_lib ${${abi}_LIBRARIES})
+        string(STRIP "${_lib}" _lib_stripped)
+
+        add_custom_command(TARGET main POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy
+          ${_lib_stripped}
+          "${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/../app/src/main/jniLibs/${abi}"
+          )
+      endforeach()
+    endforeach()
+
+    add_custom_command(TARGET main POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_directory
+      ${RESOURCE_FILES} 
+      "${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/../res/assets"
+      )
 
     configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/android/res/values/generated_strings.xml.in"
       "${CMAKE_SOURCE_DIR}/android/app/.externalNativeBuild/cmake/${ANDROID_BUILD_DIR}/${ANDROID_ABI}/cmake.in/platform.in/android/res/values")

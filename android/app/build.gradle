@@ -6,8 +6,9 @@ android {
 
     sourceSets {
       main {
+ 
         assets.srcDirs = [
-        '../res'
+        '../res',
         ]
       }
     }
@@ -23,10 +24,12 @@ android {
             cmake {
                 //cppFlags "-std=c++11 -frtti -fexceptions"
                 arguments "-DANDROID=TRUE",
+                        "-DNDK_DEBUG=1",
                         "-DEXECUTABLE_NAME:STRING=PLACEHOLDER",
                         "-DEXECUTABLE_GITHUB_REPOSITORY=njligames-njlic_engine",
-                        "-DEXECUTABLE_GITHUB_BRANCH:STRING=feature/android",
-                        "-DEXECUTABLE_GITHUB_ACCOUNT=njligames"
+                        "-DEXECUTABLE_GITHUB_BRANCH:STRING=master",
+                        "-DEXECUTABLE_GITHUB_ACCOUNT=njligames",
+                        "-DCMAKE_VERBOSE_MAKEFILE=1"
             }
         }
 	ndk {
@@ -38,12 +41,16 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug {
+            jniDebuggable true
+        }
     }
     externalNativeBuild {
         cmake {
             path "../../CMakeLists.txt"
         }
     }
+
 }
 
 dependencies {
