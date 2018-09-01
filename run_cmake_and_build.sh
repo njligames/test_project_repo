@@ -206,6 +206,6 @@ else
 fi
 
 cmake --build . --target clean
-# cmake --build . --config ${CONFIGURATION} # --target install
+cmake --build . --config ${CONFIGURATION} # --target install
 
 cd ..
