@@ -415,7 +415,7 @@ if(EMSCRIPTEN)
 endif()
 
 if(ANDROID)
-  set(${CMAKE_PROJECT_NAME}_STATIC_ENABLED_BY_DEFAULT OFF)
+  set(${CMAKE_PROJECT_NAME}_STATIC_ENABLED_BY_DEFAULT ON)
   set(${CMAKE_PROJECT_NAME}_EXE_ENABLED_BY_DEFAULT OFF)
 endif()
 
@@ -2139,6 +2139,7 @@ MESSAGE( STATUS "CMAKE_OSX_ARCHITECTURES: " ${CMAKE_OSX_ARCHITECTURES} )
 
 # Ensure that the extra cflags are used at compile time
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CXXFLAGS}")
 
 # include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/source_groups.cmake")
 
@@ -2170,7 +2171,7 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
       )
 
     list(APPEND EXTRA_LIBS SDL2)
-    target_link_libraries(main ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
+    target_link_libraries(main ${EXTRA_LDFLAGS} optimized ${EXTRA_LIBS})
 
     add_dependencies(main SDL2)
 

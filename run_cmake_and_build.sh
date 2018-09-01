@@ -25,6 +25,7 @@ then
     rm $BUILD_DIR/CMakeCache.txt
     rm -rf $BUILD_DIR/CMakeScripts/
     rm -rf $BUILD_DIR/NJLIC*
+    rm $BUILD_DIR/njligames-njlic_engine/swig/lua/*.c*
 
     # BUILD_DIR=NJLIC_${PLATFORM}_Robot
     # rm $BUILD_DIR/CMakeCache.txt

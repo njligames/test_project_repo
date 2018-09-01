@@ -29,7 +29,8 @@ android {
                         "-DEXECUTABLE_GITHUB_REPOSITORY=njligames-njlic_engine",
                         "-DEXECUTABLE_GITHUB_BRANCH:STRING=master",
                         "-DEXECUTABLE_GITHUB_ACCOUNT=njligames",
-                        "-DCMAKE_VERBOSE_MAKEFILE=1"
+                        "-DCMAKE_VERBOSE_MAKEFILE=1",
+                        "-DANDROID_DEPRECATED_HEADERS=ON"
             }
         }
 	ndk {
