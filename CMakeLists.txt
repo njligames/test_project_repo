@@ -58,6 +58,7 @@ if(VR)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 include(${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake/macros.cmake)
 include(${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/cmake/sdlchecks.cmake)
@@ -2346,6 +2347,8 @@ if(${CMAKE_PROJECT_NAME}_EXE)
       XCODE_ATTRIBUTE_INSTALL_PATH "/Applications"
       XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "SRBQ5SCF5X"
       )
+
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY XCODE_STARTUP_PROJECT ${CMAKE_PROJECT_NAME}-exe)
 
     if(NOT IOS AND NOT TVOS)
       configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/macOS/Info.plist.in"
