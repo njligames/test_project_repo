@@ -2,8 +2,8 @@ set(LIBRARY_NAME "sdl2")
 
 set(INCLUDE_URL "https://www.dropbox.com/s/ninle2iwebrcpdq/libsdl_include.tar.gz?dl=0")
 
-set(EMSCRIPTEN_DEBUG_URL "")
-set(EMSCRIPTEN_RELEASE_URL "")
+set(EMSCRIPTEN_DEBUG_URL "https://www.dropbox.com/s/foq0lphgfrcfaws/libsdl2_emscripten_Debug.tar.gz?dl=0")
+set(EMSCRIPTEN_RELEASE_URL "https://www.dropbox.com/s/4u4ij8mcz0oym6a/libsdl2_emscripten_Release.tar.gz?dl=0")
 
 set(WINDOWS32_DEBUG_URL "")
 set(WINDOWS32_RELEASE_URL "")
@@ -21,8 +21,8 @@ set(APPLETV_SIMULATOR_DEBUG_URL "https://www.dropbox.com/s/4jaimt66kl26x6s/libsd
 set(APPLETV_DEVICE_RELEASE_URL "https://www.dropbox.com/s/ujjsr0wqvmms5d2/libsdl2_ios_Release-appletvos.tar.gz?dl=0")
 set(APPLETV_SIMULATOR_RELEASE_URL "https://www.dropbox.com/s/2j8078to0cy9qa9/libsdl2_ios_Release-appletvsimulator.tar.gz?dl=0")
 
-set(MACOS_DEBUG_URL "")
-set(MACOS_RELEASE_URL "")
+set(MACOS_DEBUG_URL "https://www.dropbox.com/s/nvhp2k3ykm56zw0/libsdl2_macos_Debug.tar.gz?dl=0")
+set(MACOS_RELEASE_URL "https://www.dropbox.com/s/80eklswpp6c2fbc/libsdl2_macos_Release.tar.gz?dl=0")
 
 set(LINUX_DEBUG_URL "")
 set(LINUX_RELEASE_URL "")

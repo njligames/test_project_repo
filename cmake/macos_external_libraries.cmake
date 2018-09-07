@@ -1,17 +1,11 @@
 
 message(STATUS "Platform is macos for engine")
 
-find_package(SDL2 REQUIRED)
-list(APPEND EXTRA_LIBS ${SDL2_LIBRARY})
-include_directories(${SDL2_INCLUDE_DIR})
+include("${CMAKE_SOURCE_DIR}/cmake/DownloadSDL2_NJLIC.cmake")
+list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS "${SDL2_INCLUDE_DIRS}")
 
-# find_package(GLEW REQUIRED)
-# list(APPEND EXTRA_LIBS ${GLEW_LIBRARY})
-# include_directories(${GLEW_INCLUDE_DIR})
-
-file(GLOB SDL2_INCLUDE_FILES
-  ${SDL2_INCLUDE_DIR}/*.h
-  )
+find_package(SDL2_NJLIC REQUIRED)
+list(APPEND EXTRA_LIBS ${SDL2_TARGETS})
 
 SOURCE_GROUP("THIRDPARTY\\SDL2" FILES ${SDL2_INCLUDE_FILES} )
 

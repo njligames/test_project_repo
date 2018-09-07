@@ -24,4 +24,6 @@ android/app/src/main/jniLibs/arm64-v8a/*.so
 android/app/src/main/jniLibs/armeabi-v7a/*.so
 android/app/src/main/jniLibs/x86/*.so
 android/app/src/main/jniLibs/x86_64/*.so
+include/
+src/
 
