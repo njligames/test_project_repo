@@ -5,11 +5,11 @@ set(INCLUDE_URL "https://www.dropbox.com/s/ninle2iwebrcpdq/libsdl_include.tar.gz
 set(EMSCRIPTEN_DEBUG_URL "https://www.dropbox.com/s/foq0lphgfrcfaws/libsdl2_emscripten_Debug.tar.gz?dl=0")
 set(EMSCRIPTEN_RELEASE_URL "https://www.dropbox.com/s/4u4ij8mcz0oym6a/libsdl2_emscripten_Release.tar.gz?dl=0")
 
-set(WINDOWS32_DEBUG_URL "")
-set(WINDOWS32_RELEASE_URL "")
+set(WINDOWS32_DEBUG_URL "https://www.dropbox.com/s/ihf03e978viytym/libsdl2_windows32_Debug.tar.gz?dl=0")
+set(WINDOWS32_RELEASE_URL "https://www.dropbox.com/s/p9zrhodl6dbim0y/libsdl2_windows32_Release.tar.gz?dl=0")
 
-set(WINDOWS64_DEBUG_URL "")
-set(WINDOWS64_RELEASE_URL "")
+set(WINDOWS64_DEBUG_URL "https://www.dropbox.com/s/icmaf8utbhpy8jb/libsdl2_windows64_Debug.tar.gz?dl=0")
+set(WINDOWS64_RELEASE_URL "https://www.dropbox.com/s/qmakjyztd63wq30/libsdl2_windows64_Release.tar.gz?dl=0")
 
 set(IOS_DEVICE_DEBUG_URL "https://www.dropbox.com/s/4w6ck8w3rqwbel1/libsdl2_ios_Debug-iphoneos.tar.gz?dl=0")
 set(IOS_SIMULATOR_DEBUG_URL "https://www.dropbox.com/s/i9qcfwpqsvkotnx/libsdl2_ios_Debug-iphonesimulator.tar.gz?dl=0")
