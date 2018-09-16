@@ -2,8 +2,10 @@
 set(LIBRARY_NAME "sdl2")
 set(SUB_LIBRARY_NAMES
   "SDL2"
-  "SDL2main"
   )
+if(MSVC)
+  list(APPEND SUB_LIBRARY_NAMES "SDL2main")
+endif()
 
 set(INCLUDE_FILE "SDL.h")
 

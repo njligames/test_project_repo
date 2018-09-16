@@ -30,15 +30,15 @@ set(LINUX_RELEASE_URL "https://www.dropbox.com/s/vdih3cithe90o0i/libsdl2_linux_R
 set(UNIX_DEBUG_URL "")
 set(UNIX_RELEASE_URL "")
 
-set(ANDROID_arm64-v8a_DEBUG_URL     "")
-set(ANDROID_armeabi-v7a_DEBUG_URL   "")
-set(ANDROID_x86_64_DEBUG_URL        "")
-set(ANDROID_x86_DEBUG_URL           "")
+set(ANDROID_arm64-v8a_DEBUG_URL     "https://www.dropbox.com/s/ibtlcj8z4b4pocb/libsdl2_android_Debug-arm64-v8a.tar.gz?dl=0")
+set(ANDROID_armeabi-v7a_DEBUG_URL   "https://www.dropbox.com/s/z7n25n0omcqw7yp/libsdl2_android_Debug-armeabi-v7a.tar.gz?dl=0")
+set(ANDROID_x86_64_DEBUG_URL        "https://www.dropbox.com/s/o6ikm2qu3v8393e/libsdl2_android_Debug-x86_64.tar.gz?dl=0")
+set(ANDROID_x86_DEBUG_URL           "https://www.dropbox.com/s/to7ttv2r6n6re45/libsdl2_android_Debug-x86.tar.gz?dl=0")
 
-set(ANDROID_arm64-v8a_RELEASE_URL   "")
-set(ANDROID_armeabi-v7a_RELEASE_URL "")
-set(ANDROID_x86_64_RELEASE_URL      "")
-set(ANDROID_x86_RELEASE_URL         "")
+set(ANDROID_arm64-v8a_RELEASE_URL   "https://www.dropbox.com/s/bfuaxq02l3442jv/libsdl2_android_Release-arm64-v8a.tar.gz?dl=0")
+set(ANDROID_armeabi-v7a_RELEASE_URL "https://www.dropbox.com/s/obpkoi4ee85l92c/libsdl2_android_Release-armeabi-v7a.tar.gz?dl=0")
+set(ANDROID_x86_64_RELEASE_URL      "https://www.dropbox.com/s/dln485wduswfbql/libsdl2_android_Release-x86_64.tar.gz?dl=0")
+set(ANDROID_x86_RELEASE_URL         "https://www.dropbox.com/s/neit8adsssv2syn/libsdl2_android_Release-x86.tar.gz?dl=0")
 
 ###########################################################################################################################
 

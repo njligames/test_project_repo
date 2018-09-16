@@ -145,9 +145,9 @@ then
 elif [ "${PLATFORM}" == "android" ]
 then
 
-  rm -rf android/app/.externalNativeBuild
+  rm -rf bot_android/app/.externalNativeBuild
 
-  cd android
+  cd bot_android
   ./gradlew clean
   ./gradlew assemble${CONFIGURATION}
   ./gradlew install${CONFIGURATION}

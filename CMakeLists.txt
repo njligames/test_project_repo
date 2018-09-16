@@ -2149,14 +2149,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CXXFLAGS}")
 if(${CMAKE_PROJECT_NAME}_SHARED)
   if(ANDROID)
 
-    string(TOLOWER ${CMAKE_BUILD_TYPE} ANDROID_BUILD_DIR)
-    set(DISTRIBUTION_DIR ${CMAKE_SOURCE_DIR}/android/distribution/android/SDL2/intermediates/ndkBuild)
-    set(SDL_LOCATION ${CMAKE_SOURCE_DIR}/android/thirdparty/SDL2)
+    # string(TOLOWER ${CMAKE_BUILD_TYPE} ANDROID_BUILD_DIR)
+    # set(DISTRIBUTION_DIR ${CMAKE_SOURCE_DIR}/android/distribution/android/SDL2/intermediates/ndkBuild)
+    # set(SDL_LOCATION ${CMAKE_SOURCE_DIR}/android/thirdparty/SDL2)
 
-    add_library( SDL2 SHARED IMPORTED )
-    set_target_properties(SDL2 PROPERTIES IMPORTED_LOCATION ${DISTRIBUTION_DIR}/${ANDROID_BUILD_DIR}/obj/local/${ANDROID_ABI}/libSDL2.so)
+    # add_library( SDL2 SHARED IMPORTED )
+    # set_target_properties(SDL2 PROPERTIES IMPORTED_LOCATION ${DISTRIBUTION_DIR}/${ANDROID_BUILD_DIR}/obj/local/${ANDROID_ABI}/libSDL2.so)
 
-    list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${SDL_LOCATION}/SDL2/include)
+    # list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${SDL_LOCATION}/SDL2/include)
     if(${ANDROID_ABI} STREQUAL "armeabi-v7a" OR ${ANDROID_ABI} STREQUAL "x86")
       list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${ANDROID_SYSROOT}/usr/include/arm-linux-androideabi)
     elseif(${ANDROID_ABI} STREQUAL "arm64-v8a" OR ${ANDROID_ABI} STREQUAL "x86_64")
@@ -2167,16 +2167,16 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
       list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${ANDROID_SYSROOT}/usr/include/x86_64-linux-android)
     endif()
 
-    add_library( main SHARED ${SDL_LOCATION}/SDL2/src/main/android/SDL_android_main.c ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES})
+    add_library( main SHARED ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES})
     target_include_directories(main
       PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS}>
       PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_PROJECT_INCLUDE_DIRECTORES}>
       )
 
-    list(APPEND EXTRA_LIBS SDL2)
+    # list(APPEND EXTRA_LIBS SDL2)
     target_link_libraries(main ${EXTRA_LDFLAGS} optimized ${EXTRA_LIBS})
 
-    add_dependencies(main SDL2)
+    # add_dependencies(main SDL2)
 
     foreach(dir hdpi ldpi mdpi xhdpi xxhdpi xxxhdpi)
       add_custom_command(TARGET main POST_BUILD
