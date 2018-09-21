@@ -2146,73 +2146,30 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CXXFLAGS}")
 
 # include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/source_groups.cmake")
 
+include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/targets.cmake")
+
+SOURCE_GROUP_BY_FOLDER(${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY})
+SOURCE_GROUP_BY_FOLDER(${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS})
+
 if(${CMAKE_PROJECT_NAME}_SHARED)
-  if(ANDROID)
 
-    # string(TOLOWER ${CMAKE_BUILD_TYPE} ANDROID_BUILD_DIR)
-    # set(DISTRIBUTION_DIR ${CMAKE_SOURCE_DIR}/android/distribution/android/SDL2/intermediates/ndkBuild)
-    # set(SDL_LOCATION ${CMAKE_SOURCE_DIR}/android/thirdparty/SDL2)
-
-    # add_library( SDL2 SHARED IMPORTED )
-    # set_target_properties(SDL2 PROPERTIES IMPORTED_LOCATION ${DISTRIBUTION_DIR}/${ANDROID_BUILD_DIR}/obj/local/${ANDROID_ABI}/libSDL2.so)
-
-    # list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${SDL_LOCATION}/SDL2/include)
-    if(${ANDROID_ABI} STREQUAL "armeabi-v7a" OR ${ANDROID_ABI} STREQUAL "x86")
-      list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${ANDROID_SYSROOT}/usr/include/arm-linux-androideabi)
-    elseif(${ANDROID_ABI} STREQUAL "arm64-v8a" OR ${ANDROID_ABI} STREQUAL "x86_64")
-      list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${ANDROID_SYSROOT}/usr/include/aarch64-linux-android)
-    elseif(${ANDROID_ABI} STREQUAL "x86")
-      list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${ANDROID_SYSROOT}/usr/include/i686-linux-android)
-    elseif(${ANDROID_ABI} STREQUAL "x86_64")
-      list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${ANDROID_SYSROOT}/usr/include/x86_64-linux-android)
-    endif()
-
-    add_library( main SHARED ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES})
-    target_include_directories(main
-      PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS}>
-      PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_PROJECT_INCLUDE_DIRECTORES}>
-      )
-
-    # list(APPEND EXTRA_LIBS SDL2)
-    target_link_libraries(main ${EXTRA_LDFLAGS} optimized ${EXTRA_LIBS})
-
-    # add_dependencies(main SDL2)
-
-    foreach(dir hdpi ldpi mdpi xhdpi xxhdpi xxxhdpi)
-      add_custom_command(TARGET main POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${CMAKE_SOURCE_DIR}/android/app/.externalNativeBuild/cmake/${ANDROID_BUILD_DIR}/${ANDROID_ABI}/cmake.in/platform.in/android/res/mipmap-${dir}"
-        "${CMAKE_SOURCE_DIR}/android/app/src/main/res/mipmap-${dir}"
-        )
-    endforeach()
-
-    foreach(abi arm64-v8a armeabi-v7a x86 x86_64)
-      foreach(_lib ${${abi}_LIBRARIES})
-        string(STRIP "${_lib}" _lib_stripped)
-
-        add_custom_command(TARGET main POST_BUILD
-          COMMAND ${CMAKE_COMMAND} -E copy
-          ${_lib_stripped}
-          "${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/../app/src/main/jniLibs/${abi}"
-          )
-      endforeach()
-    endforeach()
-
-    add_custom_command(TARGET main POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_directory
-      ${RESOURCE_FILES} 
-      "${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/../res/assets"
-      )
-
-    configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/android/res/values/generated_strings.xml.in"
-      "${CMAKE_SOURCE_DIR}/android/app/.externalNativeBuild/cmake/${ANDROID_BUILD_DIR}/${ANDROID_ABI}/cmake.in/platform.in/android/res/values")
-
-
-  elseif(NOT LINUX)
+  if(NOT LINUX)
     LIST(REMOVE_ITEM SOURCE_FILES ${MAIN_FILES})
 
     add_library(${CMAKE_PROJECT_NAME} SHARED ${SOURCE_FILES} ${VERSION_SOURCES} ${INCLUDE_FILES})
     # target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC ${${CMAKE_PROJECT_NAME}_DEFINITIONS})
+
+    if(ANDROID)
+      if(${ANDROID_ABI} STREQUAL "armeabi-v7a" OR ${ANDROID_ABI} STREQUAL "x86")
+        list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${ANDROID_SYSROOT}/usr/include/arm-linux-androideabi)
+      elseif(${ANDROID_ABI} STREQUAL "arm64-v8a" OR ${ANDROID_ABI} STREQUAL "x86_64")
+        list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${ANDROID_SYSROOT}/usr/include/aarch64-linux-android)
+      elseif(${ANDROID_ABI} STREQUAL "x86")
+        list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${ANDROID_SYSROOT}/usr/include/i686-linux-android)
+      elseif(${ANDROID_ABI} STREQUAL "x86_64")
+        list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${ANDROID_SYSROOT}/usr/include/x86_64-linux-android)
+      endif()
+    endif()
 
     if(APPLE)
       set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES MACOSX_RPATH 1)
@@ -2252,9 +2209,13 @@ if(${CMAKE_PROJECT_NAME}_SHARED)
       PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_PROJECT_INCLUDE_DIRECTORES}>
       )
 
-    target_link_libraries(${CMAKE_PROJECT_NAME} ${EXTRA_LDFLAGS} optimized ${EXTRA_LIBS})
+    target_link_libraries(${CMAKE_PROJECT_NAME} ${EXTRA_LDFLAGS} ${EXTRA_LIBS})
 
   endif()
+
+  # if(ANDROID)
+  #   list(APPEND ${ANDROID_ABI}_LIBRARIES $<TARGET_FILE:${CMAKE_PROJECT_NAME}>)
+  # endif()
 endif(${CMAKE_PROJECT_NAME}_SHARED)
 
 if(${CMAKE_PROJECT_NAME}_STATIC)
@@ -2272,7 +2233,7 @@ if(${CMAKE_PROJECT_NAME}_STATIC)
   endif(APPLE)
 
   if (NOT ${CMAKE_PROJECT_NAME}_SHARED OR NOT WIN32)
-    set_target_properties(${CMAKE_PROJECT_NAME}-static PROPERTIES OUTPUT_NAME "${CMAKE_PROJECT_NAME}")
+    # set_target_properties(${CMAKE_PROJECT_NAME}-static PROPERTIES OUTPUT_NAME "${CMAKE_PROJECT_NAME}")
     # Note: Apparently, OUTPUT_NAME must really be unique; even when
     # CMAKE_IMPORT_LIBRARY_SUFFIX or the like are given. Otherwise
     # the static build may race with the import lib and one will get
@@ -2296,10 +2257,6 @@ if(${CMAKE_PROJECT_NAME}_STATIC)
 
 endif(${CMAKE_PROJECT_NAME}_STATIC)
 
-include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/targets.cmake")
-
-SOURCE_GROUP_BY_FOLDER(${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY})
-SOURCE_GROUP_BY_FOLDER(${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS})
 
 if(${CMAKE_PROJECT_NAME}_EXE)
   add_executable( ${CMAKE_PROJECT_NAME}-exe 
@@ -2472,6 +2429,63 @@ if(${CMAKE_PROJECT_NAME}_EXE)
   target_link_libraries(${CMAKE_PROJECT_NAME}-exe ${EXTRA_LDFLAGS} optimized ${EXTRA_LIBS})
   
 endif(${CMAKE_PROJECT_NAME}_EXE)
+
+if(ANDROID)
+
+  if(${ANDROID_ABI} STREQUAL "armeabi-v7a" OR ${ANDROID_ABI} STREQUAL "x86")
+    list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${ANDROID_SYSROOT}/usr/include/arm-linux-androideabi)
+  elseif(${ANDROID_ABI} STREQUAL "arm64-v8a" OR ${ANDROID_ABI} STREQUAL "x86_64")
+    list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${ANDROID_SYSROOT}/usr/include/aarch64-linux-android)
+  elseif(${ANDROID_ABI} STREQUAL "x86")
+    list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${ANDROID_SYSROOT}/usr/include/i686-linux-android)
+  elseif(${ANDROID_ABI} STREQUAL "x86_64")
+    list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS ${ANDROID_SYSROOT}/usr/include/x86_64-linux-android)
+  endif()
+
+  # add_library( main SHARED ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES})
+  add_library( main SHARED ${MAIN_FILES})
+
+  target_include_directories(main
+    PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS}>
+    PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_PROJECT_INCLUDE_DIRECTORES}>
+    )
+
+  # list(APPEND EXTRA_LIBS SDL2)
+  target_link_libraries(main ${EXTRA_LDFLAGS} optimized ${EXTRA_LIBS})
+  target_link_libraries(main ${CMAKE_PROJECT_NAME})
+
+  # add_dependencies(main SDL2)
+
+  foreach(dir hdpi ldpi mdpi xhdpi xxhdpi xxxhdpi)
+    add_custom_command(TARGET main POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_directory
+      "${CMAKE_SOURCE_DIR}/android/app/.externalNativeBuild/cmake/${ANDROID_BUILD_DIR}/${ANDROID_ABI}/cmake.in/platform.in/android/res/mipmap-${dir}"
+      "${CMAKE_SOURCE_DIR}/android/app/src/main/res/mipmap-${dir}"
+      )
+  endforeach()
+
+  foreach(abi arm64-v8a armeabi-v7a x86 x86_64)
+    foreach(_lib ${${abi}_LIBRARIES})
+      string(STRIP "${_lib}" _lib_stripped)
+
+      add_custom_command(TARGET main POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${_lib_stripped}
+        "${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/../app/src/main/jniLibs/${abi}"
+        )
+    endforeach()
+  endforeach()
+
+  add_custom_command(TARGET main POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${RESOURCE_FILES} 
+    "${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/../res/assets"
+    )
+
+  configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/android/res/values/generated_strings.xml.in"
+    "${CMAKE_SOURCE_DIR}/android/app/.externalNativeBuild/cmake/${ANDROID_BUILD_DIR}/${ANDROID_ABI}/cmake.in/platform.in/android/res/values")
+
+endif(ANDROID)
 
 #                    ##### Installation targets #####
 #                    install(TARGETS ${_INSTALL_LIBS} EXPORT ${CMAKE_PROJECT_NAME}Targets
