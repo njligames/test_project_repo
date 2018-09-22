@@ -1925,6 +1925,12 @@ if(NOT WINDOWS OR CYGWIN)
     "${${CMAKE_PROJECT_NAME}_BINARY_DIR}/${CMAKE_PROJECT_NAME}.spec" @ONLY)
 endif()
 
+include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/targets.cmake")
+
+list(REMOVE_DUPLICATES EXTRA_LIBS)
+
+SOURCE_GROUP_BY_FOLDER(${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY})
+SOURCE_GROUP_BY_FOLDER(${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS})
 
 ##### Info output #####
 message(STATUS "")
@@ -1972,6 +1978,7 @@ if(UNIX)
   message(STATUS "CFLAGS and LDFLAGS environment variables correctly.")
   message(STATUS "")
 endif()
+
 
 # ------------------------- Begin Generic CMake Variable Logging ------------------
 
@@ -2145,11 +2152,6 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CXXFLAGS}")
 
 # include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/source_groups.cmake")
-
-include("${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/cmake/targets.cmake")
-
-SOURCE_GROUP_BY_FOLDER(${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY})
-SOURCE_GROUP_BY_FOLDER(${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS})
 
 if(${CMAKE_PROJECT_NAME}_SHARED)
 
