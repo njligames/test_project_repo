@@ -21,7 +21,7 @@ then
   then
     rm -rf $BUILD_DIR
   else
-    BUILD_DIR=bot_$PLATFORM
+    BUILD_DIR=buildbot_$PLATFORM
     rm $BUILD_DIR/CMakeCache.txt
     rm -rf $BUILD_DIR/CMakeScripts/
     rm -rf $BUILD_DIR/NJLIC*
