@@ -11,7 +11,7 @@ INSTALL_PREFIX=install
 
 EXECUTABLE_NAME=PLACEHOLDER
 EXECUTABLE_GITHUB_REPOSITORY=njligames-njlic_engine
-EXECUTABLE_GITHUB_BRANCH=feature/VR
+EXECUTABLE_GITHUB_BRANCH=master
 EXECUTABLE_GITHUB_ACCOUNT=njligames
 
 if [ "${PLATFORM}" != "android" ]
@@ -25,7 +25,6 @@ then
     rm $BUILD_DIR/CMakeCache.txt
     rm -rf $BUILD_DIR/CMakeScripts/
     rm -rf $BUILD_DIR/NJLIC*
-    rm $BUILD_DIR/njligames-njlic_engine/swig/lua/*.c*
 
     # BUILD_DIR=NJLIC_${PLATFORM}_Robot
     # rm $BUILD_DIR/CMakeCache.txt
