@@ -2266,6 +2266,10 @@ if(${CMAKE_PROJECT_NAME}_EXE)
       MACOSX_BUNDLE 
       ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES} ${INCLUDE_FILES}
       )
+  elseif(LINUX)
+    add_executable( ${CMAKE_PROJECT_NAME}-exe 
+      ${SOURCE_FILES} ${MAIN_FILES} ${INCLUDE_FILES}
+      )
   else()
     add_executable( ${CMAKE_PROJECT_NAME}-exe 
       ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES} ${INCLUDE_FILES}
@@ -2273,10 +2277,12 @@ if(${CMAKE_PROJECT_NAME}_EXE)
   endif()
 
   # add_dependencies(${CMAKE_PROJECT_NAME}-exe engine_code)
-  SET_TARGET_PROPERTIES(
-      ${CMAKE_PROJECT_NAME}-exe PROPERTIES
-      RESOURCE "${RESOURCE_FILES}"
-    )
+  if(NOT LINUX)
+    SET_TARGET_PROPERTIES(
+        ${CMAKE_PROJECT_NAME}-exe PROPERTIES
+        RESOURCE "${RESOURCE_FILES}"
+      )
+  endif()
 
 
   if(EMSCRIPTEN)
@@ -2576,6 +2582,10 @@ if(NOT ANDROID)
         RUNTIME DESTINATION bin 
         BUNDLE DESTINATION bin
         )
+    endif()
+
+    if(LINUX OR (MSVC AND NOT LIBC))
+      INSTALL(DIRECTORY ${RESOURCE_FILES} DESTINATION bin)
     endif()
 
     # TODO: what about the .spec file? Is it only needed for RPM creation?
