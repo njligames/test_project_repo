@@ -2531,13 +2531,13 @@ if(NOT ANDROID)
     COMPONENT Devel
   )
 
-  file(GLOB INCLUDE_FILES ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/include/*.h)
-  file(GLOB BIN_INCLUDE_FILES ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/include/*.h)
-  foreach(_FNAME ${BIN_INCLUDE_FILES})
-    get_filename_component(_INCNAME ${_FNAME} NAME)
-    list(REMOVE_ITEM INCLUDE_FILES ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/include/${_INCNAME})
-  endforeach()
-  list(APPEND INCLUDE_FILES ${BIN_INCLUDE_FILES})
+#  file(GLOB INCLUDE_FILES ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/include/*.h)
+#  file(GLOB BIN_INCLUDE_FILES ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/include/*.h)
+#   foreach(_FNAME ${BIN_INCLUDE_FILES})
+#     get_filename_component(_INCNAME ${_FNAME} NAME)
+#     list(REMOVE_ITEM INCLUDE_FILES ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/include/${_INCNAME})
+#   endforeach()
+#   list(APPEND INCLUDE_FILES ${BIN_INCLUDE_FILES})
   install(FILES ${INCLUDE_FILES} DESTINATION include/${CMAKE_PROJECT_NAME})
 
   if(NOT (WINDOWS OR CYGWIN))
@@ -2562,11 +2562,8 @@ if(NOT ANDROID)
     install(PROGRAMS ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/njlic-config DESTINATION bin)
 
     if(EMSCRIPTEN)
-      # file(GLOB_RECURSE EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exe.*)
       file(GLOB_RECURSE EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/index.*)
       list(REMOVE_DUPLICATES EMSCRIPTEN_BINARY_FILES)
-      # list(REMOVE_ITEM EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exe.html)
-      # list(REMOVE_ITEM EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/index.html)
       install(FILES ${EMSCRIPTEN_BINARY_FILES} DESTINATION bin)
       install(FILES "${CMAKEIN_REPO_DIRECTORY}/platform.in/emscripten/executable/favicon-32x32.ico" DESTINATION bin)
     endif()
@@ -2576,6 +2573,67 @@ if(NOT ANDROID)
         RUNTIME DESTINATION bin 
         BUNDLE DESTINATION bin
         )
+    else()
+
+      if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+        #http://git.quintin.ninja/mjones/Dolphin/blob/1bd42b7acc0611e7120e4a16c442fd09f575a297/Source/Core/DolphinWX/CMakeLists.txt
+
+        if(TVOS)
+          set(BUNDLE_PATH ${CMAKE_BINARY_DIR}/Debug-${CMAKE_OSX_SYSROOT}/${CMAKE_PROJECT_NAME}GameEngine.app)
+
+          file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/postprocess_bundle.cmake "
+            message(\"Signing application bundle: ${BUNDLE_PATH} \$(EFFECTIVE_PLATFORM_NAME)\")
+            # https://www.slicer.org/wiki/Documentation/Nightly/Developers/Mac_OS_X_Code_Signing
+            execute_process(
+              COMMAND codesign --deep --force --sign \"$ENV{XCODE_DEVELOPMENT_TEAM}}\" -i \"com.njlicgames.engine.appletv.source\" \"${BUNDLE_PATH}\"
+            )
+            execute_process(
+              COMMAND codesign -dv \"${BUNDLE_PATH}\"
+            )
+          ")
+          add_custom_command(TARGET ${CMAKE_PROJECT_NAME}-exe POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -P postprocess_bundle.cmake
+          )
+        elseif(IOS)
+          set(BUNDLE_PATH ${CMAKE_BINARY_DIR}/Debug-${CMAKE_OSX_SYSROOT}/${CMAKE_PROJECT_NAME}GameEngine.app)
+
+          file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/postprocess_bundle.cmake "
+            message(\"Signing application bundle: ${BUNDLE_PATH} \$(EFFECTIVE_PLATFORM_NAME)\")
+            # https://www.slicer.org/wiki/Documentation/Nightly/Developers/Mac_OS_X_Code_Signing
+            execute_process(
+              COMMAND codesign --deep --force --sign \"$ENV{XCODE_DEVELOPMENT_TEAM}}\" -i \"com.njlicgames.engine.ios.source\" \"${BUNDLE_PATH}\"
+            )
+            execute_process(
+              COMMAND codesign -dv \"${BUNDLE_PATH}\"
+            )
+          ")
+          add_custom_command(TARGET ${CMAKE_PROJECT_NAME}-exe POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/postprocess_bundle.cmake
+          )
+        else()
+          set(BUNDLE_PATH ${CMAKE_BINARY_DIR}/Debug/${CMAKE_PROJECT_NAME}-exe.app)
+
+          file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/postprocess_bundle.cmake "
+            #SET(FIXUP_BUNDLE_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$(EFFECTIVE_PLATFORM_NAME)-${NJLI_BUILD_PLAT}/${CMAKE_PROJECT_NAME}-exe.app)
+            include(BundleUtilities)
+            fixup_bundle(\"${BUNDLE_PATH}\" \"\" \"${RESOURCE_FILES}\" )
+            message(\"Signing application bundle: ${BUNDLE_PATH} \$(EFFECTIVE_PLATFORM_NAME)\")
+            # https://www.slicer.org/wiki/Documentation/Nightly/Developers/Mac_OS_X_Code_Signing
+            execute_process(
+              COMMAND codesign --deep --force --sign \"$ENV{XCODE_DEVELOPMENT_TEAM}}\" -i \"com.njlicgames.engine.macos.source\" \"${BUNDLE_PATH}\"
+            )
+            execute_process(
+              COMMAND codesign -dv \"${BUNDLE_PATH}\"
+            )
+          ")
+          add_custom_command(TARGET ${CMAKE_PROJECT_NAME}-exe POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/postprocess_bundle.cmake
+          )
+
+        endif()
+
+        INSTALL( DIRECTORY ${BUNDLE_PATH} DESTINATION bin USE_SOURCE_PERMISSIONS )
+      endif()
     endif()
 
     # TODO: what about the .spec file? Is it only needed for RPM creation?
