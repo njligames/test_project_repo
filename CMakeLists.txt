@@ -2506,16 +2506,18 @@ endif(ANDROID)
 install(TARGETS ${_INSTALL_LIBS} EXPORT ${CMAKE_PROJECT_NAME}Targets
   LIBRARY DESTINATION "lib${LIB_SUFFIX}"
   ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
+  FRAMEWORK DESTINATION framework
   RUNTIME DESTINATION bin)
 
 ##### Export files #####
-if (APPLE)
-  set(PKG_PREFIX "${CMAKE_PROJECT_NAME}.framework/Resources")
-elseif (WINDOWS)
-  set(PKG_PREFIX "cmake")
-else ()
-  set(PKG_PREFIX "lib/cmake/${CMAKE_PROJECT_NAME}")
-endif ()
+# if (APPLE)
+#   set(PKG_PREFIX "${CMAKE_PROJECT_NAME}.framework/Resources")
+# elseif (WINDOWS)
+#   set(PKG_PREFIX "cmake")
+# else ()
+#   set(PKG_PREFIX "lib/cmake/${CMAKE_PROJECT_NAME}")
+# endif ()
+set(PKG_PREFIX "lib/cmake/${CMAKE_PROJECT_NAME}")
 
 if(NOT ANDROID)
   include(CMakePackageConfigHelpers)
@@ -2544,7 +2546,7 @@ if(NOT ANDROID)
 #     list(REMOVE_ITEM INCLUDE_FILES ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/include/${_INCNAME})
 #   endforeach()
 #   list(APPEND INCLUDE_FILES ${BIN_INCLUDE_FILES})
-  install(FILES ${INCLUDE_FILES} DESTINATION include/${CMAKE_PROJECT_NAME})
+  install(FILES ${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/njli/platform/Engine.h DESTINATION include/${CMAKE_PROJECT_NAME})
 
   if(NOT (WINDOWS OR CYGWIN))
     if(${CMAKE_PROJECT_NAME}_SHARED)
