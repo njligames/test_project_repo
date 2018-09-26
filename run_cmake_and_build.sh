@@ -26,11 +26,6 @@ then
     rm -rf $BUILD_DIR/CMakeScripts/
     rm -rf $BUILD_DIR/NJLIC*
     rm -rf $BUILD_DIR/${INSTALL_PREFIX}
-
-    # BUILD_DIR=NJLIC_${PLATFORM}_Robot
-    # rm $BUILD_DIR/CMakeCache.txt
-    # rm -rf $BUILD_DIR/CMakeScripts/
-    # rm -rf $BUILD_DIR/NJLIC*
     
   fi
 
@@ -207,5 +202,6 @@ fi
 
 cmake --build . --target clean
 cmake --build . --config ${CONFIGURATION} --target install
+cpack -C ${CONFIGURATION}
 
 cd ..
