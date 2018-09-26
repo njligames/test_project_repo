@@ -1337,7 +1337,6 @@ elseif(WINDOWS)
     "${CMAKEIN_REPO_DIRECTORY}/platform.in/windows/resource.rc")
 
   set( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/windows/resource.rc" )
-  list(APPEND RESOURCE_FILES ${ASSET_CATALOGUE})
 
   find_program(WINDRES windres)
 
@@ -2266,7 +2265,7 @@ if(${CMAKE_PROJECT_NAME}_EXE)
       MACOSX_BUNDLE 
       ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES} ${INCLUDE_FILES}
       )
-  elseif(LINUX)
+  elseif(LINUX OR MSVC)
     add_executable( ${CMAKE_PROJECT_NAME}-exe 
       ${SOURCE_FILES} ${MAIN_FILES} ${INCLUDE_FILES}
       )
@@ -2277,7 +2276,7 @@ if(${CMAKE_PROJECT_NAME}_EXE)
   endif()
 
   # add_dependencies(${CMAKE_PROJECT_NAME}-exe engine_code)
-  if(NOT LINUX)
+  if(NOT LINUX AND NOT MSVC)
     SET_TARGET_PROPERTIES(
         ${CMAKE_PROJECT_NAME}-exe PROPERTIES
         RESOURCE "${RESOURCE_FILES}"
@@ -2644,12 +2643,21 @@ if(NOT ANDROID)
       endif()
     endif()
 
-    if(LINUX OR (MSVC AND NOT LIBC))
-      INSTALL(DIRECTORY ${RESOURCE_FILES} DESTINATION bin)
-    endif()
 
     # TODO: what about the .spec file? Is it only needed for RPM creation?
     install(FILES "${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/njlic.m4" DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/aclocal")
+  endif()
+
+  if(LINUX)
+    INSTALL(DIRECTORY ${RESOURCE_FILES} DESTINATION bin)
+  elseif(WINDOWS)
+
+    set_property(TARGET ${CMAKE_PROJECT_NAME}-exe PROPERTY FOLDER "executables")
+    install (TARGETS ${CMAKE_PROJECT_NAME}-exe RUNTIME DESTINATION bin)
+
+    INSTALL(DIRECTORY ${RESOURCE_FILES} DESTINATION bin)
+    INSTALL(FILES ${SDL2_DYNAMIC_IMPORT_LOCATION} DESTINATION bin)
+
   endif()
 endif(NOT ANDROID)
 
