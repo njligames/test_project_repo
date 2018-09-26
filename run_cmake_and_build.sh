@@ -200,8 +200,17 @@ else
   cmake -E env CFLAGS='-O0 -g' cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
 fi
 
-cmake --build . --target clean
+# cmake --build . --target clean
 cmake --build . --config ${CONFIGURATION} --target install
-cpack -C ${CONFIGURATION}
+
+if [ "${PLATFORM}" == "ios" || "${PLATFORM}" == "vr_ios" ]
+then
+  cpack -C ${CONFIGURATION}-iphoneos
+elif [ "${PLATFORM}" == "appletv" ]
+then
+  cpack -C ${CONFIGURATION}-appletvos
+else
+  cpack -C ${CONFIGURATION}
+fi
 
 cd ..
