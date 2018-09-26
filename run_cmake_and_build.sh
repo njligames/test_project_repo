@@ -11,10 +11,10 @@ INSTALL_PREFIX=install/${CONFIGURATION}
 
 EXECUTABLE_NAME=PLACEHOLDER
 EXECUTABLE_GITHUB_REPOSITORY=njligames-njlic_engine
-EXECUTABLE_GITHUB_BRANCH=features/install
+EXECUTABLE_GITHUB_BRANCH=master
 EXECUTABLE_GITHUB_ACCOUNT=njligames
 
-if [ "${PLATFORM}" != "android" ]
+if  [ "${PLATFORM}" != "android" ] &&  [ "${PLATFORM}" != "vr_android" ] 
 then
   BUILD_DIR=.build_$PLATFORM
   if [ -z "$BOT" ]
@@ -140,9 +140,19 @@ then
 elif [ "${PLATFORM}" == "android" ]
 then
 
-  rm -rf bot_android/app/.externalNativeBuild
+  rm -rf buildbot_android/app/.externalNativeBuild
 
-  cd bot_android
+  cd buildbot_android
+  ./gradlew clean
+  ./gradlew assemble${CONFIGURATION}
+  ./gradlew install${CONFIGURATION}
+
+elif [ "${PLATFORM}" == "vr_android" ]
+then
+
+  rm -rf buildbot_vr_android/app/.externalNativeBuild
+
+  cd buildbot_vr_android
   ./gradlew clean
   ./gradlew assemble${CONFIGURATION}
   ./gradlew install${CONFIGURATION}
@@ -200,10 +210,10 @@ else
   cmake -E env CFLAGS='-O0 -g' cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
 fi
 
-# cmake --build . --target clean
+cmake --build . --target clean
 cmake --build . --config ${CONFIGURATION} --target install
 
-if [ "${PLATFORM}" == "ios" || "${PLATFORM}" == "vr_ios" ]
+if [ "${PLATFORM}" == "ios" ] || [ "${PLATFORM}" == "vr_ios" ]
 then
   cpack -C ${CONFIGURATION}-iphoneos
 elif [ "${PLATFORM}" == "appletv" ]
