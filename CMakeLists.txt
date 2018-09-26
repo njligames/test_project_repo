@@ -1337,7 +1337,6 @@ elseif(WINDOWS)
     "${CMAKEIN_REPO_DIRECTORY}/platform.in/windows/resource.rc")
 
   set( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/windows/resource.rc" )
-  list(APPEND RESOURCE_FILES ${ASSET_CATALOGUE})
 
   find_program(WINDRES windres)
 
@@ -2266,7 +2265,7 @@ if(${CMAKE_PROJECT_NAME}_EXE)
       MACOSX_BUNDLE 
       ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES} ${INCLUDE_FILES}
       )
-  elseif(LINUX)
+  elseif(LINUX OR MSVC)
     add_executable( ${CMAKE_PROJECT_NAME}-exe 
       ${SOURCE_FILES} ${MAIN_FILES} ${INCLUDE_FILES}
       )
@@ -2277,7 +2276,7 @@ if(${CMAKE_PROJECT_NAME}_EXE)
   endif()
 
   # add_dependencies(${CMAKE_PROJECT_NAME}-exe engine_code)
-  if(NOT LINUX)
+  if(NOT LINUX AND NOT MSVC)
     SET_TARGET_PROPERTIES(
         ${CMAKE_PROJECT_NAME}-exe PROPERTIES
         RESOURCE "${RESOURCE_FILES}"
@@ -2644,12 +2643,21 @@ if(NOT ANDROID)
       endif()
     endif()
 
-    if(LINUX OR (MSVC AND NOT LIBC))
-      INSTALL(DIRECTORY ${RESOURCE_FILES} DESTINATION bin)
-    endif()
 
     # TODO: what about the .spec file? Is it only needed for RPM creation?
     install(FILES "${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/njlic.m4" DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/aclocal")
+  endif()
+
+  if(LINUX)
+    install(DIRECTORY ${RESOURCE_FILES} DESTINATION bin)
+  elseif(WINDOWS)
+
+    set_property(TARGET ${CMAKE_PROJECT_NAME}-exe PROPERTY FOLDER "executables")
+    install (TARGETS ${CMAKE_PROJECT_NAME}-exe RUNTIME DESTINATION bin)
+
+    install(DIRECTORY ${RESOURCE_FILES} DESTINATION bin)
+    install(FILES ${SDL2_DYNAMIC_IMPORT_LOCATION} DESTINATION bin)
+
   endif()
 endif(NOT ANDROID)
 
@@ -2664,3 +2672,22 @@ if(NOT TARGET uninstall)
   add_custom_target(uninstall
       COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 endif()
+
+if(WINDOWS)
+  set(CPACK_GENERATOR NSIS)
+elseif(LINUX)
+  set(CPACK_GENERATOR DEB)
+  set(CPACK_DEBIAN_PACKAGE_MAINTAINER "James Folk")
+endif()
+
+set(CPACK_PACKAGE_NAME "${CMAKE_PROJECT_NAME}")
+set(CPACK_PACKAGE_VENDOR "NJLIGames LLC.")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${CMAKE_PROJECT_NAME} - Description")
+set(CPACK_PACKAGE_VERSION "${${CMAKE_PROJECT_NAME}_VERSION}")
+set(CPACK_PACKAGE_VERSION_MAJOR "${${CMAKE_PROJECT_NAME}_MAJOR_VERSION}")
+set(CPACK_PACKAGE_VERSION_MINOR "${${CMAKE_PROJECT_NAME}_MINOR_VERSION}")
+set(CPACK_PACKAGE_VERSION_PATCH "${${CMAKE_PROJECT_NAME}_MICRO_VERSION}")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CMAKE_PROJECT_NAME}")
+SET(CPACK_NSIS_MODIFY_PATH ON)
+
+INCLUDE(CPack)
