@@ -1,3 +1,9 @@
 [submodule "android/test_engine_repo"]
 	path = android/test_engine_repo
 	url = git@github.com:njligames/test_engine_repo.git
+[submodule "buildbot_android"]
+	path = buildbot_android
+	url = git@github.com:njligames/buildbot_android.git
+[submodule "buildbot_vr_android"]
+	path = buildbot_vr_android
+	url = git@github.com:njligames/buildbot_vr_android.git
