@@ -2287,33 +2287,13 @@ if(${CMAKE_PROJECT_NAME}_EXE)
   if(EMSCRIPTEN)
     set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES OUTPUT_NAME "index")
   else()
-    # set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES OUTPUT_NAME "${EXECUTABLE_NAME}")
+    set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES OUTPUT_NAME "${EXECUTABLE_NAME}")
   endif()
-  # list(APPEND ${CMAKE_PROJECT_NAME}_DEFINITIONS EXECUTABLE_NAME="\\"${EXECUTABLE_NAME}\\"")
-  add_definitions(-DEXECUTABLE_NAME="\\"${EXECUTABLE_NAME}\\"")
 
-  # target_compile_definitions(${CMAKE_PROJECT_NAME}-exe PUBLIC ${${CMAKE_PROJECT_NAME}_DEFINITIONS})
+  add_definitions(-DEXECUTABLE_NAME="\\"${EXECUTABLE_NAME}\\"")
 
   if(APPLE)
 
-    # https://stackoverflow.com/questions/40664125/cmake-and-code-signing-in-xcode-8-for-ios-projects?rq=1
-    # Automatic
-    # SET_XCODE_PROPERTY(MyTarget CODE_SIGN_IDENTITY "iPhone Developer")
-    # SET_XCODE_PROPERTY(MyTarget DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID})
-
-    # Manual
-    # SET_XCODE_PROPERTY(MyTarget CODE_SIGN_IDENTITY ${CODESIGNIDENTITY})
-    # SET_XCODE_PROPERTY(MyTarget DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID})
-    # SET_XCODE_PROPERTY(MyTarget PROVISIONING_PROFILE_SPECIFIER ${PROVISIONING_PROFILE_NAME})
-    # 
-    # PROVISIONING_PROFILE_NAME - file name without extension eg. My full name: Game_AppStore.mobileprovision so here I write Game_AppStore
-    # CODESIGNIDENTITY - Set to your preferred code sign identity, to see list: /usr/bin/env xcrun security find-identity -v -p codesigning
-
-    # This little macro lets you set any XCode specific property
-    # macro (set_xcode_property TARGET XCODE_PROPERTY XCODE_VALUE)
-    #     set_property (TARGET ${TARGET} PROPERTY XCODE_ATTRIBUTE_${XCODE_PROPERTY} ${XCODE_VALUE})
-    # endmacro (set_xcode_property)
-    
     # macOS and iOS and tvOS
     SET_TARGET_PROPERTIES(
       ${CMAKE_PROJECT_NAME}-exe PROPERTIES
@@ -2415,26 +2395,13 @@ if(${CMAKE_PROJECT_NAME}_EXE)
       $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}-exe>
       )
 
-#     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exe.Cpp.user.props" [=[
-# <?xml version="1.0" encoding="utf-8"?>
-# <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-# <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-# <LocalDebuggerEnvironment>PATH=]=] ${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY} [=[ ;$(PATH)</LocalDebuggerEnvironment>
-# </PropertyGroup>
-# <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-# <LocalDebuggerEnvironment>PATH=]=] ${CMAKE_BINARY_DIR}/${LIBSDL_LIBRARY_TARGET_DIRECTORY} [=[ ;$(PATH)</LocalDebuggerEnvironment>
-# </PropertyGroup>
-# </Project>
-# ]=])
-
-    #set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES VS_USER_PROPS "${CMAKE_PROJECT_NAME}-exe.Cpp.user.props")
-
     list(APPEND EXTRA_LIBS "msvcrt.lib")
     # Don't try to link with the default set of libraries.
     set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB:LIBCMT")
     set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB:LIBCMT")
     target_link_libraries(${CMAKE_PROJECT_NAME}-exe ${EXTRA_LDFLAGS} debug "msvcrtd.lib")
   endif()
+
   target_include_directories(${CMAKE_PROJECT_NAME}-exe
     PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS}>
     PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_PROJECT_INCLUDE_DIRECTORES}>
