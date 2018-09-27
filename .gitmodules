@@ -7,3 +7,6 @@
 [submodule "buildbot_vr_android"]
 	path = buildbot_vr_android
 	url = git@github.com:njligames/buildbot_vr_android.git
+[submodule "buildbot_linux"]
+	path = buildbot_linux
+	url = git@github.com:njligames/buildbot_linux.git
