@@ -16,3 +16,6 @@
 [submodule "buildbot_windows64"]
 	path = buildbot_windows64
 	url = git@github.com:njligames/buildbot_windows64.git
+[submodule "buildbot_emscripten"]
+	path = buildbot_emscripten
+	url = git@github.com:njligames/buildbot_emscripten.git
