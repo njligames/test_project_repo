@@ -10,3 +10,9 @@
 [submodule "buildbot_linux"]
 	path = buildbot_linux
 	url = git@github.com:njligames/buildbot_linux.git
+[submodule "buildbot_windows32"]
+	path = buildbot_windows32
+	url = git@github.com:njligames/buildbot_windows32.git
+[submodule "buildbot_windows64"]
+	path = buildbot_windows64
+	url = git@github.com:njligames/buildbot_windows64.git
