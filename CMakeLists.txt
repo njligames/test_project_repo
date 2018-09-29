@@ -2261,6 +2261,7 @@ endif(${CMAKE_PROJECT_NAME}_STATIC)
 
 if(${CMAKE_PROJECT_NAME}_EXE)
   if(APPLE)
+    LIST(APPEND SOURCE_FILES ${MAIN_FILES})
     add_executable( ${CMAKE_PROJECT_NAME}-exe 
       MACOSX_BUNDLE 
       ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES} ${INCLUDE_FILES}
@@ -2286,8 +2287,8 @@ if(${CMAKE_PROJECT_NAME}_EXE)
 
   if(EMSCRIPTEN)
     set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES OUTPUT_NAME "index")
-  else()
-    set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES OUTPUT_NAME "${EXECUTABLE_NAME}")
+    # else()
+    # elset_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES OUTPUT_NAME "${EXECUTABLE_NAME}")
   endif()
 
   add_definitions(-DEXECUTABLE_NAME="\\"${EXECUTABLE_NAME}\\"")
@@ -2319,7 +2320,7 @@ if(${CMAKE_PROJECT_NAME}_EXE)
         ${CMAKE_PROJECT_NAME}-exe PROPERTIES
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_BINARY_DIR}/Info.plist"
         XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
-        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.macos.source"
+        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njligames.engine.macos.source"
         XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "Mac Developer"
         )
     else()
@@ -2351,7 +2352,7 @@ if(${CMAKE_PROJECT_NAME}_EXE)
         XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES "NO"
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_BINARY_DIR}/Info.plist"
         XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
-        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.ios.source"
+        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njligames.engine.ios.source"
         )
     endif(IOS)
 
@@ -2365,7 +2366,7 @@ if(${CMAKE_PROJECT_NAME}_EXE)
         XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES "NO"
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_BINARY_DIR}/Info.plist"
         XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "App Icon & Top Shelf Image"
-        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njlicgames.engine.appletv.source"
+        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.njligames.engine.appletv.source"
         )
     endif(TVOS)
   elseif(UNIX AND NOT ANDROID)
@@ -2549,7 +2550,7 @@ if(NOT ANDROID)
         )
     else()
 
-      if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+      if(FALSE AND ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         #http://git.quintin.ninja/mjones/Dolphin/blob/1bd42b7acc0611e7120e4a16c442fd09f575a297/Source/Core/DolphinWX/CMakeLists.txt
 
         if(TVOS)
@@ -2559,7 +2560,7 @@ if(NOT ANDROID)
             message(\"Signing application bundle: ${BUNDLE_PATH} \$(EFFECTIVE_PLATFORM_NAME)\")
             # https://www.slicer.org/wiki/Documentation/Nightly/Developers/Mac_OS_X_Code_Signing
             execute_process(
-              COMMAND codesign --deep --force --sign \"$ENV{XCODE_DEVELOPMENT_TEAM}}\" -i \"com.njlicgames.engine.appletv.source\" \"${BUNDLE_PATH}\"
+              COMMAND codesign --deep --force --sign \"$ENV{XCODE_DEVELOPMENT_TEAM}\" -i \"com.njligames.engine.appletv.source\" \"${BUNDLE_PATH}\"
             )
             execute_process(
               COMMAND codesign -dv \"${BUNDLE_PATH}\"
@@ -2575,7 +2576,7 @@ if(NOT ANDROID)
             message(\"Signing application bundle: ${BUNDLE_PATH} \$(EFFECTIVE_PLATFORM_NAME)\")
             # https://www.slicer.org/wiki/Documentation/Nightly/Developers/Mac_OS_X_Code_Signing
             execute_process(
-              COMMAND codesign --deep --force --sign \"$ENV{XCODE_DEVELOPMENT_TEAM}}\" -i \"com.njlicgames.engine.ios.source\" \"${BUNDLE_PATH}\"
+              COMMAND codesign --deep --force --sign \"$ENV{XCODE_DEVELOPMENT_TEAM}\" -i \"com.njligames.engine.ios.source\" \"${BUNDLE_PATH}\"
             )
             execute_process(
               COMMAND codesign -dv \"${BUNDLE_PATH}\"
@@ -2585,7 +2586,7 @@ if(NOT ANDROID)
             COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/postprocess_bundle.cmake
           )
         else()
-          set(BUNDLE_PATH ${CMAKE_BINARY_DIR}/Debug/${CMAKE_PROJECT_NAME}-exe.app)
+          set(BUNDLE_PATH ${CMAKE_BINARY_DIR}/\$\(configuration\)/${CMAKE_PROJECT_NAME}-exe.app)
 
           file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/postprocess_bundle.cmake "
             #SET(FIXUP_BUNDLE_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$(EFFECTIVE_PLATFORM_NAME)-${NJLI_BUILD_PLAT}/${CMAKE_PROJECT_NAME}-exe.app)
@@ -2594,7 +2595,7 @@ if(NOT ANDROID)
             message(\"Signing application bundle: ${BUNDLE_PATH} \$(EFFECTIVE_PLATFORM_NAME)\")
             # https://www.slicer.org/wiki/Documentation/Nightly/Developers/Mac_OS_X_Code_Signing
             execute_process(
-              COMMAND codesign --deep --force --sign \"$ENV{XCODE_DEVELOPMENT_TEAM}}\" -i \"com.njlicgames.engine.macos.source\" \"${BUNDLE_PATH}\"
+              COMMAND codesign --deep --force --sign \"$ENV{XCODE_DEVELOPMENT_TEAM}\" -i \"com.njligames.engine.macos.source\" \"${BUNDLE_PATH}\"
             )
             execute_process(
               COMMAND codesign -dv \"${BUNDLE_PATH}\"

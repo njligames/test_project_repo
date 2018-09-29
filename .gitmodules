@@ -19,3 +19,15 @@
 [submodule "buildbot_emscripten"]
 	path = buildbot_emscripten
 	url = git@github.com:njligames/buildbot_emscripten.git
+[submodule "buildbot_vr_ios"]
+	path = buildbot_vr_ios
+	url = git@github.com:njligames/buildbot_vr_ios.git
+[submodule "buildbot_macOS"]
+	path = buildbot_macOS
+	url = git@github.com:njligames/buildbot_macOS.git
+[submodule "buildbot_appletv"]
+	path = buildbot_appletv
+	url = git@github.com:njligames/buildbot_appletv.git
+[submodule "buildbot_ios"]
+	path = buildbot_ios
+	url = git@github.com:njligames/buildbot_ios.git
