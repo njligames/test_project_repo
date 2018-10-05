@@ -1586,10 +1586,10 @@ elseif(APPLE)
       SET( CMAKE_OSX_SYSROOT "iphoneos" )
       SET( CMAKE_XCODE_EFFECTIVE_PLATFORMS "-iphoneos;-iphonesimulator" )
 
-      set(CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "10.0" CACHE STRING "Minimum supported iOS version")
+      set(CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "11.4" CACHE STRING "Minimum supported iOS version")
 
       # https://svn.scolring.org/trunk/dependencies/CMake/toolchain/IOS.toolchain.cmake
-      set(IOS_IPHONEOS_ARCHS "armv7 armv7s arm64" CACHE STRING "Target iPhone architectures")
+      set(IOS_IPHONEOS_ARCHS "armv7 arm64" CACHE STRING "Target iPhone architectures")
       set(IOS_IPHONESIMULATOR_ARCHS "i386 x86_64"  CACHE STRING "Target iPhone simulator architectures")
       # Set iPhoneOS architectures
       set(CMAKE_XCODE_ATTRIBUTE_ARCHS[sdk=iphoneos*] "${IOS_IPHONEOS_ARCHS}")
