@@ -356,6 +356,8 @@ endif()
 #  you only need to have a platform override them if they are disabling.
 set(OPT_DEF_ASM TRUE)
 if(EMSCRIPTEN)
+  # https://github.com/kripken/emscripten/blob/incoming/src/settings.js#L705
+
   set(CMAKE_CXX_FLAGS_DEBUG "--js-opts 0 -g4")
   set(CMAKE_CXX_FLAGS_MINSIZEREL "-Os -DNDEBUG --llvm-opts 3 --js-opts 1 --closure 1")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG --llvm-opts 3 --js-opts 1 --closure 1")
@@ -368,9 +370,14 @@ if(EMSCRIPTEN)
 
   # list(APPEND EXTRA_LDFLAGS "-s USE_PTHREADS=2")
   # list(APPEND EXTRA_LDFLAGS "-s PTHREAD_POOL_SIZE=8")
+
   list(APPEND EXTRA_LDFLAGS "-s FULL_ES2=1")
   list(APPEND EXTRA_LDFLAGS "-s TOTAL_MEMORY=256*1024*1024")
-  # list(APPEND EXTRA_LDFLAGS "-s WASM=1")
+  list(APPEND EXTRA_LDFLAGS "-s WASM=1")
+  list(APPEND EXTRA_LDFLAGS "-s EXTRA_EXPORTED_RUNTIME_METHODS=['Pointer_stringify']")
+  list(APPEND EXTRA_LDFLAGS "-s DISABLE_EXCEPTION_CATCHING=1")
+  list(APPEND EXTRA_LDFLAGS "-s BINARYEN=1")
+  list(APPEND EXTRA_LDFLAGS "-s BINARYEN_TRAP_MODE='clamp'")
   list(APPEND EXTRA_LDFLAGS "-v")
   list(APPEND EXTRA_LDFLAGS "--emrun")
 

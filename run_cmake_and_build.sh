@@ -11,7 +11,8 @@ INSTALL_PREFIX=install/${CONFIGURATION}
 
 EXECUTABLE_NAME=PLACEHOLDER
 EXECUTABLE_GITHUB_REPOSITORY=njligames-njlic_engine
-EXECUTABLE_GITHUB_BRANCH=master
+EXECUTABLE_GITHUB_BRANCH=feature/test_new_geometry
+# EXECUTABLE_GITHUB_BRANCH=master
 EXECUTABLE_GITHUB_ACCOUNT=njligames
 
 if  [ "${PLATFORM}" != "android" ] &&  [ "${PLATFORM}" != "vr_android" ] 
@@ -44,6 +45,7 @@ then
   # export EMSCRIPTEN_INCLUDE_LOCATION=${EMSCRIPTEN_LOCATION}/system/include
 
 
+  # EMCC_AUTODEBUG=1
   # export EMCC_DEBUG=1 # Verbose building...
   # export VERBOSE=1
 
@@ -211,6 +213,8 @@ else
 fi
 
 cmake --build . --target clean
+# EMCC_DEBUG=1 cmake --build . --config ${CONFIGURATION} --target install
+# EMCC_AUTODEBUG=1 cmake --build . --config ${CONFIGURATION} --target install
 cmake --build . --config ${CONFIGURATION} --target install
 
 if [ "${PLATFORM}" == "ios" ] || [ "${PLATFORM}" == "vr_ios" ]
