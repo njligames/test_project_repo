@@ -4,14 +4,15 @@
 
 PLATFORM=$1
 BOT=$2
-CONFIGURATION=Debug
+# CONFIGURATION=Debug
 # CONFIGURATION=Release
+CONFIGURATION=MinSizeRel
 PRE=""
 INSTALL_PREFIX=install/${CONFIGURATION}
 
 EXECUTABLE_NAME=PLACEHOLDER
 EXECUTABLE_GITHUB_REPOSITORY=njligames-njlic_engine
-EXECUTABLE_GITHUB_BRANCH=feature/test_new_geometry
+EXECUTABLE_GITHUB_BRANCH=feature/more_targets
 # EXECUTABLE_GITHUB_BRANCH=master
 EXECUTABLE_GITHUB_ACCOUNT=njligames
 
@@ -36,19 +37,9 @@ fi
 
 if [ "${PLATFORM}" == "emscripten" ]
 then
-  # export CC=/usr/bin/cc
-  # export CXX=/usr/bin/c++
 
-  # export EMSCRIPTEN_VERSION=1.37.9
-  # export EMSCRIPTEN_VERSION=1.38.10
-  # export EMSCRIPTEN_LOCATION=/Users/jamesfolk/Work/tools/emsdk/emscripten/${EMSCRIPTEN_VERSION}
-  # export EMSCRIPTEN_INCLUDE_LOCATION=${EMSCRIPTEN_LOCATION}/system/include
-
-
-  # EMCC_AUTODEBUG=1
-  # export EMCC_DEBUG=1 # Verbose building...
-  # export VERBOSE=1
-
+  emcc -v
+  emcc --clear-cache
   emcmake cmake .. -DEXECUTABLE_NAME:STRING=${EXECUTABLE_NAME} \
   -DEXECUTABLE_GITHUB_REPOSITORY:STRING=${EXECUTABLE_GITHUB_REPOSITORY} \
   -DEXECUTABLE_GITHUB_BRANCH:STRING=${EXECUTABLE_GITHUB_BRANCH} \
@@ -59,6 +50,8 @@ then
 elif [ "${PLATFORM}" == "facebook" ]
 then
 
+  emcc -v
+  emcc --clear-cache
   emcmake cmake .. -DEXECUTABLE_NAME:STRING=${EXECUTABLE_NAME} \
   -DEXECUTABLE_GITHUB_REPOSITORY:STRING=${EXECUTABLE_GITHUB_REPOSITORY} \
   -DEXECUTABLE_GITHUB_BRANCH:STRING=${EXECUTABLE_GITHUB_BRANCH} \
@@ -213,18 +206,28 @@ else
 fi
 
 cmake --build . --target clean
-# EMCC_DEBUG=1 cmake --build . --config ${CONFIGURATION} --target install
-# EMCC_AUTODEBUG=1 cmake --build . --config ${CONFIGURATION} --target install
-cmake --build . --config ${CONFIGURATION} --target install
 
-if [ "${PLATFORM}" == "ios" ] || [ "${PLATFORM}" == "vr_ios" ]
+if [ "${PLATFORM}" == "emscripten" ]
 then
-  cpack -C ${CONFIGURATION}-iphoneos
-elif [ "${PLATFORM}" == "appletv" ]
-then
-  cpack -C ${CONFIGURATION}-appletvos
+  cmake --build . --config ${CONFIGURATION} --target install
+  # EMCC_DEBUG=2 cmake --build . --config ${CONFIGURATION} --target install
+
+  # timestamp=`date +%Y%m%d%H%M%S`
+  # EMCC_AUTODEBUG=1 cmake --build . --config ${CONFIGURATION} > emscripten_working_${timestamp}.log
+
+  # emrun --browser chrome NJLIC-exe.html
 else
-  cpack -C ${CONFIGURATION}
+  cmake --build . --config ${CONFIGURATION} --target install
 fi
+
+# if [ "${PLATFORM}" == "ios" ] || [ "${PLATFORM}" == "vr_ios" ]
+# then
+#   cpack -C ${CONFIGURATION}-iphoneos
+# elif [ "${PLATFORM}" == "appletv" ]
+# then
+#   cpack -C ${CONFIGURATION}-appletvos
+# else
+#   cpack -C ${CONFIGURATION}
+# fi
 
 cd ..
