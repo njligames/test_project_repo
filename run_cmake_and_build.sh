@@ -207,27 +207,27 @@ fi
 
 cmake --build . --target clean
 
-# if [ "${PLATFORM}" == "emscripten" ]
-# then
-#   cmake --build . --config ${CONFIGURATION} --target install
-#   # EMCC_DEBUG=2 cmake --build . --config ${CONFIGURATION} --target install
-# 
-#   # timestamp=`date +%Y%m%d%H%M%S`
-#   # EMCC_AUTODEBUG=1 cmake --build . --config ${CONFIGURATION} > emscripten_working_${timestamp}.log
-# 
-#   # emrun --browser chrome NJLIC-exe.html
-# else
-#   cmake --build . --config ${CONFIGURATION} --target install
-# fi
+if [ "${PLATFORM}" == "emscripten" ]
+then
+  cmake --build . --config ${CONFIGURATION} --target install
+  # EMCC_DEBUG=2 cmake --build . --config ${CONFIGURATION} --target install
 
-# if [ "${PLATFORM}" == "ios" ] || [ "${PLATFORM}" == "vr_ios" ]
-# then
-#   cpack -C ${CONFIGURATION}-iphoneos
-# elif [ "${PLATFORM}" == "appletv" ]
-# then
-#   cpack -C ${CONFIGURATION}-appletvos
-# else
-#   cpack -C ${CONFIGURATION}
-# fi
+  # timestamp=`date +%Y%m%d%H%M%S`
+  # EMCC_AUTODEBUG=1 cmake --build . --config ${CONFIGURATION} > emscripten_working_${timestamp}.log
+
+  # emrun --browser chrome NJLIC-exe.html
+else
+  cmake --build . --config ${CONFIGURATION} --target install
+fi
+
+if [ "${PLATFORM}" == "ios" ] || [ "${PLATFORM}" == "vr_ios" ]
+then
+  cpack -C ${CONFIGURATION}-iphoneos
+elif [ "${PLATFORM}" == "appletv" ]
+then
+  cpack -C ${CONFIGURATION}-appletvos
+else
+  cpack -C ${CONFIGURATION}
+fi
 
 cd ..
