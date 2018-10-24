@@ -35,7 +35,9 @@ set(MACOS_DEBUG_URL "https://www.dropbox.com/s/nvhp2k3ykm56zw0/libsdl2_macos_Deb
 set(MACOS_RELEASE_URL "https://www.dropbox.com/s/80eklswpp6c2fbc/libsdl2_macos_Release.tar.gz?dl=0")
 
 set(LINUX_DEBUG_URL "https://www.dropbox.com/s/n0c4gjxb94kcvg5/libsdl2_linux_Debug.tar.gz?dl=0")
+set(LINUX_MINSIZEREL_URL "https://www.dropbox.com/s/vdih3cithe90o0i/libsdl2_linux_Release.tar.gz?dl=0")
 set(LINUX_RELEASE_URL "https://www.dropbox.com/s/vdih3cithe90o0i/libsdl2_linux_Release.tar.gz?dl=0")
+set(LINUX_RELWITHDEBINFO_URL "https://www.dropbox.com/s/n0c4gjxb94kcvg5/libsdl2_linux_Debug.tar.gz?dl=0")
 
 set(UNIX_DEBUG_URL "")
 set(UNIX_MINSIZEREL_URL "")
