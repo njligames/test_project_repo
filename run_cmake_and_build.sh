@@ -4,9 +4,10 @@
 
 PLATFORM=$1
 BOT=$2
+INSTALL_TARGET=install
 # CONFIGURATION=Debug
-# CONFIGURATION=Release
-CONFIGURATION=MinSizeRel
+CONFIGURATION=Release
+# CONFIGURATION=MinSizeRel
 PRE=""
 INSTALL_PREFIX=install/${CONFIGURATION}
 
@@ -65,6 +66,8 @@ then
 elif [ "${PLATFORM}" == "windows64" ]
 then
 
+  INSTALL_TARGET=PACKAGE.vcxproj
+
   cmake .. \
     -DEXECUTABLE_NAME:STRING=${EXECUTABLE_NAME} \
     -DEXECUTABLE_GITHUB_REPOSITORY:STRING=${EXECUTABLE_GITHUB_REPOSITORY} \
@@ -75,6 +78,8 @@ then
 
 elif [ "${PLATFORM}" == "windows32" ]
 then
+
+  INSTALL_TARGET=PACKAGE.vcxproj
 
   cmake .. \
     -DEXECUTABLE_NAME:STRING=${EXECUTABLE_NAME} \
@@ -209,7 +214,7 @@ cmake --build . --target clean
 
 if [ "${PLATFORM}" == "emscripten" ]
 then
-  cmake --build . --config ${CONFIGURATION} --target install
+  cmake --build . --config ${CONFIGURATION} --target ${INSTALL_TARGET}
   # EMCC_DEBUG=2 cmake --build . --config ${CONFIGURATION} --target install
 
   # timestamp=`date +%Y%m%d%H%M%S`
@@ -217,7 +222,7 @@ then
 
   # emrun --browser chrome NJLIC-exe.html
 else
-  cmake --build . --config ${CONFIGURATION} --target install
+  cmake --build . --config ${CONFIGURATION} --target ${INSTALL_TARGET}
 fi
 
 if [ "${PLATFORM}" == "ios" ] || [ "${PLATFORM}" == "vr_ios" ]
