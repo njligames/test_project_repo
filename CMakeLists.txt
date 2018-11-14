@@ -2315,9 +2315,9 @@ if(${CMAKE_PROJECT_NAME}_EXE)
 
 
   if(EMSCRIPTEN)
-    # set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES OUTPUT_NAME "index")
-    # else()
-    # elset_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES OUTPUT_NAME "${EXECUTABLE_NAME}")
+    set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES OUTPUT_NAME "index")
+  else()
+    set_target_properties(${CMAKE_PROJECT_NAME}-exe PROPERTIES OUTPUT_NAME "${EXECUTABLE_NAME}")
   endif()
 
   add_definitions(-DEXECUTABLE_NAME="\\"${EXECUTABLE_NAME}\\"")
@@ -2335,6 +2335,14 @@ if(${CMAKE_PROJECT_NAME}_EXE)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY XCODE_STARTUP_PROJECT ${CMAKE_PROJECT_NAME}-exe)
 
     if(NOT IOS AND NOT TVOS)
+      set(HIGHDP OFF)
+      if(HIGHDP)
+        set(HIGH_RESOLUTION "true")
+      else()
+        set(HIGH_RESOLUTION "false")
+      endif()
+      
+      
       configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/macOS/Info.plist.in"
         "${CMAKE_BINARY_DIR}/Info.plist")
 
@@ -2566,10 +2574,10 @@ if(NOT ANDROID)
     install(PROGRAMS ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/njlic-config DESTINATION bin)
 
     if(EMSCRIPTEN)
-      file(GLOB_RECURSE EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exe.*)
-      list(REMOVE_DUPLICATES EMSCRIPTEN_BINARY_FILES)
-      install(FILES ${EMSCRIPTEN_BINARY_FILES} DESTINATION bin)
-      install(FILES "${CMAKEIN_REPO_DIRECTORY}/platform.in/emscripten/executable/favicon-32x32.ico" DESTINATION bin)
+      # file(GLOB_RECURSE EMSCRIPTEN_BINARY_FILES ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exe.*)
+      # list(REMOVE_DUPLICATES EMSCRIPTEN_BINARY_FILES)
+      # install(FILES ${EMSCRIPTEN_BINARY_FILES} DESTINATION bin)
+      # install(FILES "${CMAKEIN_REPO_DIRECTORY}/platform.in/emscripten/executable/favicon-32x32.ico" DESTINATION bin)
     endif()
 
     if (NOT APPLE AND NOT EMSCRIPTEN)
