@@ -1,6 +1,8 @@
 
 message(STATUS "Platform is macos for engine")
 
+include("${CMAKE_SOURCE_DIR}/cmake/DownloadSwig_Zerobrane.cmake")
+
 include("${CMAKE_SOURCE_DIR}/cmake/DownloadSDL2_NJLIC.cmake")
 list(APPEND ${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS "${SDL2_INCLUDE_DIRS}")
 

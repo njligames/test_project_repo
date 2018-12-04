@@ -1,0 +1,58 @@
+set(LIBRARY_NAME "swig_zerobrane")
+
+set(BIN_URL "https://www.dropbox.com/s/wgb7imtaj11fwdl/binswig_macos.tar.gz?dl=0")
+set(LIB_URL "https://www.dropbox.com/s/6c5nhoz7xez1atj/libswig.tar.gz?dl=0")
+
+string(TOUPPER ${LIBRARY_NAME} LIBRARY_NAME_UPPER)
+set(${LIBRARY_NAME_UPPER}_BASE_PATH "thirdparty/${LIBRARY_NAME}")
+
+set(THIRDPARTY_${LIBRARY_NAME_UPPER}_BIN_URL "${BIN_URL}" CACHE STRING "The URL for include Bullet3")
+mark_as_advanced(${THIRDPARTY_${LIBRARY_NAME_UPPER}_BIN_URL})
+
+set(THIRDPARTY_${LIBRARY_NAME_UPPER}_LIB_URL "${LIB_URL}" CACHE STRING "The URL for include Bullet3")
+mark_as_advanced(${THIRDPARTY_${LIBRARY_NAME_UPPER}_LIB_URL})
+
+if(EMSCRIPTEN)
+  set(${LIBRARY_NAME_UPPER}_BASE_PATH "${${LIBRARY_NAME_UPPER}_BASE_PATH}/bin/emscripten")
+elseif(WINDOWS)
+  if(ARCH_64)
+    set(${LIBRARY_NAME_UPPER}_BASE_PATH "${${LIBRARY_NAME_UPPER}_BASE_PATH}/bin/windows64")
+  else()
+    set(${LIBRARY_NAME_UPPER}_BASE_PATH "${${LIBRARY_NAME_UPPER}_BASE_PATH}/bin/windows32")
+  endif()
+elseif(APPLE)
+  if(IOS)
+    set(${LIBRARY_NAME_UPPER}_BASE_PATH "${${LIBRARY_NAME_UPPER}_BASE_PATH}/bin/ios")
+  elseif(TVOS)
+    set(${LIBRARY_NAME_UPPER}_BASE_PATH "${${LIBRARY_NAME_UPPER}_BASE_PATH}/bin/appletv")
+  else()
+    set(${LIBRARY_NAME_UPPER}_BASE_PATH "${${LIBRARY_NAME_UPPER}_BASE_PATH}/bin/macos")
+  endif()
+elseif(UNIX AND NOT APPLE AND NOT ANDROID)
+  if(LINUX)
+    set(${LIBRARY_NAME_UPPER}_BASE_PATH "${${LIBRARY_NAME_UPPER}_BASE_PATH}/bin/linux")
+  elseif(UNIX)
+    set(${LIBRARY_NAME_UPPER}_BASE_PATH "${${LIBRARY_NAME_UPPER}_BASE_PATH}/bin/unix")
+  endif()
+elseif(ANDROID)
+  set(${LIBRARY_NAME_UPPER}_BASE_PATH "${${LIBRARY_NAME_UPPER}_BASE_PATH}/bin/android")
+endif()
+
+if(THIRDPARTY_${LIBRARY_NAME_UPPER}_BIN_URL)
+  DOWNLOAD_LIBRARY_INCLUDE_FILES(
+    "${LIBRARY_NAME}"
+    "${THIRDPARTY_${LIBRARY_NAME_UPPER}_BIN_URL}"
+    "${${LIBRARY_NAME_UPPER}_BASE_PATH}/swig"
+    )
+  set(SWIG_ZBZ_EXECUTABLE "${CMAKE_BINARY_DIR}/${${LIBRARY_NAME_UPPER}_BASE_PATH}/swig/swig")
+endif()
+
+if(THIRDPARTY_${LIBRARY_NAME_UPPER}_LIB_URL)
+  DOWNLOAD_LIBRARY_INCLUDE_FILES(
+    "${LIBRARY_NAME}"
+    "${THIRDPARTY_${LIBRARY_NAME_UPPER}_LIB_URL}"
+    "${${LIBRARY_NAME_UPPER}_BASE_PATH}/Lib"
+    )
+  set(SWIG_ZBZ_LIB "${CMAKE_BINARY_DIR}/${${LIBRARY_NAME_UPPER}_BASE_PATH}/Lib")
+endif()
+
