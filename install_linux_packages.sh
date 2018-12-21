@@ -1,11 +1,22 @@
 #!/bin/bash
 
+sudo apt-get update
+sudo apt-get upgrade
+
+# sudo apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev
+# sudo apt-get -y install swig
+# sudo apt-get -y install doxygen
+# http://embedonix.com/articles/linux/installing-cmake-3-5-2-on-ubuntu/
+
 sudo apt-get install \
-libsdl2-dev \
-doxygen \
-graphviz \
-swig \
-vim
+	libopenal-dev \
+	build-essential \
+	libsdl2-dev \
+	doxygen \
+	graphviz \
+	swig \
+	vim \
+	libssl-dev
 
 # libopenal-dev
 
