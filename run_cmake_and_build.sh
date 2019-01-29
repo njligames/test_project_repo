@@ -18,19 +18,23 @@ EXECUTABLE_GITHUB_REPOSITORY=njligames-njlic_engine
 EXECUTABLE_GITHUB_BRANCH=master
 EXECUTABLE_GITHUB_ACCOUNT=njligames
 
-if  [ "${PLATFORM}" != "android" ] &&  [ "${PLATFORM}" != "vr_android" ] 
+if  [ "${PLATFORM}" != "android" ] &&  [ "${PLATFORM}" != "vr_android" ]
 then
   BUILD_DIR=.build_$PLATFORM
   if [ -z "$BOT" ]
   then
     rm -rf $BUILD_DIR
   else
-    BUILD_DIR=buildbot_$PLATFORM
+    if  [ "${PLATFORM}" != "raspberry" ]
+        BUILD_DIR=buildbod_$PLATFORM
+    else
+        BUILD_DIR=buildbot_$PLATFORM
+    fi
     rm $BUILD_DIR/CMakeCache.txt
     rm -rf $BUILD_DIR/CMakeScripts/
     rm -rf $BUILD_DIR/NJLIC*
     rm -rf $BUILD_DIR/${INSTALL_PREFIX}
-    
+
   fi
 
   mkdir -p $BUILD_DIR
@@ -48,8 +52,8 @@ then
   -DEXECUTABLE_GITHUB_ACCOUNT:STRING=${EXECUTABLE_GITHUB_ACCOUNT} \
   -DCMAKE_BUILD_TYPE=${CONFIGURATION} \
   -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
-  -G "Ninja" 
-  
+  -G "Ninja"
+
 elif [ "${PLATFORM}" == "facebook" ]
 then
 
