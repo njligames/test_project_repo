@@ -383,11 +383,16 @@ if(EMSCRIPTEN)
   list(APPEND EXTRA_LDFLAGS "--emrun")
   # list(APPEND EXTRA_LDFLAGS "-s USE_WEBGL2=1")
   list(APPEND EXTRA_LDFLAGS "--use-preload-cache")
+  list(APPEND EXTRA_FLAGS "--memory-init-file")
 
   string(TOUPPER CMAKE_BUILD_TYPE CMAKE_BUILD_TYPE_UPPER)
   if (CMAKE_BUILD_TYPE_UPPER EQUAL "DEBUG")
       list(APPEND EXTRA_LDFLAGS "-s ASSERTIONS=2")
       list(APPEND EXTRA_LDFLAGS "-s DEMANGLE_SUPPORT=1")
+  endif()
+
+  if (CMAKE_BUILD_TYPE_UPPER EQUAL "RELEASE")
+      list(APPEND EXTRA_LDFLAGS "--profiling")
   endif()
 
   if(FACEBOOK)
