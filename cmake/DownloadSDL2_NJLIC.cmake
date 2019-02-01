@@ -39,6 +39,11 @@ set(LINUX_MINSIZEREL_URL "https://www.dropbox.com/s/vdih3cithe90o0i/libsdl2_linu
 set(LINUX_RELEASE_URL "https://www.dropbox.com/s/vdih3cithe90o0i/libsdl2_linux_Release.tar.gz?dl=0")
 set(LINUX_RELWITHDEBINFO_URL "https://www.dropbox.com/s/n0c4gjxb94kcvg5/libsdl2_linux_Debug.tar.gz?dl=0")
 
+set(RASPBERRY_DEBUG_URL "https://www.dropbox.com/s/2snm9jmrl14242z/libsdl2_raspberry_Debug.tar.gz?dl=0")
+set(RASPBERRY_MINSIZEREL_URL "https://www.dropbox.com/s/ve4ntf7byct4hdr/libsdl2_raspberry_Release.tar.gz?dl=0")
+set(RASPBERRY_RELEASE_URL "https://www.dropbox.com/s/ve4ntf7byct4hdr/libsdl2_raspberry_Release.tar.gz?dl=0")
+set(RASPBERRY_RELWITHDEBINFO_URL "https://www.dropbox.com/s/2snm9jmrl14242z/libsdl2_raspberry_Debug.tar.gz?dl=0")
+
 set(UNIX_DEBUG_URL "")
 set(UNIX_MINSIZEREL_URL "")
 set(UNIX_RELEASE_URL "")
@@ -220,19 +225,59 @@ elseif(APPLE)
   endif()
 elseif(UNIX AND NOT APPLE AND NOT ANDROID)
   if(LINUX)
-    set(${LIBRARY_NAME_UPPER}_BASE_PATH "${${LIBRARY_NAME_UPPER}_BASE_PATH}/lib/linux")
-    if(LINUX_DEBUG_URL)
-      set(THIRDPARTY_${LIBRARY_NAME_UPPER}_DEBUG_URL "${LINUX_DEBUG_URL}" CACHE STRING "The URL for Debug Bullet3")
-    endif()
-    if(LINUX_RELEASE_URL)
-      set(THIRDPARTY_${LIBRARY_NAME_UPPER}_RELEASE_URL "${LINUX_RELEASE_URL}" CACHE STRING "The URL for Release Bullet3")
-    endif()
-    if(LINUX_MINSIZEREL_URL)
-      set(THIRDPARTY_${LIBRARY_NAME_UPPER}_MINSIZEREL_URL "${LINUX_MINSIZEREL_URL}" CACHE STRING "The URL for Release Bullet3")
-    endif()
-    if(LINUX_RELWITHDEBINFO_URL)
-      set(THIRDPARTY_${LIBRARY_NAME_UPPER}_RELWITHDEBINFO_URL "${LINUX_RELWITHDEBINFO_URL}" CACHE STRING "The URL for Release Bullet3")
-    endif()
+
+
+
+
+	  if(RASPBERRYPI)
+
+
+
+	    set(${LIBRARY_NAME_UPPER}_BASE_PATH "${${LIBRARY_NAME_UPPER}_BASE_PATH}/lib/raspberrypi")
+	    if(LINUX_DEBUG_URL)
+		    set(THIRDPARTY_${LIBRARY_NAME_UPPER}_DEBUG_URL "${RASPBERRY_DEBUG_URL}" CACHE STRING "The URL for Debug Bullet3")
+	    endif()
+	    if(LINUX_RELEASE_URL)
+		    set(THIRDPARTY_${LIBRARY_NAME_UPPER}_RELEASE_URL "${RASPBERRY_RELEASE_URL}" CACHE STRING "The URL for Release Bullet3")
+	    endif()
+	    if(LINUX_MINSIZEREL_URL)
+		    set(THIRDPARTY_${LIBRARY_NAME_UPPER}_MINSIZEREL_URL "${RASPBERRY_MINSIZEREL_URL}" CACHE STRING "The URL for Release Bullet3")
+	    endif()
+	    if(LINUX_RELWITHDEBINFO_URL)
+		    set(THIRDPARTY_${LIBRARY_NAME_UPPER}_RELWITHDEBINFO_URL "${RASPBERRY_RELWITHDEBINFO_URL}" CACHE STRING "The URL for Release Bullet3")
+	    endif()
+
+
+
+
+	  else()
+
+
+
+	    set(${LIBRARY_NAME_UPPER}_BASE_PATH "${${LIBRARY_NAME_UPPER}_BASE_PATH}/lib/linux")
+	    if(LINUX_DEBUG_URL)
+	      set(THIRDPARTY_${LIBRARY_NAME_UPPER}_DEBUG_URL "${LINUX_DEBUG_URL}" CACHE STRING "The URL for Debug Bullet3")
+	    endif()
+	    if(LINUX_RELEASE_URL)
+	      set(THIRDPARTY_${LIBRARY_NAME_UPPER}_RELEASE_URL "${LINUX_RELEASE_URL}" CACHE STRING "The URL for Release Bullet3")
+	    endif()
+	    if(LINUX_MINSIZEREL_URL)
+	      set(THIRDPARTY_${LIBRARY_NAME_UPPER}_MINSIZEREL_URL "${LINUX_MINSIZEREL_URL}" CACHE STRING "The URL for Release Bullet3")
+	    endif()
+	    if(LINUX_RELWITHDEBINFO_URL)
+	      set(THIRDPARTY_${LIBRARY_NAME_UPPER}_RELWITHDEBINFO_URL "${LINUX_RELWITHDEBINFO_URL}" CACHE STRING "The URL for Release Bullet3")
+	    endif()
+
+
+
+	  endif()
+
+
+
+
+
+
+
   elseif(UNIX)
     set(${LIBRARY_NAME_UPPER}_BASE_PATH "${${LIBRARY_NAME_UPPER}_BASE_PATH}/lib/unix")
     if(UNIX_DEBUG_URL)
