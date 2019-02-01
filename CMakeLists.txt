@@ -276,6 +276,7 @@ if(NOT ("$ENV{CFLAGS}" STREQUAL "")) # Hackish, but does the trick on Win32
 endif()
 
 if(MSVC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /m")
   option(FORCE_STATIC_VCRT "Force /MT for static VC runtimes" ON)
   if(FORCE_STATIC_VCRT)
     foreach(flag_var
