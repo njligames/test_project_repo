@@ -325,8 +325,8 @@ endif()
 set(${CMAKE_PROJECT_NAME}_LIBS "-l${CMAKE_PROJECT_NAME}")
 set(${CMAKE_PROJECT_NAME}_CFLAGS "")
 
-# Emscripten toolchain has a nonempty default value for this, and the checks 
-# in this file need to change that, so remember the original value, and 
+# Emscripten toolchain has a nonempty default value for this, and the checks
+# in this file need to change that, so remember the original value, and
 # restore back to that afterwards. For check_function_exists() to work in
 # Emscripten, this value must be at its default value.
 set(ORIG_CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS})
@@ -377,24 +377,18 @@ if(EMSCRIPTEN)
   list(APPEND EXTRA_LDFLAGS "-s ERROR_ON_UNDEFINED_SYMBOLS=0")
   list(APPEND EXTRA_LDFLAGS "-s WASM=1")
   list(APPEND EXTRA_LDFLAGS "-s EXTRA_EXPORTED_RUNTIME_METHODS=['Pointer_stringify']")
-  # list(APPEND EXTRA_LDFLAGS "-s DISABLE_EXCEPTION_CATCHING=1")
+
   list(APPEND EXTRA_LDFLAGS "-s BINARYEN=1")
   list(APPEND EXTRA_LDFLAGS "-s BINARYEN_TRAP_MODE='js'")
-  # list(APPEND EXTRA_LDFLAGS "-v")
   list(APPEND EXTRA_LDFLAGS "--emrun")
-  # list(APPEND EXTRA_LDFLAGS "-s DEMANGLE_SUPPORT=1")
-  list(APPEND EXTRA_LDFLAGS "-s USE_WEBGL2=1")
+  # list(APPEND EXTRA_LDFLAGS "-s USE_WEBGL2=1")
   list(APPEND EXTRA_LDFLAGS "--use-preload-cache")
 
-
-
-  # LIST(APPEND EXTRA_LDFLAGS "--profiling")
-  # LIST(APPEND EXTRA_LDFLAGS "--profiling-funcs")
-  # LIST(APPEND EXTRA_LDFLAGS "--tracing")
-  # LIST(APPEND EXTRA_LDFLAGS "--emit-symbol-map")
-  # LIST(APPEND EXTRA_LDFLAGS "--clear-cache")
-
-
+  string(TOUPPER CMAKE_BUILD_TYPE CMAKE_BUILD_TYPE_UPPER)
+  if (CMAKE_BUILD_TYPE_UPPER EQUAL "DEBUG")
+      list(APPEND EXTRA_LDFLAGS "-s ASSERTIONS=2")
+      list(APPEND EXTRA_LDFLAGS "-s DEMANGLE_SUPPORT=1")
+  endif()
 
   if(FACEBOOK)
     if( NOT FACEBOOK-APP-ID )
@@ -419,9 +413,9 @@ if(EMSCRIPTEN)
 
     list(APPEND EXTRA_LDFLAGS "--shell-file ${CMAKE_BINARY_DIR}/release_shell.html")
   endif()
-  
+
   # Set up default values for the currently supported set of subsystems:
-  # Emscripten/Javascript does not have assembly support, a dynamic library 
+  # Emscripten/Javascript does not have assembly support, a dynamic library
   # loading architecture, low-level CPU inspection or multithreading.
   set(OPT_DEF_ASM FALSE)
   set(${CMAKE_PROJECT_NAME}_SHARED_ENABLED_BY_DEFAULT OFF)
@@ -1223,7 +1217,7 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID)
         #include <linux/kd.h>
         #include <linux/keyboard.h>
 
-        int main(int argc, char **argv) 
+        int main(int argc, char **argv)
         {
             struct kbentry kbe;
             kbe.kb_table = KG_CTRL;
@@ -1633,7 +1627,7 @@ elseif(APPLE)
       list(APPEND EXTRA_LIBS "-framework Metal")
 
     endif(IOS)
-    
+
     if(TVOS)
       SET( ASSET_CATALOGUE "${CMAKEIN_REPO_DIRECTORY}/platform.in/appletv/Assets.xcassets" )
       list(APPEND RESOURCE_FILES ${ASSET_CATALOGUE})
@@ -2273,7 +2267,7 @@ if(${CMAKE_PROJECT_NAME}_STATIC)
   # TODO: Win32 platforms keep the same suffix .lib for import and static
   # libraries - do we need to consider this?
   set(_INSTALL_LIBS "${CMAKE_PROJECT_NAME}-static" ${_INSTALL_LIBS})
-  target_include_directories(${CMAKE_PROJECT_NAME}-static 
+  target_include_directories(${CMAKE_PROJECT_NAME}-static
     PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_THIRDPARTY_INCLUDE_DIRS}>
     PRIVATE $<BUILD_INTERFACE:${${CMAKE_PROJECT_NAME}_PROJECT_INCLUDE_DIRECTORES}>
     )
@@ -2286,16 +2280,16 @@ endif(${CMAKE_PROJECT_NAME}_STATIC)
 if(${CMAKE_PROJECT_NAME}_EXE)
   if(APPLE)
     LIST(APPEND SOURCE_FILES ${MAIN_FILES})
-    add_executable( ${CMAKE_PROJECT_NAME}-exe 
-      MACOSX_BUNDLE 
+    add_executable( ${CMAKE_PROJECT_NAME}-exe
+      MACOSX_BUNDLE
       ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES} ${INCLUDE_FILES}
       )
   elseif(LINUX OR MSVC)
-    add_executable( ${CMAKE_PROJECT_NAME}-exe 
+    add_executable( ${CMAKE_PROJECT_NAME}-exe
       ${SOURCE_FILES} ${MAIN_FILES} ${INCLUDE_FILES}
       )
   else()
-    add_executable( ${CMAKE_PROJECT_NAME}-exe 
+    add_executable( ${CMAKE_PROJECT_NAME}-exe
       ${SOURCE_FILES} ${MAIN_FILES} ${RESOURCE_FILES} ${INCLUDE_FILES}
       )
   endif()
@@ -2339,8 +2333,8 @@ if(${CMAKE_PROJECT_NAME}_EXE)
       else()
         set(HIGH_RESOLUTION "false")
       endif()
-      
-      
+
+
       configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/macOS/Info.plist.in"
         "${CMAKE_BINARY_DIR}/Info.plist")
 
@@ -2444,7 +2438,7 @@ if(${CMAKE_PROJECT_NAME}_EXE)
     )
 
   target_link_libraries(${CMAKE_PROJECT_NAME}-exe ${EXTRA_LDFLAGS} optimized ${EXTRA_LIBS})
-  
+
 endif(${CMAKE_PROJECT_NAME}_EXE)
 
 if(ANDROID)
@@ -2495,7 +2489,7 @@ if(ANDROID)
 
   add_custom_command(TARGET main POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${RESOURCE_FILES} 
+    ${RESOURCE_FILES}
     "${${CMAKE_PROJECT_NAME}_REPO_DIRECTORY}/../res/assets"
     )
 
@@ -2579,8 +2573,8 @@ if(NOT ANDROID)
     endif()
 
     if (NOT APPLE AND NOT EMSCRIPTEN)
-      INSTALL(TARGETS ${CMAKE_PROJECT_NAME}-exe 
-        RUNTIME DESTINATION bin 
+      INSTALL(TARGETS ${CMAKE_PROJECT_NAME}-exe
+        RUNTIME DESTINATION bin
         BUNDLE DESTINATION bin
         )
     else()
