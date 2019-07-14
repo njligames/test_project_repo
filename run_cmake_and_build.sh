@@ -5,15 +5,15 @@
 PLATFORM=$1
 BOT=$2
 INSTALL_TARGET=install
-CONFIGURATION=Debug
-# CONFIGURATION=MinSizeRel
+# CONFIGURATION=Debug
+CONFIGURATION=MinSizeRel
 # CONFIGURATION=Release
 # CONFIGURATION=RelWithDebInfo
 
 PRE=""
 INSTALL_PREFIX=install/${CONFIGURATION}
 
-EXECUTABLE_NAME=PLACEHOLDER
+EXECUTABLE_NAME=YappyBirds
 EXECUTABLE_GITHUB_REPOSITORY=njligames-njlic_engine
 EXECUTABLE_GITHUB_BRANCH=master
 EXECUTABLE_GITHUB_ACCOUNT=njligames
@@ -25,11 +25,8 @@ then
   then
     rm -rf $BUILD_DIR
   else
-    if  [ "${PLATFORM}" != "raspberry" ]
-        BUILD_DIR=buildbod_$PLATFORM
-    else
-        BUILD_DIR=buildbot_$PLATFORM
-    fi
+    BUILD_DIR=buildbot_$PLATFORM
+
     rm $BUILD_DIR/CMakeCache.txt
     rm -rf $BUILD_DIR/CMakeScripts/
     rm -rf $BUILD_DIR/NJLIC*
@@ -52,6 +49,7 @@ then
   -DEXECUTABLE_GITHUB_ACCOUNT:STRING=${EXECUTABLE_GITHUB_ACCOUNT} \
   -DCMAKE_BUILD_TYPE=${CONFIGURATION} \
   -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
+  -DEMBED_ASSETS:BOOL=TRUE \
   -G "Ninja"
 
 elif [ "${PLATFORM}" == "facebook" ]
