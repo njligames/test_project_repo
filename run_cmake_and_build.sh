@@ -15,7 +15,7 @@ INSTALL_PREFIX=install/${CONFIGURATION}
 
 EXECUTABLE_NAME=YappyBirds
 EXECUTABLE_GITHUB_REPOSITORY=njligames-njlic_engine
-EXECUTABLE_GITHUB_BRANCH=master
+EXECUTABLE_GITHUB_BRANCH=project/yappybirds
 EXECUTABLE_GITHUB_ACCOUNT=njligames
 
 if  [ "${PLATFORM}" != "android" ] &&  [ "${PLATFORM}" != "vr_android" ]
@@ -94,7 +94,7 @@ then
     -DEXECUTABLE_GITHUB_ACCOUNT:STRING=${EXECUTABLE_GITHUB_ACCOUNT} \
     -DCMAKE_BUILD_TYPE=${CONFIGURATION} \
     -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
-    -G "Visual Studio 14 2015"
+    -G "Visual Studio 16 2019"
 
 elif [ "${PLATFORM}" == "macOS" ]
 then
@@ -239,29 +239,29 @@ else
   cmake -E env CFLAGS='-O0 -g' cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
 fi
 
-cmake --build . --target clean
-
-if [ "${PLATFORM}" == "emscripten" ]
-then
-  cmake --build . --config ${CONFIGURATION} --target ${INSTALL_TARGET}
-  # EMCC_DEBUG=2 cmake --build . --config ${CONFIGURATION} --target install
-
-  # timestamp=`date +%Y%m%d%H%M%S`
-  # EMCC_AUTODEBUG=1 cmake --build . --config ${CONFIGURATION} > emscripten_working_${timestamp}.log
-
-  # emrun --browser chrome NJLIC-exe.html
-else
-  cmake --build . --config ${CONFIGURATION} --target ${INSTALL_TARGET}
-fi
-
-if [ "${PLATFORM}" == "ios" ] || [ "${PLATFORM}" == "vr_ios" ]
-then
-  cpack -C ${CONFIGURATION}-iphoneos
-elif [ "${PLATFORM}" == "appletv" ]
-then
-  cpack -C ${CONFIGURATION}-appletvos
-else
-  cpack -C ${CONFIGURATION}
-fi
+#           cmake --build . --target clean
+#           
+#           if [ "${PLATFORM}" == "emscripten" ]
+#           then
+#             cmake --build . --config ${CONFIGURATION} --target ${INSTALL_TARGET}
+#             # EMCC_DEBUG=2 cmake --build . --config ${CONFIGURATION} --target install
+#           
+#             # timestamp=`date +%Y%m%d%H%M%S`
+#             # EMCC_AUTODEBUG=1 cmake --build . --config ${CONFIGURATION} > emscripten_working_${timestamp}.log
+#           
+#             # emrun --browser chrome NJLIC-exe.html
+#           else
+#             cmake --build . --config ${CONFIGURATION} --target ${INSTALL_TARGET}
+#           fi
+#           
+#           if [ "${PLATFORM}" == "ios" ] || [ "${PLATFORM}" == "vr_ios" ]
+#           then
+#             cpack -C ${CONFIGURATION}-iphoneos
+#           elif [ "${PLATFORM}" == "appletv" ]
+#           then
+#             cpack -C ${CONFIGURATION}-appletvos
+#           else
+#             cpack -C ${CONFIGURATION}
+#           fi
 
 cd ..
