@@ -6,9 +6,9 @@ PLATFORM=$1
 BOT=$2
 INSTALL_TARGET=install
 # CONFIGURATION=Debug
-CONFIGURATION=MinSizeRel
+#CONFIGURATION=MinSizeRel
 # CONFIGURATION=Release
-# CONFIGURATION=RelWithDebInfo
+CONFIGURATION=RelWithDebInfo
 
 PRE=""
 INSTALL_PREFIX=install/${CONFIGURATION}
@@ -62,8 +62,8 @@ then
   -DEXECUTABLE_GITHUB_BRANCH:STRING=${EXECUTABLE_GITHUB_BRANCH} \
   -DEXECUTABLE_GITHUB_ACCOUNT:STRING=${EXECUTABLE_GITHUB_ACCOUNT} \
   -DCMAKE_BUILD_TYPE=${CONFIGURATION} \
-  -DFACEBOOK-APP-ID="344740292600474" \
-  -DFACEBOOK-API-VERSION="v2.12" \
+  -DFACEBOOK-APP-ID="2608719869359117" \
+  -DFACEBOOK-API-VERSION="v2.8" \
   -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
   -DFACEBOOK:BOOL=TRUE \
   -G "Ninja"
@@ -239,20 +239,22 @@ else
   cmake -E env CFLAGS='-O0 -g' cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
 fi
 
-cmake --build . --target clean
+# cmake --build . --target clean
 
-if [ "${PLATFORM}" == "emscripten" ]
-then
-  cmake --build . --config ${CONFIGURATION} --target ${INSTALL_TARGET}
-  # EMCC_DEBUG=2 cmake --build . --config ${CONFIGURATION} --target install
+#               if [ "${PLATFORM}" == "emscripten" ]
+#               then
+#                 cmake --build . --config ${CONFIGURATION} --target ${INSTALL_TARGET}
+#                 # EMCC_DEBUG=2 cmake --build . --config ${CONFIGURATION} --target install
+#
+#                 # timestamp=`date +%Y%m%d%H%M%S`
+#                 # EMCC_AUTODEBUG=1 cmake --build . --config ${CONFIGURATION} > emscripten_working_${timestamp}.log
+#
+#                 # emrun --browser chrome NJLIC-exe.html
+#               else
+#                 cmake --build . --config ${CONFIGURATION} --target ${INSTALL_TARGET}
+#               fi
 
-  # timestamp=`date +%Y%m%d%H%M%S`
-  # EMCC_AUTODEBUG=1 cmake --build . --config ${CONFIGURATION} > emscripten_working_${timestamp}.log
-
-  # emrun --browser chrome NJLIC-exe.html
-else
-  cmake --build . --config ${CONFIGURATION} --target ${INSTALL_TARGET}
-fi
+cmake --build . --config ${CONFIGURATION} --target ${INSTALL_TARGET}
 
 if [ "${PLATFORM}" == "ios" ] || [ "${PLATFORM}" == "vr_ios" ]
 then

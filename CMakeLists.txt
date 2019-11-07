@@ -242,7 +242,7 @@ else()
   set(UNIX_OR_MAC_SYS OFF)
 endif()
 
-if (UNIX_OR_MAC_SYS AND NOT EMSCRIPTEN) # JavaScript does not yet have threading support, so disable pthreads when building for Emscripten.
+if (UNIX_OR_MAC_SYS OR EMSCRIPTEN) # JavaScript does not yet have threading support, so disable pthreads when building for Emscripten.
   set(${CMAKE_PROJECT_NAME}_PTHREADS_ENABLED_BY_DEFAULT ON)
 else()
   set(${CMAKE_PROJECT_NAME}_PTHREADS_ENABLED_BY_DEFAULT OFF)
@@ -274,7 +274,10 @@ endif()
 
 if(USE_GCC OR USE_CLANG)
   set(OPT_DEF_GCC_ATOMICS ON)
-  set(CMAKE_CXX_FLAGS "-std=c++11 -fno-exceptions")
+  set(CMAKE_CXX_FLAGS "-std=c++11")
+  if(NOT EMSCRIPTEN)
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
+  endif()
 endif()
 
 # Default flags, if not set otherwise
@@ -388,27 +391,32 @@ if(EMSCRIPTEN)
   set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG --llvm-opts 3 --js-opts 1 --closure 1 -s IGNORE_CLOSURE_COMPILER_ERRORS=1")
   set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 --js-opts 0 -g4 -DNDEBUG")
 
-  # list(APPEND EXTRA_LDFLAGS "-s USE_PTHREADS=1")
-  # list(APPEND EXTRA_LDFLAGS "-s PTHREAD_POOL_SIZE=8")
+    # if(PTHREADS)
+    #   list(APPEND EXTRA_LDFLAGS "-s USE_PTHREADS=1")
+    #   list(APPEND EXTRA_LDFLAGS "-s PTHREAD_POOL_SIZE=8")
+    # endif()
+    # list(APPEND EXTRA_LDFLAGS "--no-check-features")
 
   list(APPEND EXTRA_LDFLAGS "-s FULL_ES2=1")
-  list(APPEND EXTRA_LDFLAGS "-s TOTAL_MEMORY=1024*1024*1024")
+  list(APPEND EXTRA_LDFLAGS "-s TOTAL_MEMORY=1GB")
 
   list(APPEND EXTRA_LDFLAGS "-s ERROR_ON_UNDEFINED_SYMBOLS=0")
   list(APPEND EXTRA_LDFLAGS "-s WASM=1")
   list(APPEND EXTRA_LDFLAGS "-s EXTRA_EXPORTED_RUNTIME_METHODS=['Pointer_stringify']")
 
-  list(APPEND EXTRA_LDFLAGS "-s BINARYEN=1")
-  list(APPEND EXTRA_LDFLAGS "-s BINARYEN_TRAP_MODE='js'")
-  list(APPEND EXTRA_LDFLAGS "--emrun")
+  # list(APPEND EXTRA_LDFLAGS "-s BINARYEN=1")
+  # list(APPEND EXTRA_LDFLAGS "-s BINARYEN_TRAP_MODE='js'")
   # list(APPEND EXTRA_LDFLAGS "-s USE_WEBGL2=1")
-  list(APPEND EXTRA_LDFLAGS "--use-preload-cache")
+  # list(APPEND EXTRA_LDFLAGS "--use-preload-cache")
   list(APPEND EXTRA_FLAGS "--memory-init-file")
 
   string(TOUPPER CMAKE_BUILD_TYPE CMAKE_BUILD_TYPE_UPPER)
   if (CMAKE_BUILD_TYPE_UPPER EQUAL "DEBUG")
+      list(APPEND EXTRA_LDFLAGS "--emrun")
       list(APPEND EXTRA_LDFLAGS "-s ASSERTIONS=2")
       list(APPEND EXTRA_LDFLAGS "-s DEMANGLE_SUPPORT=1")
+      list(APPEND EXTRA_LDFLAGS "-s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=1")
+      list(APPEND EXTRA_LDFLAGS "--source-map-base")
   endif()
 
   if (CMAKE_BUILD_TYPE_UPPER EQUAL "RELEASE")
@@ -429,6 +437,12 @@ if(EMSCRIPTEN)
 
     configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/facebook/facebook.js.in"
       "${CMAKE_BINARY_DIR}/facebook.js")
+
+    #configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/facebook/fbapp-config.json.in"
+    #  "${CMAKE_BINARY_DIR}/fbapp-config.json")
+
+  #configure_file("${CMAKEIN_REPO_DIRECTORY}/platform.in/facebook/fbLoader.js.in"
+  #    "${CMAKE_BINARY_DIR}/fbLoader.js")
 
     list(APPEND EXTRA_LDFLAGS "--shell-file ${CMAKE_BINARY_DIR}/facebook_shell.html")
     list(APPEND EXTRA_LDFLAGS "--pre-js ${CMAKE_BINARY_DIR}/facebook.js")
@@ -2539,6 +2553,25 @@ install(TARGETS ${_INSTALL_LIBS} EXPORT ${CMAKE_PROJECT_NAME}Targets
 #   set(PKG_PREFIX "lib/cmake/${CMAKE_PROJECT_NAME}")
 # endif ()
 set(PKG_PREFIX "lib/cmake/${CMAKE_PROJECT_NAME}")
+
+if(EMSCRIPTEN)
+    file(GLOB DEPLOY_FILES_AND_DIRS "${${CMAKE_PROJECT_NAME}_BINARY_DIR}/index.*")
+    foreach(ITEM ${DEPLOY_FILES_AND_DIRS})
+        IF( IS_DIRECTORY "${ITEM}" )
+            LIST( APPEND DIRS_TO_DEPLOY "${ITEM}" )
+        ELSE()
+            LIST( APPEND FILES_TO_DEPLOY "${ITEM}" )
+        ENDIF()
+    endforeach()
+    INSTALL( FILES ${FILES_TO_DEPLOY} DESTINATION html5 )
+    INSTALL( DIRECTORY ${DIRS_TO_DEPLOY} DESTINATION html5 )
+
+    #if(FACEBOOK)
+    #    INSTALL( FILES "${${CMAKE_PROJECT_NAME}_BINARY_DIR}/facebook.js" DESTINATION html5 )
+    #    INSTALL( FILES "${${CMAKE_PROJECT_NAME}_BINARY_DIR}/fbapp-config.json" DESTINATION html5 )
+    #    INSTALL( FILES "${${CMAKE_PROJECT_NAME}_BINARY_DIR}/fbLoader.js" DESTINATION html5 )
+    #endif()
+endif()
 
 if(NOT ANDROID)
   include(CMakePackageConfigHelpers)

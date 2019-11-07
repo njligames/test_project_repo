@@ -31,3 +31,6 @@
 [submodule "buildbot_ios"]
 	path = buildbot_ios
 	url = git@github.com:njligames/buildbot_ios.git
+[submodule "buildbot_facebook"]
+	path = buildbot_facebook
+	url = https://github.com/njligames/buildbot_facebook.git
