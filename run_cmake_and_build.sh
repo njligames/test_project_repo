@@ -7,8 +7,8 @@ BOT=$2
 INSTALL_TARGET=install
 # CONFIGURATION=Debug
 #CONFIGURATION=MinSizeRel
-# CONFIGURATION=Release
-CONFIGURATION=RelWithDebInfo
+CONFIGURATION=Release
+# CONFIGURATION=RelWithDebInfo
 
 PRE=""
 INSTALL_PREFIX=install/${CONFIGURATION}
@@ -241,31 +241,16 @@ else
   cmake -E env CFLAGS='-O0 -g' cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
 fi
 
-# cmake --build . --target clean
-
-#               if [ "${PLATFORM}" == "emscripten" ]
-#               then
-#                 cmake --build . --config ${CONFIGURATION} --target ${INSTALL_TARGET}
-#                 # EMCC_DEBUG=2 cmake --build . --config ${CONFIGURATION} --target install
+# cmake --build . -j8 --config ${CONFIGURATION} --target ${INSTALL_TARGET}
 #
-#                 # timestamp=`date +%Y%m%d%H%M%S`
-#                 # EMCC_AUTODEBUG=1 cmake --build . --config ${CONFIGURATION} > emscripten_working_${timestamp}.log
+# if [ "${PLATFORM}" == "ios" ] || [ "${PLATFORM}" == "vr_ios" ]
+# then
+#   cpack -C ${CONFIGURATION}-iphoneos
+# elif [ "${PLATFORM}" == "appletv" ]
+# then
+#   cpack -C ${CONFIGURATION}-appletvos
+# else
+#   cpack -C ${CONFIGURATION}
+# fi
 #
-#                 # emrun --browser chrome NJLIC-exe.html
-#               else
-#                 cmake --build . --config ${CONFIGURATION} --target ${INSTALL_TARGET}
-#               fi
-
-cmake --build . --config ${CONFIGURATION} --target ${INSTALL_TARGET}
-
-if [ "${PLATFORM}" == "ios" ] || [ "${PLATFORM}" == "vr_ios" ]
-then
-  cpack -C ${CONFIGURATION}-iphoneos
-elif [ "${PLATFORM}" == "appletv" ]
-then
-  cpack -C ${CONFIGURATION}-appletvos
-else
-  cpack -C ${CONFIGURATION}
-fi
-
-cd ..
+# cd ..
