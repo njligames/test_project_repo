@@ -7,9 +7,6 @@
 [submodule "buildbot_vr_android"]
 	path = buildbot_vr_android
 	url = git@github.com:njligames/buildbot_vr_android.git
-[submodule "buildbot_linux"]
-	path = buildbot_linux
-	url = git@github.com:njligames/buildbot_linux.git
 [submodule "buildbot_windows32"]
 	path = buildbot_windows32
 	url = git@github.com:njligames/buildbot_windows32.git
@@ -34,3 +31,6 @@
 [submodule "buildbot_facebook"]
 	path = buildbot_facebook
 	url = https://github.com/njligames/buildbot_facebook.git
+[submodule "buildbot_linux_clion"]
+	path = buildbot_linux_clion
+	url = git@github.com:njligames/buildbot_linux_clion.git
